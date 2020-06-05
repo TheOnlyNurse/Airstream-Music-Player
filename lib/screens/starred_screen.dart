@@ -7,11 +7,11 @@ import 'package:airstream/widgets/song_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LibraryStarredScreen extends StatelessWidget {
+class StarredScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LibraryStarredBloc()..add(FetchStarred()),
+      create: (context) => StarredBloc()..add(FetchStarred()),
       child: _StarredPage(),
     );
   }
@@ -25,17 +25,17 @@ class _StarredPage extends StatefulWidget {
 class _StarredPageState extends State<_StarredPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LibraryStarredBloc, LibraryStarredState>(
+    return BlocBuilder<StarredBloc, StarredState>(
         builder: (context, state) {
-      if (state is Uninitialised) {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-      if (state is Error) {
-        return Center(child: Text('Failed to fetch starred songs.'));
-      }
-      if (state is Loaded) {
+          if (state is Uninitialised) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state is Error) {
+            return Center(child: Text('Failed to fetch starred songs.'));
+          }
+          if (state is Loaded) {
         return CustomScrollView(
           slivers: <Widget>[
             SearchBarWidget(),

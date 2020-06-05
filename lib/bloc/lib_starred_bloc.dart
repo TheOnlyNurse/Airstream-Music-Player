@@ -5,14 +5,14 @@ import 'package:airstream/states/lib_starred_state.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LibraryStarredBloc extends Bloc<LibraryStarredEvent, LibraryStarredState> {
+class StarredBloc extends Bloc<LibraryStarredEvent, StarredState> {
   final Repository _repository = Repository();
 
   @override
-  LibraryStarredState get initialState => Uninitialised();
+  StarredState get initialState => Uninitialised();
 
   @override
-  Stream<LibraryStarredState> mapEventToState(LibraryStarredEvent event) async* {
+  Stream<StarredState> mapEventToState(LibraryStarredEvent event) async* {
     if (event is FetchStarred) {
       try {
         final response = await _repository.fetchCategory(

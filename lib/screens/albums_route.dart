@@ -58,8 +58,10 @@ class _AlbumsPageState extends State<_AlbumsPage> {
               final album = albums[index + range['startIndex']];
               return AlbumCardWidget(
                 album: album,
-                onTap: () => Navigator.of(context)
-                    .pushNamed('library/singleAlbum', arguments: album),
+                onTap: () => Navigator.of(context).pushNamed(
+                  'library/singleAlbum',
+                  arguments: album,
+                ),
               );
             },
             childCount: range['endIndex'] - range['startIndex'] + 1,

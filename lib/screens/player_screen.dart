@@ -1,6 +1,12 @@
+import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/widgets/airstream_image.dart';
+import 'package:airstream/widgets/play_button.dart';
+import 'package:airstream/widgets/song_position_slider.dart';
 import 'package:flutter/material.dart';
 
 class PlayerScreen extends StatelessWidget {
+  final songPlaying = Repository().currentSong;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,36 +23,54 @@ class PlayerScreen extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset(
-                  'lib/graphics/microphone.png',
-                  height: 256.0,
-                ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Slider(
-                    value: 30,
-                    min: 0,
-                    max: 180,
-                    divisions: 5,
-                    onChanged: (data) => null,
+                  padding: const EdgeInsets.only(bottom: 30.0),
+                  child: ClipOval(
+                    child: SizedBox(
+                      width: 200.0,
+                      height: 200.0,
+                      child: AirstreamImage(
+                        coverArt: songPlaying.coverArt,
+                        isHidef: true,
+                      ),
+                    ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Text(
+                    songPlaying.name,
+                    style: Theme.of(context).textTheme.headline6,
+                    softWrap: false,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Text(
+                    songPlaying.artistName,
+                    style: Theme.of(context).textTheme.subtitle1,
+                    softWrap: false,
+                  ),
+                ),
+                SongPositionSlider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    IconButton(
-                      iconSize: 48.0,
-                      icon: Icon(Icons.arrow_back_ios),
+                    RawMaterialButton(
+                      shape: CircleBorder(),
+                      child: Icon(
+                        Icons.skip_previous,
+                        size: 48.0,
+                      ),
                       onPressed: null,
                     ),
-                    IconButton(
-                      iconSize: 72.0,
-                      icon: Icon(Icons.play_arrow),
-                      onPressed: null,
-                    ),
-                    IconButton(
-                      iconSize: 48.0,
-                      icon: Icon(Icons.arrow_forward_ios),
+                    PlayButton(),
+                    RawMaterialButton(
+                      shape: CircleBorder(),
+                      child: Icon(
+                        Icons.skip_next,
+                        size: 48.0,
+                      ),
                       onPressed: null,
                     ),
                   ],

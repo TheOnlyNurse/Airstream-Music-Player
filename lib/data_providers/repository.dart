@@ -141,12 +141,17 @@ class Repository {
 
   final SongProvider _songProvider = SongProvider();
 
+  /// Get songs in a given album
+  ///
+  /// To ensure that an alphabetically sorted list is sent, the online document is processed
+  /// put into the database then queried from the database in alphabetical order.
   Future<RepoResponse> getAlbumSongs(Album album) async {
-    List<Song> songList = await SongProvider().getSongsFromAlbumId(album.id);
+    List<Song> songList = await _songProvider.getSongsFromAlbumId(album.id);
     if (songList != null) {
       if (songList.length != album.songCount) {
         final xmlDoc = await _server.fetchRequest('getAlbum?id=${album.id}&');
-        songList = await SongProvider().updateWithDoc(xmlDoc, isStarred: false);
+        await _songProvider.updateWithDoc(xmlDoc, isStarred: false);
+        songList = await _songProvider.getSongsFromAlbumId(album.id);
       }
     }
     if (songList == null) {
@@ -167,7 +172,9 @@ class Repository {
 
   Stream<PercentageModel> get percentageStream => _percentageSC.stream;
   final List<Song> songQueue = <Song>[];
-  int currentSong = 0;
+  int currentSongIndex = 0;
+
+  Song get currentSong => songQueue[currentSongIndex];
 
   /// Download Song, place into cache and prompt play
   ///
@@ -206,34 +213,34 @@ class Repository {
   createQueueAndPlay({@required List<Song> playlist, int index = 0}) {
     this.songQueue.clear();
     this.songQueue.addAll(playlist);
-    currentSong = index;
+    currentSongIndex = index;
     this.playSong();
   }
 
   Future<void> playSong() async {
-    final Song song = songQueue[currentSong];
-
-    final response = await _songProvider.getSongLocation(song);
+    final response = await _songProvider.getSongLocation(this.currentSong);
     if (response != null) {
-      final audio = Audio.file(
-        response,
-        metas: Metas(title: 'hello world'),
-      );
-      await _assetsAudioPlayer.open(
-        audio,
-        showNotification: true,
-      );
-      final artResp = await this.getImage(song.coverArt);
-      audio.updateMetas(
-        player: _assetsAudioPlayer,
-        title: song.name,
-        artist: song.artistName,
-        album: song.albumName,
-        image:
-            artResp.status == DataStatus.ok ? MetasImage.file(artResp.data.path) : null,
-      );
+      final audio = Audio.file(response);
+      try {
+        await _assetsAudioPlayer.open(
+          audio,
+          showNotification: true,
+        );
+        final artResp = await this.getImage(this.currentSong.coverArt);
+        audio.updateMetas(
+          player: _assetsAudioPlayer,
+          title: this.currentSong.name,
+          artist: this.currentSong.artistName,
+          album: this.currentSong.albumName,
+          image:
+              artResp.status == DataStatus.ok ? MetasImage.file(artResp.data.path) : null,
+        );
+      } catch (_) {
+        File(response).deleteSync();
+        downloadSong(song: this.currentSong);
+      }
     } else {
-      downloadSong(song: song);
+      downloadSong(song: this.currentSong);
     }
   }
 }

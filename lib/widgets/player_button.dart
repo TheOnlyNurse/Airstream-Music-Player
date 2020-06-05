@@ -9,7 +9,7 @@ class PlayerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PlayerButtonBloc, PlayerButtonState>(builder: (context, state) {
-      if (state is NoMusic) {
+      if (state is ButtonNoAudio) {
         return Visibility(
           visible: false,
           child: FloatingActionButton(
@@ -17,22 +17,13 @@ class PlayerButton extends StatelessWidget {
           ),
         );
       }
-      if (state is MusicPlaying || state is MusicPaused) {
+      if (state is ButtonAudioIsPlaying || state is ButtonAudioIsPaused) {
         return Draggable(
-          child: (() {
-            if (state is MusicPlaying) {
-              return FloatingActionButton(
-                onPressed: () => context.bloc<PlayerButtonBloc>().add(PauseSong()),
-                child: Icon(Icons.pause),
-                elevation: 2.0,
-              );
-            }
-            return FloatingActionButton(
-              onPressed: () => context.bloc<PlayerButtonBloc>().add(ResumeSong()),
-              child: Icon(Icons.play_arrow),
-              elevation: 2.0,
-            );
-          }()),
+          child: FloatingActionButton(
+            onPressed: () => context.bloc<PlayerButtonBloc>().add(ButtonPlayPause()),
+            child: Icon(state is ButtonAudioIsPlaying ? Icons.pause : Icons.play_arrow),
+            elevation: 2.0,
+          ),
           axis: Axis.vertical,
           childWhenDragging: FloatingActionButton(
             onPressed: null,
@@ -51,16 +42,25 @@ class PlayerButton extends StatelessWidget {
               context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragEnd),
         );
       }
-      if (state is DownloadingMusic) {
+      if (state is ButtonIsDownloading) {
         return Container(
           height: 55.0,
           width: 55.0,
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                  radius: 0.5,
-                  stops: [state.percentage / 100, 1],
-                  colors: [Theme.of(context).accentColor, Colors.transparent])),
+            shape: BoxShape.circle,
+            color: Colors.transparent,
+          ),
+          child: Align(
+            alignment: Alignment.center,
+            child: Container(
+              height: 55.0 * state.percentage / 100,
+              width: 55.0 * state.percentage / 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).accentColor,
+              ),
+            ),
+          ),
         );
       }
       return FloatingActionButton(

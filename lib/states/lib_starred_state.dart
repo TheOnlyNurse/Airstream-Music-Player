@@ -1,18 +1,18 @@
 import 'package:airstream/models/song_model.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class LibraryStarredState extends Equatable {
-  const LibraryStarredState();
+abstract class StarredState extends Equatable {
+  const StarredState();
 
   @override
   List<Object> get props => [];
 }
 
-class Uninitialised extends LibraryStarredState {}
+class Uninitialised extends StarredState {}
 
-class Error extends LibraryStarredState {}
+class Error extends StarredState {}
 
-class Loaded extends LibraryStarredState {
+class Loaded extends StarredState {
   final List<Song> songs;
 
   const Loaded({this.songs});

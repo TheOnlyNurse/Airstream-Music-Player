@@ -2,20 +2,18 @@ abstract class PlayerButtonEvent {}
 
 // Events from user interaction with the button
 
-class PauseSong extends PlayerButtonEvent {}
-
-class ResumeSong extends PlayerButtonEvent {}
+class ButtonPlayPause extends PlayerButtonEvent {}
 
 // Events from streams
 
-class DownloadEvent extends PlayerButtonEvent {
-  final int percent;
+class ButtonDownload extends PlayerButtonEvent {
+  final int percentage;
 
-  DownloadEvent(this.percent);
+  ButtonDownload(this.percentage);
 }
 
-class SongHasStopped extends PlayerButtonEvent {}
+class ButtonAudioStopped extends PlayerButtonEvent {}
 
-class SongIsPlaying extends PlayerButtonEvent {}
+class ButtonAudioPlaying extends PlayerButtonEvent {}
 
-class SongIsPaused extends PlayerButtonEvent {}
+class ButtonAudioPaused extends PlayerButtonEvent {}

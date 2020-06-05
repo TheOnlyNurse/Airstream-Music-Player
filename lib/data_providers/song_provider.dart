@@ -80,7 +80,7 @@ class SongProvider extends DatabaseProvider {
   /// document is one from a Starred Songs list, the already cached Starred Songs need
   /// to be update (easiest way being deleting and inserting).
   @override
-  Future updateWithDoc(XML.XmlDocument doc, {isStarred = true}) async {
+  Future<List<Song>> updateWithDoc(XML.XmlDocument doc, {isStarred = true}) async {
     if (doc == null) return null;
     // Extract data
     final elements = doc.findAllElements('song');
@@ -99,9 +99,11 @@ class SongProvider extends DatabaseProvider {
     }
     // All other songs are inserted when encountered in their albums. If the song exists,
     // usually because it is in a playlist or starred then it is ignored.
-    songList.forEach((a) async {
-      db.insert(dbName, a.toMapAsStarred(), conflictAlgorithm: ConflictAlgorithm.ignore);
-    });
+    songList.forEach((a) => db.insert(
+          dbName,
+          a.toMapAsStarred(),
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        ));
     return songList;
   }
 

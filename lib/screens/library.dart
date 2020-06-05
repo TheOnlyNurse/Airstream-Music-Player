@@ -2,14 +2,16 @@ import 'package:airstream/bloc/player_button_bloc.dart';
 import 'package:airstream/bloc/nav_bar_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
 import 'package:airstream/events/nav_bar_event.dart';
+import 'package:airstream/events/player_button_event.dart';
 import 'package:airstream/screens/albums_route.dart';
 import 'package:airstream/screens/artists_route.dart';
 import 'package:airstream/screens/playlists.dart';
-import 'package:airstream/screens/lib_starred_screen.dart';
+import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
 import 'package:airstream/states/nav_bar_state.dart';
 import 'package:airstream/widgets/player_button.dart';
+import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../widgets/nav_bar.dart';
@@ -27,7 +29,7 @@ class LibraryWidget extends StatelessWidget {
         ),
         BlocProvider<PlayerTargetBloc>(
           create: (context) => PlayerTargetBloc(),
-        )
+        ),
       ],
       child: _LibraryPage(),
     );
@@ -86,28 +88,24 @@ class _LibraryPageState extends State<_LibraryPage> {
                 Navigator(
                   key: libraryNavKey,
                   initialRoute: 'library/',
-                  onGenerateRoute: (RouteSettings settings) {
+                  onGenerateRoute: (settings) {
                     WidgetBuilder builder;
                     switch (settings.name) {
                       case 'library/':
-                        builder = (context) => HomePages(
-                              pageController: _pageController,
-                            );
+                        builder = (context) => HomePages(pageController: _pageController);
                         break;
                       case 'library/singleArtist':
-                        builder = (context) => SingleArtistScreen(
-                              artist: settings.arguments,
-                            );
+                        builder =
+                            (context) => SingleArtistScreen(artist: settings.arguments);
                         break;
                       case 'library/singleAlbum':
-                        builder = (context) => SingleAlbumScreen(
-                              album: settings.arguments,
-                            );
+                        builder =
+                            (context) => SingleAlbumScreen(album: settings.arguments);
                         break;
                       default:
-                        print('Going to default settings: ${settings.name}');
+                        throw Exception('Unknown route ${settings.name}');
                     }
-                    return MaterialPageRoute(builder: builder, settings: settings);
+                    return ScaleScreenTransition(builder: builder, settings: settings);
                   },
                 ),
                 PlayerButtonTarget(),
@@ -136,7 +134,7 @@ class HomePages extends StatelessWidget {
         PlaylistsRoute(),
         ArtistsRoute(),
         AlbumsRoute(),
-        LibraryStarredScreen(),
+        StarredScreen(),
       ],
       onPageChanged: (index) =>
           context.bloc<NavigationBarBloc>().add(UpdateNavBar(index: index)),

@@ -1,14 +1,11 @@
 import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/events/player_button_event.dart';
-import 'package:airstream/models/song_model.dart';
 import 'package:airstream/states/player_button_state.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PlayerButtonBloc extends Bloc<PlayerButtonEvent, PlayerButtonState> {
-  List<Song> playlist;
-  int currentIndex;
   Repository _repository = Repository();
   final _assetsAudioPlayer = AssetsAudioPlayer.withId('airstream');
   StreamSubscription _audioEvents;
@@ -17,39 +14,42 @@ class PlayerButtonBloc extends Bloc<PlayerButtonEvent, PlayerButtonState> {
 
   PlayerButtonBloc() {
     _percentageSS = _repository.percentageStream.listen((event) {
-      this.add(DownloadEvent(event.percent));
+      this.add(ButtonDownload(event.percent));
     });
     _audioEvents = _assetsAudioPlayer.isPlaying.listen((isPlaying) {
+      print('isPlaying fired (${isPlaying}');
       if (isPlaying)
-        this.add(SongIsPlaying());
+        this.add(ButtonAudioPlaying());
       else
-        this.add(SongIsPaused());
+        this.add(ButtonAudioPaused());
     });
     _audioFinished = _assetsAudioPlayer.playlistAudioFinished.listen((playing) {
-      if (!playing.hasNext) this.add(SongHasStopped());
+      if (!playing.hasNext) this.add(ButtonAudioStopped());
     });
   }
 
   @override
-  PlayerButtonState get initialState => NoMusic();
+  PlayerButtonState get initialState => ButtonNoAudio();
 
   @override
   Stream<PlayerButtonState> mapEventToState(PlayerButtonEvent event) async* {
-    if (event is PauseSong) _assetsAudioPlayer.pause();
-    if (event is ResumeSong) _assetsAudioPlayer.play();
+    if (event is ButtonPlayPause) _assetsAudioPlayer.playOrPause();
 
     // React to Audio service event calls
-    if (event is DownloadEvent) {
-      yield DownloadingMusic(percentage: event.percent);
+    if (event is ButtonDownload) {
+      yield ButtonIsDownloading(percentage: event.percentage);
     }
-    if (event is SongHasStopped) {
-      yield NoMusic();
+    if (event is ButtonAudioStopped) {
+      yield ButtonNoAudio();
     }
-    if (event is SongIsPaused) {
-      yield MusicPaused();
+    if (event is ButtonAudioPaused) {
+      // Route out any false positive readings of the isPlaying boolean
+      if (!(state is ButtonNoAudio)) {
+        yield ButtonAudioIsPaused();
+      }
     }
-    if (event is SongIsPlaying) {
-      yield MusicPlaying();
+    if (event is ButtonAudioPlaying) {
+      yield ButtonAudioIsPlaying();
     }
   }
 
