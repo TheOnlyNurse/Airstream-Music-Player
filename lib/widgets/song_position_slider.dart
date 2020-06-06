@@ -16,11 +16,14 @@ class SongPositionSlider extends StatelessWidget {
         }
         if (snapshot.connectionState == ConnectionState.active) {
           final Duration currPosition = snapshot.data;
-          final maxDuration = _assetsAudioPlayer.current.value.audio.duration;
+          final maxDuration = _assetsAudioPlayer.current.value != null
+              ? _assetsAudioPlayer.current.value.audio.duration
+              : currPosition;
           return SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTickMarkColor: Theme.of(context).accentColor,
               inactiveTrackColor: Theme.of(context).disabledColor,
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
             ),
             child: Column(
               children: <Widget>[
@@ -34,11 +37,11 @@ class SongPositionSlider extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    children: <Widget>[
-                      Text(_formatDuration(currPosition)),
-                      Spacer(),
-                      Text(_formatDuration(maxDuration)),
-                    ],
+										mainAxisAlignment: MainAxisAlignment.spaceBetween,
+										children: <Widget>[
+											Text(_formatDuration(currPosition)),
+											Text(_formatDuration(maxDuration)),
+										],
                   ),
                 ),
               ],

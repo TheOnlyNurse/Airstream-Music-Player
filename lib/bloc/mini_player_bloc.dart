@@ -1,27 +1,25 @@
 import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/events/player_button_event.dart';
-import 'package:airstream/states/player_button_state.dart';
+import 'package:airstream/events/mini_player_event.dart';
+import 'package:airstream/states/mini_player_state.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PlayerButtonBloc extends Bloc<PlayerButtonEvent, PlayerButtonState> {
+class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
   Repository _repository = Repository();
   final _assetsAudioPlayer = AssetsAudioPlayer.withId('airstream');
   StreamSubscription _audioEvents;
   StreamSubscription _audioFinished;
   StreamSubscription _percentageSS;
 
-  PlayerButtonBloc() {
+  MinimisedPlayerBloc() {
     _percentageSS = _repository.percentageStream.listen((event) {
       this.add(ButtonDownload(event.percent));
     });
-    _audioEvents = _assetsAudioPlayer.isPlaying.listen((isPlaying) {
-      print('isPlaying fired (${isPlaying}');
-      if (isPlaying)
-        this.add(ButtonAudioPlaying());
-      else
-        this.add(ButtonAudioPaused());
+    _audioEvents = _assetsAudioPlayer.playerState.listen((state) {
+      if (state == PlayerState.play) this.add(ButtonAudioPlaying());
+      if (state == PlayerState.pause) this.add(ButtonAudioPaused());
+      if (state == PlayerState.stop) this.add(ButtonAudioStopped());
     });
     _audioFinished = _assetsAudioPlayer.playlistAudioFinished.listen((playing) {
       if (!playing.hasNext) this.add(ButtonAudioStopped());
@@ -29,10 +27,10 @@ class PlayerButtonBloc extends Bloc<PlayerButtonEvent, PlayerButtonState> {
   }
 
   @override
-  PlayerButtonState get initialState => ButtonNoAudio();
+  MinimisedPlayerState get initialState => ButtonNoAudio();
 
   @override
-  Stream<PlayerButtonState> mapEventToState(PlayerButtonEvent event) async* {
+  Stream<MinimisedPlayerState> mapEventToState(MinimisedPlayerEvent event) async* {
     if (event is ButtonPlayPause) _assetsAudioPlayer.playOrPause();
 
     // React to Audio service event calls
@@ -43,10 +41,7 @@ class PlayerButtonBloc extends Bloc<PlayerButtonEvent, PlayerButtonState> {
       yield ButtonNoAudio();
     }
     if (event is ButtonAudioPaused) {
-      // Route out any false positive readings of the isPlaying boolean
-      if (!(state is ButtonNoAudio)) {
         yield ButtonAudioIsPaused();
-      }
     }
     if (event is ButtonAudioPlaying) {
       yield ButtonAudioIsPlaying();

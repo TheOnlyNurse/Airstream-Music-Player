@@ -1,13 +1,13 @@
-import 'package:equatable/equatable.dart';
+import 'package:airstream/models/airstream_base_model.dart';
 import 'package:xml/xml.dart' as XML;
 
-class Artist extends Equatable {
+class Artist extends AirstreamBaseModel {
   final int id;
   final String name;
   final int albumCount;
   final String coverArt;
 
-  const Artist({this.id, this.name, this.albumCount, this.coverArt});
+  Artist({this.id, this.name, this.albumCount, this.coverArt});
 
   @override
   List<Object> get props => [id, name];

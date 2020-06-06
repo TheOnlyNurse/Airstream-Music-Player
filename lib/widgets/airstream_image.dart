@@ -8,7 +8,8 @@ class AirstreamImage extends StatelessWidget {
   final BoxFit fit;
 
   AirstreamImage(
-      {@required this.coverArt, this.isHidef = false, this.fit = BoxFit.cover});
+      {@required this.coverArt, this.isHidef = false, this.fit = BoxFit.cover, Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

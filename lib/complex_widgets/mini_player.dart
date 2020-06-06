@@ -1,39 +1,30 @@
-import 'package:airstream/bloc/player_button_bloc.dart';
+import 'package:airstream/bloc/mini_player_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
-import 'package:airstream/events/player_button_event.dart';
-import 'package:airstream/states/player_button_state.dart';
+import 'package:airstream/events/mini_player_event.dart';
+import 'package:airstream/states/mini_player_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PlayerButton extends StatelessWidget {
+class PlayerActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerButtonBloc, PlayerButtonState>(builder: (context, state) {
+    return BlocBuilder<MinimisedPlayerBloc, MinimisedPlayerState>(
+        builder: (context, state) {
       if (state is ButtonNoAudio) {
         return Visibility(
           visible: false,
-          child: FloatingActionButton(
-            onPressed: null,
-          ),
+          child: _CustomButton(),
         );
       }
       if (state is ButtonAudioIsPlaying || state is ButtonAudioIsPaused) {
         return Draggable(
-          child: FloatingActionButton(
-            onPressed: () => context.bloc<PlayerButtonBloc>().add(ButtonPlayPause()),
-            child: Icon(state is ButtonAudioIsPlaying ? Icons.pause : Icons.play_arrow),
-            elevation: 2.0,
+          child: _CustomButton(
+            icon: state is ButtonAudioIsPlaying ? Icons.pause : Icons.play_arrow,
+            onPressed: () => context.bloc<MinimisedPlayerBloc>().add(ButtonPlayPause()),
           ),
           axis: Axis.vertical,
-          childWhenDragging: FloatingActionButton(
-            onPressed: null,
-            backgroundColor: Colors.transparent,
-          ),
-          feedback: FloatingActionButton(
-            onPressed: null,
-            backgroundColor: Theme.of(context).accentColor,
-            child: Icon(Icons.arrow_upward),
-          ),
+          childWhenDragging: _CustomButton(fillColor: Colors.transparent),
+          feedback: _CustomButton(icon: Icons.arrow_upward),
           onDragStarted: () =>
               context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragStart),
           onDraggableCanceled: (vel, off) =>
@@ -57,17 +48,20 @@ class PlayerButton extends StatelessWidget {
               width: 55.0 * state.percentage / 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).accentColor,
+                color: Theme
+                    .of(context)
+                    .accentColor,
               ),
             ),
           ),
         );
       }
-      return FloatingActionButton(
-        onPressed: null,
-        child: Icon(Icons.error_outline),
-        backgroundColor: Theme.of(context).errorColor,
-      );
+          return _CustomButton(
+            icon: Icons.error,
+            fillColor: Theme
+                .of(context)
+                .errorColor,
+          );
     });
   }
 }
@@ -108,5 +102,29 @@ class PlayerButtonTarget extends StatelessWidget {
           );
       }
     });
+  }
+}
+
+class _CustomButton extends StatelessWidget {
+  final double width = 65.0;
+  final double height = 65.0;
+  final Function onPressed;
+  final Color fillColor;
+  final IconData icon;
+
+  _CustomButton({this.icon, this.onPressed, this.fillColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      elevation: 2.0,
+      shape: CircleBorder(),
+      fillColor: fillColor != null ? fillColor : Theme
+          .of(context)
+          .accentColor,
+      constraints: BoxConstraints.tightFor(width: width, height: height),
+      child: icon != null ? Icon(icon) : null,
+      onPressed: onPressed,
+    );
   }
 }

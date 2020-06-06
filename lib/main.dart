@@ -13,16 +13,13 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Airstream Music Player',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        accentColor: Colors.blueAccent,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      darkTheme: ThemeData(
-        primaryColor: Colors.blue,
-        accentColor: Colors.blueAccent,
-        brightness: Brightness.dark,
-      ),
+      theme: ThemeData.dark().copyWith(
+          primaryColor: Colors.blue,
+          accentColor: Colors.blueAccent,
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.blueAccent,
+            foregroundColor: Colors.white,
+          )),
       initialRoute: '/',
       routes: {
         '/': (context) => LibraryWidget(),

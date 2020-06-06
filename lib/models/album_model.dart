@@ -1,7 +1,7 @@
-import 'package:equatable/equatable.dart';
+import 'package:airstream/models/airstream_base_model.dart';
 import 'package:xml/xml.dart' as XML;
 
-class Album extends Equatable {
+class Album extends AirstreamBaseModel {
   final int id;
   final String name;
   final String artistName;
@@ -9,13 +9,14 @@ class Album extends Equatable {
   final int songCount;
   final String coverArt;
 
-  const Album(
-      {this.id,
-      this.name,
-      this.artistName,
-      this.artistId,
-      this.songCount,
-      this.coverArt});
+  Album({
+    this.id,
+    this.name,
+    this.artistName,
+    this.artistId,
+    this.songCount,
+    this.coverArt,
+  });
 
   @override
   List<Object> get props => [id, name, artistName];
@@ -23,7 +24,7 @@ class Album extends Equatable {
   @override
   String toString() => 'Album { name: $name }';
 
-  factory Album.fromXML(XML.XmlElement xml) => new Album(
+  factory Album.fromXML(XML.XmlElement xml) => Album(
         id: int.parse(xml.getAttribute('id')),
         name: xml.getAttribute('name'),
         artistName: xml.getAttribute('artist'),
@@ -32,14 +33,15 @@ class Album extends Equatable {
         coverArt: xml.getAttribute('coverArt'),
       );
 
-  factory Album.fromMap(Map<String, dynamic> json) => new Album(
-        id: json['id'],
-        name: json['name'],
-        artistName: json['artistName'],
-        artistId: json['artistId'],
-        songCount: json['songCount'],
-        coverArt: json['coverArt'],
-      );
+  factory Album.fromMap(Map<String, dynamic> json) =>
+			Album(
+				id: json['id'],
+				name: json['name'],
+				artistName: json['artistName'],
+				artistId: json['artistId'],
+				songCount: json['songCount'],
+				coverArt: json['coverArt'],
+			);
 
   Map<String, dynamic> toMap() => {
         'id': id,

@@ -180,15 +180,12 @@ class Repository {
   ///
   ///
   void downloadSong({@required Song song, bool isNotPrefetch = true}) async {
-    if (_downloadSS != null) _downloadSS.cancel();
-
     final tempFile = File(p.join((await getTemporaryDirectory()).path, 'song_file'));
     if (tempFile.existsSync()) tempFile.deleteSync();
     _tempSongSink = tempFile.openWrite(mode: FileMode.append);
 
     final StreamController<List<int>> fileBytesSC = StreamController();
-    final totalFileSize =
-        await _server.streamFile('download?id=${song.id}&', fileBytesSC);
+    final totalFileSize = await _server.streamFile('stream?id=${song.id}&', fileBytesSC);
     int currentFileSize = 0;
 
     _downloadSS = fileBytesSC.stream.listen((bytes) {
@@ -218,29 +215,31 @@ class Repository {
   }
 
   Future<void> playSong() async {
-    final response = await _songProvider.getSongLocation(this.currentSong);
-    if (response != null) {
-      final audio = Audio.file(response);
-      try {
-        await _assetsAudioPlayer.open(
-          audio,
-          showNotification: true,
-        );
-        final artResp = await this.getImage(this.currentSong.coverArt);
-        audio.updateMetas(
-          player: _assetsAudioPlayer,
-          title: this.currentSong.name,
-          artist: this.currentSong.artistName,
-          album: this.currentSong.albumName,
-          image:
-              artResp.status == DataStatus.ok ? MetasImage.file(artResp.data.path) : null,
-        );
+		// Cancel any existing downloads in favour of the new song
+		if (_downloadSS != null) _downloadSS.cancel();
+
+		final song = this.currentSong;
+		final songPath = await _songProvider.getSongLocation(song);
+		if (songPath != null) {
+			final audio = Audio.file(songPath, metas: song.toMetas());
+			try {
+				await _assetsAudioPlayer.open(
+					audio,
+					showNotification: true,
+				);
+				final artResp = await this.getImage(song.coverArt);
+				audio.updateMetas(
+					player: _assetsAudioPlayer,
+					image:
+					artResp.status == DataStatus.ok ? MetasImage.file(artResp.data.path) : null,
+				);
       } catch (_) {
-        File(response).deleteSync();
-        downloadSong(song: this.currentSong);
-      }
+				File(songPath).deleteSync();
+				downloadSong(song: song);
+			}
     } else {
-      downloadSong(song: this.currentSong);
-    }
+			_assetsAudioPlayer.pause();
+			downloadSong(song: song);
+		}
   }
 }

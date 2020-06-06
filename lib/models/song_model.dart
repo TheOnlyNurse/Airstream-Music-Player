@@ -1,8 +1,8 @@
+import 'package:airstream/models/airstream_base_model.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart' as XML;
 
-class Song extends Equatable {
+class Song extends AirstreamBaseModel {
   final int id;
   final String name;
   final String albumName;
@@ -12,7 +12,7 @@ class Song extends Equatable {
   final int albumId;
   final int artistId;
 
-  const Song({
+  Song({
     this.id,
     this.name,
     this.albumName,
@@ -24,52 +24,52 @@ class Song extends Equatable {
   });
 
   @override
-  List<Object> get props => [id, name, artistName];
+	List<Object> get props => [id, name, artistName];
 
-  @override
-  String toString() => 'Song { name: $name, artist: $artistName, artistId: $artistId }';
+	@override
+	String toString() => 'Song { name: $name, artist: $artistName, artistId: $artistId }';
 
-  factory Song.fromXML(XML.XmlElement xml) {
-    int passNullOrParse(String element) => element != null ? int.parse(element) : null;
+	factory Song.fromXML(XML.XmlElement xml) {
+		int passNullOrParse(String element) => element != null ? int.parse(element) : null;
 
-    return Song(
-      id: int.parse(xml.getAttribute('id')),
-      name: xml.getAttribute('title'),
-      albumName: xml.getAttribute('album'),
-      artistName: xml.getAttribute('artist'),
-      duration: passNullOrParse(xml.getAttribute('duration')),
-      coverArt: xml.getAttribute('coverArt'),
-      albumId: passNullOrParse(xml.getAttribute('albumId')),
-      artistId: passNullOrParse(xml.getAttribute('artistId')),
-    );
-  }
+		return Song(
+			id: int.parse(xml.getAttribute('id')),
+			name: xml.getAttribute('title'),
+			albumName: xml.getAttribute('album'),
+			artistName: xml.getAttribute('artist'),
+			duration: passNullOrParse(xml.getAttribute('duration')),
+			coverArt: xml.getAttribute('coverArt'),
+			albumId: passNullOrParse(xml.getAttribute('albumId')),
+			artistId: passNullOrParse(xml.getAttribute('artistId')),
+		);
+	}
 
-  factory Song.fromMap(Map<String, dynamic> json) => Song(
-        id: json['id'],
-        name: json['name'],
-        albumName: json['albumName'],
-        artistName: json['artistName'],
-        duration: json['duration'],
-        coverArt: json['coverArt'],
-        albumId: json['albumId'],
-        artistId: json['artistId'],
-      );
+	factory Song.fromMap(Map<String, dynamic> json) => Song(
+		id: json['id'],
+		name: json['name'],
+		albumName: json['albumName'],
+		artistName: json['artistName'],
+		duration: json['duration'],
+		coverArt: json['coverArt'],
+		albumId: json['albumId'],
+		artistId: json['artistId'],
+	);
 
-  Map<String, dynamic> toMapAsStarred({bool isStarred = false}) => {
-        'id': id,
-        'name': name,
-        'albumName': albumName,
-        'artistName': artistName,
-        'duration': duration,
-        'coverArt': coverArt,
-        'albumId': albumId,
-        'artistId': artistId,
-        'starred': isStarred ? 1 : 0,
-      };
+	Map<String, dynamic> toMapAsStarred({bool isStarred = false}) => {
+		'id': id,
+		'name': name,
+		'albumName': albumName,
+		'artistName': artistName,
+		'duration': duration,
+		'coverArt': coverArt,
+		'albumId': albumId,
+		'artistId': artistId,
+		'starred': isStarred ? 1 : 0,
+	};
 
-  Metas toMetas() => Metas(
-        title: name,
-        artist: artistName,
-        album: albumName,
-      );
+	Metas toMetas() => Metas(
+		title: name,
+		artist: artistName,
+		album: albumName,
+	);
 }

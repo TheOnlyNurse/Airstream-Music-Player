@@ -1,16 +1,15 @@
-import 'package:airstream/bloc/player_button_bloc.dart';
+import 'package:airstream/bloc/mini_player_bloc.dart';
 import 'package:airstream/bloc/nav_bar_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
 import 'package:airstream/events/nav_bar_event.dart';
-import 'package:airstream/events/player_button_event.dart';
-import 'package:airstream/screens/albums_route.dart';
+import 'package:airstream/screens/albums_screen.dart';
 import 'package:airstream/screens/artists_route.dart';
 import 'package:airstream/screens/playlists.dart';
 import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
 import 'package:airstream/states/nav_bar_state.dart';
-import 'package:airstream/widgets/player_button.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/mini_player.dart';
 import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,8 +23,8 @@ class LibraryWidget extends StatelessWidget {
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(),
         ),
-        BlocProvider<PlayerButtonBloc>(
-          create: (context) => PlayerButtonBloc(),
+        BlocProvider<MinimisedPlayerBloc>(
+          create: (context) => MinimisedPlayerBloc(),
         ),
         BlocProvider<PlayerTargetBloc>(
           create: (context) => PlayerTargetBloc(),
@@ -112,7 +111,7 @@ class _LibraryPageState extends State<_LibraryPage> {
               ],
             ),
           ),
-          floatingActionButton: PlayerButton(),
+          floatingActionButton: PlayerActionButton(),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: AirstreamNavBar(),
         ),
@@ -133,7 +132,7 @@ class HomePages extends StatelessWidget {
       children: <Widget>[
         PlaylistsRoute(),
         ArtistsRoute(),
-        AlbumsRoute(),
+        AlbumsScreen(),
         StarredScreen(),
       ],
       onPageChanged: (index) =>

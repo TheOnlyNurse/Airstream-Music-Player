@@ -1,9 +1,8 @@
 import 'package:airstream/bloc/lib_starred_bloc.dart';
-import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/events/lib_starred_event.dart';
 import 'package:airstream/states/lib_starred_state.dart';
 import 'package:airstream/widgets/search_bar.dart';
-import 'package:airstream/widgets/song_list_tile.dart';
+import 'package:airstream/widgets/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,30 +38,7 @@ class _StarredPageState extends State<_StarredPage> {
         return CustomScrollView(
           slivers: <Widget>[
             SearchBarWidget(),
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 30.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, int index) {
-                    if (index.isEven) {
-                      final i = index ~/ 2;
-                      return SongListTile(
-                        song: state.songs[i],
-                        tapCallback: () => Repository().createQueueAndPlay(
-                          playlist: state.songs,
-                          index: i,
-                        ),
-                      );
-                    }
-                    return Divider(
-                      indent: 30.0,
-                      endIndent: 30.0,
-                    );
-                  },
-                  childCount: state.songs.length * 2 - 1,
-                ),
-              ),
-            ),
+            SongList(songList: state.songs),
           ],
         );
       }
