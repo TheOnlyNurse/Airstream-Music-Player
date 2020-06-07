@@ -46,15 +46,12 @@ class _SongListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.fromLTRB(30.0, 0, 30.0, 0),
-      title: Text(song.name),
+      title: Text(song.title),
       subtitle: Text(
-				song.artistName,
-				style: Theme
-						.of(context)
-						.textTheme
-						.caption,
-			),
-			onTap: () => tapCallback(),
-		);
-	}
+        song.artist,
+        style: Theme.of(context).textTheme.caption,
+      ),
+      onTap: () => tapCallback(),
+    );
+  }
 }

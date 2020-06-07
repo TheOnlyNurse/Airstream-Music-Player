@@ -28,6 +28,7 @@ class SingleAlbumScreen extends StatelessWidget {
             return CustomScrollView(
               slivers: <Widget>[
                 SliverAppBar(
+                  backgroundColor: Theme.of(context).canvasColor,
                   expandedHeight: 400,
                   flexibleSpace: AirstreamImage(
                     coverArt: album.coverArt,

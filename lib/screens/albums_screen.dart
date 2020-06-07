@@ -1,7 +1,7 @@
 import 'package:airstream/bloc/lib_albums_bloc.dart';
 import 'package:airstream/events/lib_albums_event.dart';
 import 'package:airstream/states/lib_albums_state.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/grid_with_header.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/alpha_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,7 +38,7 @@ class _AlbumsPageState extends State<_AlbumsPage> {
               child: Text('No albums.'),
             );
           }
-					return SliverGridWithStickHeader(modelList: state.albums);
+          return AlphabeticalGridView(modelList: state.albums);
         }
         return Center(
           child: Text('Fatal state error.'),

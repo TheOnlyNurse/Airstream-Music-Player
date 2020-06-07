@@ -1,19 +1,17 @@
 import 'package:airstream/bloc/mini_player_bloc.dart';
 import 'package:airstream/bloc/nav_bar_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
-import 'package:airstream/events/nav_bar_event.dart';
 import 'package:airstream/screens/albums_screen.dart';
 import 'package:airstream/screens/artists_route.dart';
 import 'package:airstream/screens/playlists.dart';
 import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
-import 'package:airstream/states/nav_bar_state.dart';
 import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/mini_player.dart';
 import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/nav_bar.dart';
+import '../complex_widgets/nav_bar.dart';
 
 class LibraryWidget extends StatelessWidget {
   @override
@@ -61,7 +59,7 @@ class _LibraryPageState extends State<_LibraryPage> {
   Widget build(BuildContext context) {
     return BlocListener<NavigationBarBloc, NavigationBarState>(
       listener: (context, state) {
-        if (state is HomePage && state.shouldNavigate) {
+        if (state is DisplayNavChange && state.isNewDisplay) {
           if (libraryNavKey.currentState.canPop()) {
             libraryNavKey.currentState.popUntil((route) => route.isFirst);
           }

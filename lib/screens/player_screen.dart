@@ -73,7 +73,7 @@ class PlayerScreen extends StatelessWidget {
                           Column(
                             children: <Widget>[
                               Text(
-                                songPlaying.name,
+                                songPlaying.title,
                                 style: Theme.of(context).textTheme.headline5.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -81,8 +81,11 @@ class PlayerScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 6),
                               Text(
-                                songPlaying.artistName,
-                                style: Theme.of(context).textTheme.subtitle1,
+                                songPlaying.artist,
+                                style: Theme
+                                    .of(context)
+                                    .textTheme
+                                    .subtitle1,
                                 softWrap: false,
                               ),
                             ],

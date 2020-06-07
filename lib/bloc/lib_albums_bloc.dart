@@ -17,7 +17,7 @@ class LibraryAlbumsBloc extends Bloc<LibraryAlbumsEvent, LibraryAlbumsState> {
         final response = await _repository.fetchCategory(
           request: 'getAlbumList2?type=alphabeticalByName',
           database: AlbumProvider(),
-          isMultiRequest: true,
+          isAlbumRequest: true,
         );
         switch (response.status) {
           case DataStatus.ok:

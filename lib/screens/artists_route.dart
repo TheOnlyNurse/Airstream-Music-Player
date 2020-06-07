@@ -1,7 +1,7 @@
 import 'package:airstream/bloc/lib_artists_bloc.dart';
 import 'package:airstream/events/lib_artists_event.dart';
 import 'package:airstream/states/lib_artists_state.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/grid_with_header.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/alpha_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,7 +39,7 @@ class _ArtistsPageState extends State<_ArtistsPage> {
               child: Text('No artists.'),
             );
           }
-					return SliverGridWithStickHeader(modelList: state.artists);
+          return AlphabeticalGridView(modelList: state.artists);
         }
         return Center(
             child: Text("Oops! Something went wrong: current $state doesn\'t exist."));

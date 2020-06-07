@@ -1,7 +1,6 @@
 import 'package:airstream/bloc/lib_starred_bloc.dart';
 import 'package:airstream/events/lib_starred_event.dart';
 import 'package:airstream/states/lib_starred_state.dart';
-import 'package:airstream/widgets/search_bar.dart';
 import 'package:airstream/widgets/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +36,6 @@ class _StarredPageState extends State<_StarredPage> {
           if (state is Loaded) {
         return CustomScrollView(
           slivers: <Widget>[
-            SearchBarWidget(),
             SongList(songList: state.songs),
           ],
         );

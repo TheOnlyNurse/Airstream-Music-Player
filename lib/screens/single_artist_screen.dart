@@ -30,6 +30,7 @@ class SingleArtistScreen extends StatelessWidget {
               slivers: <Widget>[
                 SliverAppBar(
                   expandedHeight: 400.0,
+                  backgroundColor: Theme.of(context).canvasColor,
                   flexibleSpace: AirstreamImage(
                     coverArt: artist.coverArt,
                     isHidef: true,

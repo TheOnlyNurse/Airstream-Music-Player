@@ -1,8 +1,7 @@
 import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:xml/xml.dart' as xml;
 import 'package:airstream/temp_password_holder.dart';
 
 class ServerProvider {
@@ -25,7 +24,8 @@ class ServerProvider {
     return urlStart + request + urlEnd;
   }
 
-  Future<http.Response> downloadFile(String url) async {
+  Future<http.Response> downloadFile(String request) async {
+    final url = constructUrl(request);
     try {
       final response = await httpClient.get(url).timeout(
             Duration(seconds: 5),
@@ -50,29 +50,29 @@ class ServerProvider {
     }
   }
 
-  // ignore: missing_return
-  Future<xml.XmlDocument> fetchRequest(String request) async {
-    final String url = constructUrl(request);
-    try {
-      final response = await httpClient.get(url).timeout(
-            Duration(seconds: 5),
-            onTimeout: () => null,
-          );
-      if (response != null) {
-        final doc = xml.parse(response.body);
-        final apiResponse = doc.findAllElements('subsonic-response').first;
-        if (apiResponse.getAttribute('status') != 'ok') {
-          final error = apiResponse.findAllElements('error').first;
-          throw Exception('Tried fetching: $url\n'
-              'Got response: ${error.getAttribute('code')}\n'
-              'Message: ${error.getAttribute('message')}');
-        }
-        return doc;
+  /// Fetch JSON files from the Airsonic server
+  ///
+  /// The response is a single monolithic 'subsonic-response' object. This function formats
+  /// the data by only sending the 'body' of the json response. It returns null when the
+  /// server fails generally or doesn't send data within 5 seconds.
+  Future<Map<String, dynamic>> fetchJson(String request) async {
+    final String url = constructUrl(request) + '&f=json';
+    final response =
+        await httpClient.get(url).timeout(Duration(seconds: 5), onTimeout: () => null);
+
+    if (response != null) {
+      final Map<String, dynamic> decodedResp =
+          jsonDecode(response.body)['subsonic-response'];
+      if (decodedResp['status'] != 'ok') {
+        final error = decodedResp['error'];
+        throw Exception('Server Provider. Url: $url\n'
+            'Code: ${error['code']}\n'
+            'Message: ${error['message']}');
       }
-      // XML cannot be passed as parse as it breaks functionality
-      return null;
-    } catch (error, stacktrace) {
-      errorMessage(url, error, stacktrace);
+      final key = decodedResp.keys.toList()[2];
+      return decodedResp[key];
     }
+    // XML cannot be passed as parse as it breaks functionality
+    return null;
   }
 }

@@ -1,13 +1,12 @@
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/sliver_card_grid.dart';
-import 'package:airstream/models/airstream_base_model.dart';
-import 'package:airstream/widgets/search_bar.dart';
+import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
-class SliverGridWithStickHeader extends StatelessWidget {
-  final List<AirstreamBaseModel> modelList;
+class AlphabeticalGridView extends StatelessWidget {
+  final List<dynamic> modelList;
+  final List<Widget> initialSlivers;
 
-  SliverGridWithStickHeader({@required this.modelList});
+  AlphabeticalGridView({@required this.modelList, this.initialSlivers});
 
   Map<String, Map<String, int>> _getHeaderIndexes() {
     final list = this.modelList;
@@ -36,7 +35,7 @@ class SliverGridWithStickHeader extends StatelessWidget {
   List<Widget> _createMultipleGrids(Map<String, Map<String, int>> headerIndexes) {
     final list = this.modelList;
     // The first widget should be the search bar widget
-    List<Widget> sliverList = [SearchBarWidget()];
+    List<Widget> sliverList = initialSlivers != null ? initialSlivers : [];
     // Build the grid with a header
     headerIndexes.forEach((letter, range) {
       final subList = list.sublist(range['startIndex'], range['endIndex']);

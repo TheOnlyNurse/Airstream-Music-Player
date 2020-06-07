@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
-import 'package:xml/xml.dart' as XML;
 
 abstract class DatabaseProvider {
   String get dbName;
-
-  Future<String> get directoryPath;
 
   String get tableColumns;
 
@@ -26,8 +23,8 @@ abstract class DatabaseProvider {
     _creationLocker = completer.future;
 
     print('Opening database instance for $dbName.');
-    final db = await openDatabase(p.join(await directoryPath, '$dbName.db'), version: 1,
-        onCreate: (Database db, int version) async {
+    final db = await openDatabase(p.join(await getDatabasesPath(), '$dbName.db'),
+        version: 1, onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE $dbName ($tableColumns)');
     });
 
@@ -46,9 +43,9 @@ abstract class DatabaseProvider {
     return _database;
   }
 
-  Future updateWithDoc(XML.XmlDocument doc);
+  Future updateWithDoc(Map<String, dynamic> json);
 
-  Future updateWithDocList(List<XML.XmlDocument> docList);
+  Future updateWithDocList(List<Map<String, dynamic>> jsonList);
 
   Future getLibraryList();
 }

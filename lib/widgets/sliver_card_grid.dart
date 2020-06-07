@@ -1,15 +1,14 @@
-import 'package:airstream/models/airstream_base_model.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/artist_model.dart';
 import 'package:airstream/widgets/titled_art_card.dart';
 import 'package:flutter/material.dart';
 
 class SliverCardGrid extends StatelessWidget {
-  final List<AirstreamBaseModel> modelList;
+  final List<dynamic> modelList;
 
   SliverCardGrid({@required this.modelList});
 
-  Function _getFunction(BuildContext context, AirstreamBaseModel model) {
+  Function _getFunction(BuildContext context, dynamic model) {
     if (model is Album)
       return () =>
           Navigator.of(context).pushNamed('library/singleAlbum', arguments: model);
