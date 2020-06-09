@@ -2,28 +2,28 @@ import 'package:equatable/equatable.dart';
 
 class Artist extends Equatable {
   final String id;
-  final String title;
+  final String name;
   final int albumCount;
   final String coverArt;
 
-  Artist({this.id, this.title, this.albumCount, this.coverArt});
+  const Artist({this.id, this.name, this.albumCount, this.coverArt});
 
   @override
-  List<Object> get props => [id, title];
+  List<Object> get props => [id, name];
 
   @override
   String toString() => 'Artist { id: $id }';
 
   factory Artist.fromJSON(Map<String, dynamic> json) => Artist(
         id: json['id'],
-        title: json['name'],
+        name: json['name'],
         albumCount: json['albumCount'],
         coverArt: json['coverArt'],
       );
 
   Map<String, dynamic> toJSON() => {
         'id': id,
-        'name': title,
+        'name': name,
         'albumCount': albumCount,
         'coverArt': coverArt,
       };

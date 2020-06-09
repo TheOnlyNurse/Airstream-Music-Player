@@ -8,7 +8,7 @@ class AlbumProvider extends DatabaseProvider {
   @override
   String get tableColumns => 'id TEXT primary key NOT NULL,'
       'name TEXT NOT NULL,'
-      'artistName TEXT,'
+      'artist TEXT,'
       'artistId TEXT,'
       'songCount INTEGER,'
       'coverArt TEXT';
@@ -30,7 +30,7 @@ class AlbumProvider extends DatabaseProvider {
 	}
 
 	@override
-	Future<List<Album>> updateWithDocList(List<Map<String, dynamic>> jsonList) async {
+	Future<List<Album>> updateWithJsonList(List<Map<String, dynamic>> jsonList) async {
 		List<Album> albumList = [];
 
 		jsonList.forEach((json) {
@@ -59,5 +59,5 @@ class AlbumProvider extends DatabaseProvider {
 	}
 
 	@override
-	Future updateWithDoc(Map<String, dynamic> json) => throw UnimplementedError();
+	Future updateWithJson(Map<String, dynamic> json) => throw UnimplementedError();
 }

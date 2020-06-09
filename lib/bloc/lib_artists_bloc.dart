@@ -18,7 +18,7 @@ class LibraryArtistsBloc extends Bloc<LibraryAlbumsEvent, LibraryAlbumsState> {
       try {
         final response = await _repository.fetchCategory(
           request: 'getArtists?',
-          database: ArtistsProvider(),
+          database: ArtistProvider(),
         );
         switch (response.status) {
           case DataStatus.ok:

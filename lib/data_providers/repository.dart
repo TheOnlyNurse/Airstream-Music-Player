@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:airstream/data_providers/album_provider.dart';
-import 'package:airstream/data_providers/audio_cache_provider.dart';
+import 'package:airstream/data_providers/artist_provider.dart';
+import 'package:airstream/data_providers/audio_provider.dart';
 import 'package:airstream/data_providers/database_provider.dart';
 import 'package:airstream/data_providers/image_cache_provider.dart';
 import 'package:airstream/data_providers/playlist_provider.dart';
@@ -14,28 +15,11 @@ import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
-/// Naming Conventions
-/// SS => StreamSubscription
-/// SC => StreamController
-
-enum DataStatus {
-  ok,
-  error,
-}
-
-class RepoResponse {
-  final DataStatus status;
-  final data;
-
-  const RepoResponse({@required this.status, this.data});
-}
+/// The Repository collects data from providers and formats it for ease of access and use
+/// in UI and Bloc generation.
 
 class Repository {
-  // To ensure that only one instance of repository and subsequent classes are used
   static final Repository _instance = Repository._internal();
 
   Repository._internal() {
@@ -47,7 +31,7 @@ class Repository {
   }
 
   /// 1. Global Variables
-  final _server = ServerProvider(httpClient: http.Client());
+  final _server = ServerProvider();
   final _albumProvider = AlbumProvider();
   final _imageCache = ImageCacheProvider();
 
@@ -59,8 +43,8 @@ class Repository {
   /// (see DatabaseProvider.updateWithDocList for more information). If the
   /// fetch is null, the database will also return null, at which point an error is sent
   /// by this function.
-  /// If the request requires multiple server calls. The responses are collected in a
-  /// list and passed to the database (see DatabaseProvider.updateWithDocList).
+  /// If the request is an albums request it requires server calls. The responses are
+  /// collected in a list and passed to the database (see DatabaseProvider.updateWithDocList).
   Future<RepoResponse> fetchCategory({
     @required String request,
     @required DatabaseProvider database,
@@ -75,21 +59,21 @@ class Repository {
         bool hasChildren = true;
         List<Map<String, dynamic>> jsonList = [];
 
-        do {
-          final response = await _server.fetchJson('$request&size=$size&offset=$offset&');
-          if (response == null) break;
-          if (response.isEmpty) {
-            hasChildren = false;
-          } else {
-            jsonList.add(response);
-            offset += size;
-          }
-        } while (hasChildren);
+				do {
+					final response = await _server.fetchJson('$request&size=$size&offset=$offset&');
+					if (response == null) break;
+					if (response.isEmpty) {
+						hasChildren = false;
+					} else {
+						jsonList.add(response);
+						offset += size;
+					}
+				} while (hasChildren);
 
-        data = await database.updateWithDocList(jsonList);
+				data = await database.updateWithJsonList(jsonList);
       } else {
-        final response = await _server.fetchJson(request);
-        if (response != null) data = await database.updateWithDoc(response);
+				final response = await _server.fetchJson(request);
+				if (response != null) data = await database.updateWithJson(response);
       }
     }
 
@@ -114,156 +98,157 @@ class Repository {
     String imageLocation = await _imageCache.getCoverArt(artId);
 
     if (imageLocation == null) {
-      String url =
-          hiDef ? 'getCoverArt?id=$artId&size=512&' : 'getCoverArt?id=$artId&size=256&';
-      final response = await _server.downloadFile(url);
-      // If the server has timed out it will return null which shouldn't be added to DB
-      if (response != null) {
-        imageLocation = await _imageCache.cacheImage(url, response.bodyBytes);
-      } else {
-        return RepoResponse(
-          status: DataStatus.error,
-        );
-      }
-    }
+			String url =
+			hiDef ? 'getCoverArt?id=$artId&size=512&' : 'getCoverArt?id=$artId&size=256&';
+			final response = await _server.downloadFile(url);
+			// If the server has timed out it will return null which shouldn't be added to DB
+			if (response != null) {
+				imageLocation = await _imageCache.cacheImage(url, response.bodyBytes);
+			} else {
+				return RepoResponse(
+					status: DataStatus.error,
+				);
+			}
+		}
 
-    return RepoResponse(status: DataStatus.ok, data: File(imageLocation));
-  }
+		return RepoResponse(status: DataStatus.ok, data: File(imageLocation));
+	}
 
-  /// Album Repo
+	Future<RepoResponse> queryByNameOrTitle(String query, DataProviders provider) async {
+		List<dynamic> list = [];
+		switch (provider) {
+			case DataProviders.album:
+			// TODO: Handle this case.
+				break;
+			case DataProviders.artist:
+				list = await ArtistProvider().queryArtistByName(query);
+				break;
+			case DataProviders.song:
+				list = await SongProvider().querySongsByTitle(query);
+				break;
+		}
 
-  Future<RepoResponse> getArtistAlbums(Artist artist) async {
-    List<Album> albumList = await _albumProvider.getAlbumFromArtistId(artist.id);
-    if (albumList == null) {
-      return RepoResponse(
-        status: DataStatus.error,
-      );
-    } else {
-      return RepoResponse(status: DataStatus.ok, data: albumList);
-    }
-  }
+		if (list.isEmpty)
+			return RepoResponse(status: DataStatus.error);
+		else
+			return RepoResponse(status: DataStatus.ok, data: list);
+	}
 
-  /// Song Repo
+	/// Album Repo
 
-  final _songProvider = SongProvider();
+	Future<RepoResponse> getArtistAlbums(Artist artist) async {
+		List<Album> albumList = await _albumProvider.getAlbumFromArtistId(artist.id);
+		if (albumList == null) {
+			return RepoResponse(
+				status: DataStatus.error,
+			);
+		} else {
+			return RepoResponse(status: DataStatus.ok, data: albumList);
+		}
+	}
 
-  /// Get songs in a given album
-  ///
-  /// The songlist retrieved is checked for missing tracks against the album song count,
-  /// fetching from the server when deficient.
-  Future<RepoResponse> getAlbumSongs(Album album) async {
-    List<Song> songList = await _songProvider.getSongsFromAlbumId(album.id);
-    if (songList.length != album.songCount) {
-      final json = await _server.fetchJson('getAlbum?id=${album.id}&');
-      songList = await _songProvider.updateWithDoc(json, isStarred: false);
-      songList.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-    }
-    if (songList == null)
-      return RepoResponse(status: DataStatus.error);
-    else
-      return RepoResponse(status: DataStatus.ok, data: songList);
-  }
+	/// Song Repo
 
-  /// Playlist Repo
+	final _songProvider = SongProvider();
 
-  final _playlistProvider = PlaylistProvider();
+	/// Get songs in a given album
+	///
+	/// The songlist retrieved is checked for missing tracks against the album song count,
+	/// fetching from the server when deficient.
+	Future<RepoResponse> getAlbumSongs(Album album) async {
+		List<Song> songList = await _songProvider.getSongsFromAlbumId(album.id);
+		if (songList.length != album.songCount) {
+			final json = await _server.fetchJson('getAlbum?id=${album.id}&');
+			songList = await _songProvider.updateWithJson(json, isStarred: false);
+			songList.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+		}
+		if (songList == null)
+			return RepoResponse(status: DataStatus.error);
+		else
+			return RepoResponse(status: DataStatus.ok, data: songList);
+	}
 
-  Future<RepoResponse> getPlaylists() async {
-    List<Playlist> list = await _playlistProvider.getLibraryList();
-    if (list == null) {
+	Future<RepoResponse> getSongsById(List<String> songIds) async {
+		var songList = await _songProvider.getSongsByIds(songIds);
+		if (songList.length != songIds.length) {
+			final idsToFetch = songIds;
+			for (var song in songList) {
+				idsToFetch.remove(song.id);
+			}
+			for (var id in idsToFetch) {
+				final json = await _server.fetchJson('getSong?id=$id&');
+				songList.add(await _songProvider.addSongFromJson(json));
+			}
+		}
+		if (songList.isEmpty)
+			return RepoResponse(status: DataStatus.error);
+		else
+			return RepoResponse(status: DataStatus.ok, data: songList);
+	}
 
-    }
-    if (list == null)
-      return RepoResponse(status: DataStatus.error);
-    else
-      return RepoResponse(status: DataStatus.ok, data: list);
-  }
+	/// Playlist Repo
 
-  /// Audio Repo
+	final _playlistProvider = PlaylistProvider();
 
-  StreamSubscription _downloadSS;
-  IOSink _tempSongSink;
-  final StreamController<PercentageModel> _percentageSC = StreamController();
-  final _assetsAudioPlayer = assets.AssetsAudioPlayer.withId('airstream');
-  final _audioCacheProvider = AudioCacheProvider();
+	Future<RepoResponse> getPlaylists() async {
+		List<Playlist> playListArray = await _playlistProvider.getLibraryList();
+		if (playListArray == null) {
+			final json = await _server.fetchJson('getPlaylists?');
+			if (json != null) {
+				playListArray = [];
+				final idList = json['playlist'].map((element) => element['id']);
+				_playlistProvider.clearDbForUpdate();
+				for (var id in idList) {
+					final jsonResp = await _server.fetchJson('getPlaylist?id=$id&');
+					playListArray.add(await _playlistProvider.updateWithJson(jsonResp));
+				}
+			}
+		}
+		if (playListArray == null)
+			return RepoResponse(status: DataStatus.error);
+		else
+			return RepoResponse(status: DataStatus.ok, data: playListArray);
+	}
 
-  Stream<PercentageModel> get percentageStream => _percentageSC.stream;
-  final List<Song> songQueue = <Song>[];
-  int currentSongIndex = 0;
+	/// Audio Repo
 
-  Song get currentSong => songQueue[currentSongIndex];
+	Stream<PercentageModel> get percentageStream => AudioProvider().percentageSC.stream;
 
-  /// Download Song, place into cache and prompt play
-  ///
-  ///
-  void downloadSong({@required Song song, bool isNotPrefetch = true}) async {
-    final tempFile = File(p.join((await getTemporaryDirectory()).path, 'song_file'));
-    if (tempFile.existsSync()) tempFile.deleteSync();
-    _tempSongSink = tempFile.openWrite(mode: FileMode.append);
+	List<Song> get songQueue => AudioProvider().songQueue;
 
-    final StreamController<List<int>> fileBytesSC = StreamController();
-    final totalFileSize = await _server.streamFile('stream?id=${song.id}&', fileBytesSC);
-    int currentFileSize = 0;
+	int get currentIndex => AudioProvider().currentSongIndex;
 
-    _downloadSS = fileBytesSC.stream.listen((bytes) {
-      _tempSongSink.add(bytes);
-      if (isNotPrefetch) {
-        currentFileSize += bytes.length;
-        _percentageSC.add(PercentageModel(
-          current: currentFileSize,
-          total: totalFileSize,
-        ));
-      }
-    });
-    _downloadSS.onDone(() async {
-      _tempSongSink.close();
-      _downloadSS.cancel();
-      _downloadSS = null;
-      await _audioCacheProvider.cacheFile(
-        tempFile,
-        songId: song.id,
-        artistName: song.artist,
-        albumId: song.albumId,
-      );
-      this.playSong();
-    });
-  }
+	Song get currentSong => AudioProvider().currentSong;
 
-  createQueueAndPlay({@required List<Song> playlist, int index = 0}) {
-    this.songQueue.clear();
-    this.songQueue.addAll(playlist);
-    currentSongIndex = index;
-    this.playSong();
-  }
+	int get playlistLength => AudioProvider().songQueue.length;
 
-  Future<void> playSong() async {
-    // Cancel any existing downloads in favour of the new song
-    if (_downloadSS != null) _downloadSS.cancel();
+	assets.AssetsAudioPlayer get audioPlayer => AudioProvider().audioPlayer;
 
-    final song = this.currentSong;
-    final songPath = await _audioCacheProvider.getSongLocation(song.id);
-    if (songPath != null) {
-      final audio = assets.Audio.file(songPath, metas: song.toMetas());
-      try {
-        await _assetsAudioPlayer.open(
-          audio,
-          showNotification: true,
-        );
-        final artResp = await this.getImage(song.coverArt);
-        audio.updateMetas(
-          player: _assetsAudioPlayer,
-          image:
-          artResp.status == DataStatus.ok
-              ? assets.MetasImage.file(artResp.data.path)
-              : null,
-        );
-      } catch (_) {
-        File(songPath).deleteSync();
-        downloadSong(song: song);
-      }
-    } else {
-      _assetsAudioPlayer.pause();
-      downloadSong(song: song);
-    }
-  }
+	void skipToNext() => AudioProvider().skipTo(1);
+
+	void skipToPrevious() => AudioProvider().skipTo(-1);
+
+	void playPlaylist(List<Song> playlist, {int index = 0}) =>
+			AudioProvider().createQueueAndPlay(
+				playlist,
+				index,
+			);
+}
+
+enum DataProviders {
+	album,
+	artist,
+	song,
+}
+
+enum DataStatus {
+	ok,
+	error,
+}
+
+class RepoResponse {
+	final DataStatus status;
+	final data;
+
+	const RepoResponse({@required this.status, this.data});
 }

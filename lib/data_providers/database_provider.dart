@@ -43,9 +43,9 @@ abstract class DatabaseProvider {
     return _database;
   }
 
-  Future updateWithDoc(Map<String, dynamic> json);
+  Future updateWithJson(Map<String, dynamic> json);
 
-  Future updateWithDocList(List<Map<String, dynamic>> jsonList);
+  Future updateWithJsonList(List<Map<String, dynamic>> jsonList);
 
   Future getLibraryList();
 }

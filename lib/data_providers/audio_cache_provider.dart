@@ -46,14 +46,14 @@ class AudioCacheProvider extends CacheProvider {
       {String songId, String artistName, String albumId}) async {
     // Generator random filename and write file to cache
     final String fileName = idGenerator.v4();
-    final String fileLocation = p.join(await cacheLocation, fileName);
-    final File file = await File(fileLocation).create(recursive: true);
+    final String filePath = p.join(await cacheLocation, fileName);
+    final File file = await File(filePath).create(recursive: true);
     await file.writeAsBytes(audioFile.readAsBytesSync());
     final fileSize = file.statSync().size;
     // Attach reference of cached file to database
     final db = await database;
     await db.insert(dbName, {
-      'location': fileLocation,
+      'location': filePath,
       'songId': songId,
       'artist': artistName,
       'albumId': albumId,
@@ -62,6 +62,14 @@ class AudioCacheProvider extends CacheProvider {
     // Make sure cache still adheres to size constraints
     this.checkCacheSize();
     // Return the cached location for display
-    return fileLocation;
+    return filePath;
+  }
+
+  Future deleteSongFile(String songId) async {
+    final db = await database;
+    final details = await db.query(dbName, where: 'songId = ?', whereArgs: [songId]);
+    await db.delete(dbName, where: 'songId = ?', whereArgs: [songId]);
+    final cacheFile = File(details.first['location']);
+    if (cacheFile.existsSync()) cacheFile.deleteSync();
   }
 }

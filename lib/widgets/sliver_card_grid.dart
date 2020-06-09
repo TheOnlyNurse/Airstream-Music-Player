@@ -34,8 +34,8 @@ class SliverCardGrid extends StatelessWidget {
             final model = modelList[index];
             return TitledArtCard(
               artId: model.coverArt,
-              title: model.name,
-              subtitle: model is Album ? model.artistName : null,
+              title: model is Album ? model.title : model is Artist ? model.name : null,
+              subtitle: model is Album ? model.artist : null,
               onTap: _getFunction(context, model),
             );
           },

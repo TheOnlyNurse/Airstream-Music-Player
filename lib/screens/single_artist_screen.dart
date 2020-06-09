@@ -33,7 +33,7 @@ class SingleArtistScreen extends StatelessWidget {
                   backgroundColor: Theme.of(context).canvasColor,
                   flexibleSpace: AirstreamImage(
                     coverArt: artist.coverArt,
-                    isHidef: true,
+                    isHiDef: true,
                   ),
                   leading: RawMaterialButton(
                     onPressed: () => Navigator.of(context).pop(),

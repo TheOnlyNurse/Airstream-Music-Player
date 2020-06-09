@@ -12,7 +12,7 @@ class AirstreamNavBar extends StatelessWidget {
         shape: CircularNotchedRectangle(),
         child: AnimatedContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          duration: Duration(seconds: 1),
+          duration: Duration(milliseconds: 500),
           curve: Curves.fastOutSlowIn,
           height: state is NavHeightChanged ? state.barHeight : 60,
           child: GestureDetector(
@@ -57,7 +57,7 @@ class AirstreamNavBar extends StatelessWidget {
                 FutureBuilder(
                   initialData: false,
                   future: state is NavHeightChanged && state.barHeight > 60
-                      ? Future.delayed(Duration(milliseconds: 900), () => true)
+                      ? Future.delayed(Duration(milliseconds: 400), () => true)
                       : Future.delayed(Duration(), () => false),
                   builder: (context, snapshot) {
                     return Visibility(
@@ -112,6 +112,7 @@ class _AirstreamBottomBarIcon extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Row(

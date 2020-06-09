@@ -36,7 +36,7 @@ class Song extends Equatable {
         artistId: json['artistId'],
       );
 
-  Map<String, dynamic> toJSONAsStarred({bool isStarred = false}) => {
+  Map<String, dynamic> toJson({bool isStarred = false}) => {
         'id': id,
         'title': title,
         'album': album,

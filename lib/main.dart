@@ -9,6 +9,8 @@ void main() {
 }
 
 class App extends StatelessWidget {
+  final GlobalKey<NavigatorState> libraryNavKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,10 +24,10 @@ class App extends StatelessWidget {
           )),
       initialRoute: '/',
       routes: {
-        '/': (context) => LibraryWidget(),
+        '/': (context) => LibraryWidget(libraryNavKey: libraryNavKey),
         '/musicPlayer': (context) => PlayerScreen(),
         '/settings': (context) => SettingsScreen(),
-        '/search': (context) => SearchScreen(),
+        '/search': (context) => SearchScreen(navKey: libraryNavKey),
       },
     );
   }

@@ -1,13 +1,25 @@
 import 'package:airstream/bloc/play_button_bloc.dart';
 import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/widgets/airstream_image.dart';
-import 'package:airstream/widgets/play_button.dart';
+import 'package:airstream/models/song_model.dart';
+import 'package:airstream/widgets/player_controls.dart';
+import 'package:airstream/widgets/player_screen_image.dart';
 import 'package:airstream/widgets/song_position_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PlayerScreen extends StatelessWidget {
-  final songPlaying = Repository().currentSong;
+class PlayerScreen extends StatefulWidget {
+  _PlayerScreenState createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  final imageKey = GlobalKey();
+  Song songPlaying = Repository().currentSong;
+
+  void updateCurrentSong() {
+    setState(() {
+      songPlaying = Repository().currentSong;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +44,9 @@ class PlayerScreen extends StatelessWidget {
                   child: Stack(
                     children: <Widget>[
                       Container(
-                        width: screenWidth,
-                        child: AirstreamImage(
-                          coverArt: songPlaying.coverArt,
-                          isHidef: true,
-                        ),
-                      ),
+												width: screenWidth,
+												child: PlayerScreenImage(),
+											),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -78,50 +87,29 @@ class PlayerScreen extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                 softWrap: false,
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                songPlaying.artist,
-                                style: Theme
-                                    .of(context)
-                                    .textTheme
-                                    .subtitle1,
-                                softWrap: false,
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Spacer(),
-                SongPositionSlider(),
-                Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    RawMaterialButton(
-                      shape: CircleBorder(),
-                      child: Icon(
-                        Icons.skip_previous,
-                        size: 40.0,
-                      ),
-                      onPressed: null,
-                    ),
-                    PlayButton(),
-                    RawMaterialButton(
-                      shape: CircleBorder(),
-                      child: Icon(
-                        Icons.skip_next,
-                        size: 40.0,
-                      ),
-                      onPressed: null,
-                    ),
-                  ],
-                ),
-                Spacer(),
-              ],
+															),
+															SizedBox(height: 6),
+															Text(
+																songPlaying.artist,
+																style: Theme
+																		.of(context)
+																		.textTheme
+																		.subtitle1,
+																softWrap: false,
+															),
+														],
+													),
+												],
+											)
+										],
+									),
+								),
+								Spacer(),
+								SongPositionSlider(),
+								Spacer(),
+								PlayerControls(onNextOrPrevious: () => updateCurrentSong()),
+								Spacer(),
+							],
             ),
           ),
         ),
