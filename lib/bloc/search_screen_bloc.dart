@@ -28,10 +28,8 @@ class SearchScreenBloc extends Bloc<String, SearchScreenState> {
   Stream<SearchScreenState> mapEventToState(String event) async* {
     if (event.length > 1) {
       yield LoadingSearchResults();
-      final songResults =
-          await Repository().queryByNameOrTitle(event, DataProviders.song);
-      final artistResults =
-          await Repository().queryByNameOrTitle(event, DataProviders.artist);
+      final songResults = await Repository().search(event, Library.songs);
+      final artistResults = await Repository().search(event, Library.artists);
       if (songResults.status == DataStatus.error &&
           artistResults.status == DataStatus.error)
         yield NoSearchResults();

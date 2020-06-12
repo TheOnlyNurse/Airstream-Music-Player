@@ -30,7 +30,7 @@ class PlaylistsScreenBloc extends Bloc<PlaylistsScreenEvent, PlaylistsScreenStat
   Stream<PlaylistsScreenState> mapEventToState(PlaylistsScreenEvent event) async* {
     switch (event) {
       case PlaylistsScreenEvent.fetch:
-        final response = await _repository.getPlaylists();
+        final response = await _repository.getLibrary(Library.playlists);
         if (response.status == DataStatus.ok) yield PlaylistsLoaded(response.data);
         if (response.status == DataStatus.error)
           yield PlaylistsScreenError('couldn\'t fetch data');

@@ -10,7 +10,7 @@ class PlaylistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final songs = playlist.songList;
+    final songs = playlist.songIds;
 
     return GestureDetector(
       onTap: () => Navigator.of(context).pushNamed(

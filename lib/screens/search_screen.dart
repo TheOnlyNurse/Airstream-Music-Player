@@ -125,6 +125,8 @@ class _ArtistCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        if (navKey.currentState.canPop())
+          navKey.currentState.popUntil((route) => route.isFirst);
         Navigator.pop(context);
         navKey.currentState.pushNamed('library/singleArtist', arguments: artist);
       },
@@ -134,11 +136,11 @@ class _ArtistCircle extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(shape: BoxShape.circle),
-                clipBehavior: Clip.hardEdge,
-                child: AirstreamImage(coverArt: artist.coverArt),
+								width: 80,
+								height: 80,
+								decoration: BoxDecoration(shape: BoxShape.circle),
+								clipBehavior: Clip.hardEdge,
+								child: AirstreamImage(coverArt: artist.art),
               ),
             ),
             Text(artist.name),

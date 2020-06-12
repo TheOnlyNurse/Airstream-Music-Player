@@ -5,9 +5,9 @@ import 'package:bloc/bloc.dart';
 abstract class AirstreamCollageEvent {}
 
 class FetchCollage extends AirstreamCollageEvent {
-  final List<String> artistIdList;
+  final List<int> songIdList;
 
-  FetchCollage(this.artistIdList);
+  FetchCollage(this.songIdList);
 }
 
 abstract class AirstreamCollageState {}
@@ -29,19 +29,14 @@ class AirstreamCollageBloc extends Bloc<AirstreamCollageEvent, AirstreamCollageS
   @override
   Stream<AirstreamCollageState> mapEventToState(AirstreamCollageEvent event) async* {
     if (event is FetchCollage) {
-      final response = await Repository().getSongsById(event.artistIdList);
-      if (response.status == DataStatus.ok) {
-        final List<File> artList = [];
-        for (var songs in response.data) {
-          final art = await Repository().getImage(songs.coverArt);
-          if (art.status == DataStatus.ok) {
-            artList.add(art.data);
-          }
+      final List<File> artList = [];
+      for (var id in event.songIdList) {
+        final art = await Repository().getImage(songId: id);
+        if (art.status == DataStatus.ok) {
+          artList.add(art.data);
         }
-        yield CollageLoaded(artList);
-      } else {
-        yield CollageError();
       }
+      yield CollageLoaded(artList);
     }
   }
 }

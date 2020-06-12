@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AirstreamImage extends StatelessWidget {
   final String coverArt;
-  final String songId;
+  final int songId;
   final bool isHiDef;
   final BoxFit fit;
 
@@ -24,8 +24,8 @@ class AirstreamImage extends StatelessWidget {
           this.coverArt != null
               ? FetchImage(coverArt: coverArt, isHiDef: isHiDef)
               : this.songId != null
-                  ? FetchImageBySong(songId: songId, isHiDef: isHiDef)
-                  : throw Exception('No image detected by Airstream Image'),
+							? FetchImage(songId: songId, isHiDef: isHiDef)
+							: throw Exception('No image detected by Airstream Image'),
         ),
       child: BlocBuilder<AirstreamImageBloc, AirstreamImageState>(
         builder: (context, state) {

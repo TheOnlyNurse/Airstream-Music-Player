@@ -11,9 +11,9 @@ class AudioCacheProvider extends CacheProvider {
 
   @override
   String get tableColumns => 'location TEXT NOT NULL,'
-      'songId TEXT,'
+      'songId INTEGER,'
       'artist TEXT,'
-      'albumId TEXT,'
+      'albumId INTEGER,'
       'size INTEGER NOT NULL';
 
   AudioCacheProvider._internal();
@@ -24,17 +24,17 @@ class AudioCacheProvider extends CacheProvider {
     return _instance;
   }
 
-  Future<String> getSongLocation(String songId) async {
-    final db = await database;
-    final response = await db.query(
-      dbName,
-      columns: ['location'],
-      where: 'songId = ?',
-      whereArgs: [songId],
-    );
-    if (response.length > 0) {
-      return response.first['location'];
-    }
+	Future<String> getSongLocation(int songId) async {
+		final db = await database;
+		final response = await db.query(
+			dbName,
+			columns: ['location'],
+			where: 'songId = ?',
+			whereArgs: [songId],
+		);
+		if (response.length > 0) {
+			return response.first['location'];
+		}
     return null;
   }
 
@@ -42,18 +42,20 @@ class AudioCacheProvider extends CacheProvider {
   ///
   /// Songs and albums can be reliably tracked by their id. Artists cannot. Therefore,
   /// artist names are used instead.
-  Future<String> cacheFile(File audioFile,
-      {String songId, String artistName, String albumId}) async {
-    // Generator random filename and write file to cache
-    final String fileName = idGenerator.v4();
-    final String filePath = p.join(await cacheLocation, fileName);
-    final File file = await File(filePath).create(recursive: true);
-    await file.writeAsBytes(audioFile.readAsBytesSync());
-    final fileSize = file.statSync().size;
-    // Attach reference of cached file to database
-    final db = await database;
-    await db.insert(dbName, {
-      'location': filePath,
+	Future<String> cacheFile(File audioFile,
+			{int songId, String artistName, int albumId}) async {
+		// Generator random filename and write file to cache
+		final String fileName = idGenerator.v4();
+		final String filePath = p.join(await cacheLocation, fileName);
+		final File file = await File(filePath).create(recursive: true);
+		await file.writeAsBytes(audioFile.readAsBytesSync());
+		final fileSize = file
+				.statSync()
+				.size;
+		// Attach reference of cached file to database
+		final db = await database;
+		await db.insert(dbName, {
+			'location': filePath,
       'songId': songId,
       'artist': artistName,
       'albumId': albumId,
@@ -65,11 +67,11 @@ class AudioCacheProvider extends CacheProvider {
     return filePath;
   }
 
-  Future deleteSongFile(String songId) async {
-    final db = await database;
-    final details = await db.query(dbName, where: 'songId = ?', whereArgs: [songId]);
-    await db.delete(dbName, where: 'songId = ?', whereArgs: [songId]);
-    final cacheFile = File(details.first['location']);
-    if (cacheFile.existsSync()) cacheFile.deleteSync();
-  }
+	Future deleteSongFile(int songId) async {
+		final db = await database;
+		final details = await db.query(dbName, where: 'songId = ?', whereArgs: [songId]);
+		await db.delete(dbName, where: 'songId = ?', whereArgs: [songId]);
+		final cacheFile = File(details.first['location']);
+		if (cacheFile.existsSync()) cacheFile.deleteSync();
+	}
 }

@@ -11,7 +11,19 @@ class SinglePlaylistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: SongList(playlist: playlist),
+      child: SongList(
+        playlist: playlist,
+        initialSlivers: <Widget>[
+          SliverAppBar(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            leading: RawMaterialButton(
+              shape: CircleBorder(),
+              child: Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

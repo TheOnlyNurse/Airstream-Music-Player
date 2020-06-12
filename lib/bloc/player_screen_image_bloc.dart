@@ -40,13 +40,13 @@ class PlayerScreenImageBloc extends Bloc<PlayerScreenImageEvent, PlayerScreenIma
   Stream<PlayerScreenImageState> mapEventToState(PlayerScreenImageEvent event) async* {
     if (event == PlayerScreenImageEvent.fetchImage) {
       final currentSong = Repository().currentSong;
-      if (lastImages.isNotEmpty && lastImages.keys.contains(currentSong.coverArt)) {
-        yield ImageLoaded(image: File(lastImages[currentSong.coverArt]));
+      if (lastImages.isNotEmpty && lastImages.keys.contains(currentSong.art)) {
+        yield ImageLoaded(image: File(lastImages[currentSong.art]));
       } else {
-        final response = await Repository().getImage(currentSong.coverArt, hiDef: true);
+        final response = await Repository().getImage(artId: currentSong.art, hiDef: true);
         switch (response.status) {
           case DataStatus.ok:
-            lastImages[currentSong.coverArt] = response.data.path;
+            lastImages[currentSong.art] = response.data.path;
             yield ImageLoaded(image: response.data);
             break;
           default:

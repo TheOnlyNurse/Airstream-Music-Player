@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AirstreamCollage extends StatelessWidget {
-  final List<String> artistIdList;
+  final List<int> artistIdList;
   final int columns;
   final int rows;
   final BoxFit fit;

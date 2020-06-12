@@ -7,16 +7,10 @@ abstract class AirstreamImageEvent {}
 
 class FetchImage extends AirstreamImageEvent {
   final String coverArt;
+  final int songId;
   final bool isHiDef;
 
-  FetchImage({this.coverArt, this.isHiDef});
-}
-
-class FetchImageBySong extends AirstreamImageEvent {
-  final String songId;
-  final bool isHiDef;
-
-  FetchImageBySong({this.songId, this.isHiDef});
+  FetchImage({this.songId, this.coverArt, this.isHiDef});
 }
 
 abstract class AirstreamImageState {}
@@ -38,7 +32,13 @@ class AirstreamImageBloc extends Bloc<AirstreamImageEvent, AirstreamImageState> 
   @override
   Stream<AirstreamImageState> mapEventToState(AirstreamImageEvent event) async* {
 		if (event is FetchImage) {
-			final response = await Repository().getImage(event.coverArt, hiDef: event.isHiDef);
+			RepoResponse response;
+			if (event.coverArt != null)
+				response =
+				await Repository().getImage(artId: event.coverArt, hiDef: event.isHiDef);
+			if (event.songId != null)
+				response =
+				await Repository().getImage(songId: event.songId, hiDef: event.isHiDef);
 			switch (response.status) {
 				case DataStatus.ok:
 					yield ImageLoaded(image: response.data);
@@ -46,16 +46,6 @@ class AirstreamImageBloc extends Bloc<AirstreamImageEvent, AirstreamImageState> 
 				default:
 					yield ImageError();
 			}
-		}
-		if (event is FetchImageBySong) {
-			final response = await Repository().getSongsById([event.songId]);
-			if (response.status == DataStatus.ok)
-				this.add(FetchImage(
-					coverArt: response.data.first.coverArt,
-					isHiDef: event.isHiDef,
-				));
-			else
-				yield ImageError();
 		}
 	}
 }

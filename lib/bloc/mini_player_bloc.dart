@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
   Repository _repository = Repository();
-  final _assetsAudioPlayer = AssetsAudioPlayer.withId('airstream');
+  final _assetsAudioPlayer = Repository().audioPlayer;
   StreamSubscription _audioEvents;
   StreamSubscription _audioFinished;
   StreamSubscription _percentageSS;

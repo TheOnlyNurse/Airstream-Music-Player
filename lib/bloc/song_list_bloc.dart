@@ -1,5 +1,4 @@
 import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/data_providers/song_provider.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/models/song_model.dart';
@@ -51,13 +50,10 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
       response = await Repository().getAlbumSongs(event.album);
     }
     if (event is FetchPlaylistSongs) {
-      response = await Repository().getSongsById(event.playlist.songList);
+      response = await Repository().getSongsById(event.playlist.songIds);
     }
     if (event is FetchStarredSongs) {
-      response = await Repository().fetchCategory(
-        request: 'getStarred2?',
-        database: SongProvider(),
-      );
+			response = await Repository().getLibrary(Library.songs);
     }
 
     if (response.status == DataStatus.ok)

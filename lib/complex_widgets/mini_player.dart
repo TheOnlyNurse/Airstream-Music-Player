@@ -11,10 +11,7 @@ class PlayerActionButton extends StatelessWidget {
     return BlocBuilder<MinimisedPlayerBloc, MinimisedPlayerState>(
         builder: (context, state) {
       if (state is ButtonNoAudio) {
-        return Visibility(
-          visible: false,
-          child: _CustomButton(),
-        );
+        return SizedBox();
       }
       if (state is ButtonAudioIsPlaying || state is ButtonAudioIsPaused) {
         return Draggable(
@@ -35,8 +32,8 @@ class PlayerActionButton extends StatelessWidget {
       }
       if (state is ButtonIsDownloading) {
         return Container(
-          height: 55.0,
-          width: 55.0,
+          height: 65.0,
+          width: 65.0,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.transparent,
@@ -44,24 +41,20 @@ class PlayerActionButton extends StatelessWidget {
           child: Align(
             alignment: Alignment.center,
             child: Container(
-              height: 55.0 * state.percentage / 100,
-              width: 55.0 * state.percentage / 100,
+              height: 65.0 * state.percentage / 100,
+              width: 65.0 * state.percentage / 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme
-                    .of(context)
-                    .accentColor,
+                color: Theme.of(context).accentColor,
               ),
             ),
           ),
         );
       }
-          return _CustomButton(
-            icon: Icons.error,
-            fillColor: Theme
-                .of(context)
-                .errorColor,
-          );
+      return _CustomButton(
+        icon: Icons.error,
+        fillColor: Theme.of(context).errorColor,
+      );
     });
   }
 }
@@ -117,14 +110,14 @@ class _CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      elevation: 2.0,
-      shape: CircleBorder(),
-      fillColor: fillColor != null ? fillColor : Theme
-          .of(context)
-          .accentColor,
-      constraints: BoxConstraints.tightFor(width: width, height: height),
-      child: icon != null ? Icon(icon) : null,
-      onPressed: onPressed,
+			elevation: 2.0,
+			shape: CircleBorder(),
+			fillColor: fillColor != null ? fillColor : Theme
+					.of(context)
+					.accentColor,
+			constraints: BoxConstraints.tightFor(width: width, height: height),
+			child: icon != null ? Icon(icon) : null,
+			onPressed: onPressed,
     );
   }
 }

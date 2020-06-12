@@ -1,12 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:xml/xml.dart' as xml;
 
 class Album extends Equatable {
-  final String id;
+	final int id;
   final String title;
   final String artist;
-  final String artistId;
+  final int artistId;
   final int songCount;
-  final String coverArt;
+  final String art;
 
   const Album({
     this.id,
@@ -14,29 +15,36 @@ class Album extends Equatable {
     this.artist,
     this.artistId,
     this.songCount,
-    this.coverArt,
+    this.art,
   });
 
   @override
-	List<Object> get props => [id, title, artist];
+  List<Object> get props => [id, title, artist];
 
-	factory Album.fromJSON(Map<String, dynamic> json) =>
-			Album(
-				id: json['id'],
-				title: json['name'],
-				artist: json['artist'],
-				artistId: json['artistId'],
-				songCount: json['songCount'] as int,
-				coverArt: json['coverArt'],
-			);
+  factory Album.fromServer(xml.XmlElement element) => Album(
+        id: int.parse(element.getAttribute('id')),
+        title: element.getAttribute('name'),
+        artist: element.getAttribute('artist'),
+        artistId: int.parse(element.getAttribute('artistId')),
+        songCount: int.parse(element.getAttribute('artistId')),
+        art: element.getAttribute('coverArt'),
+      );
 
-	Map<String, dynamic> toJSON() =>
-			{
-				'id': id,
-				'name': title,
-				'artist': artist,
-				'artistId': artistId,
-				'songCount': songCount,
-				'coverArt': coverArt,
-			};
+  factory Album.fromSQL(Map<String, dynamic> json) => Album(
+        id: json['id'],
+        title: json['title'],
+        artist: json['artist'],
+        artistId: json['artistId'],
+        songCount: json['songCount'],
+        art: json['art'],
+      );
+
+  Map<String, dynamic> toSQL() => {
+        'id': id,
+        'title': title,
+        'artist': artist,
+        'artistId': artistId,
+        'songCount': songCount,
+        'art': art,
+      };
 }

@@ -19,7 +19,7 @@ class SingleAlbumScreen extends StatelessWidget {
             backgroundColor: Theme.of(context).canvasColor,
             expandedHeight: 400,
             flexibleSpace: AirstreamImage(
-              coverArt: album.coverArt,
+              coverArt: album.art,
               isHiDef: true,
             ),
             leading: RawMaterialButton(

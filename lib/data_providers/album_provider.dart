@@ -1,63 +1,84 @@
 import 'package:airstream/data_providers/database_provider.dart';
+import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/models/album_model.dart';
+import 'package:flutter/material.dart';
+import 'package:xml/xml.dart' as xml;
 
 class AlbumProvider extends DatabaseProvider {
   @override
   String get dbName => 'albums';
 
   @override
-  String get tableColumns => 'id TEXT primary key NOT NULL,'
-      'name TEXT NOT NULL,'
+  String get tableColumns => 'id INTEGER primary key NOT NULL,'
+      'title TEXT NOT NULL,'
       'artist TEXT,'
-      'artistId TEXT,'
+      'artistId INTEGER,'
       'songCount INTEGER,'
-      'coverArt TEXT';
+      'art TEXT';
 
   AlbumProvider._internal();
 
   static final AlbumProvider _instance = AlbumProvider._internal();
 
-  factory AlbumProvider() {
-    return _instance;
-	}
+  factory AlbumProvider() => _instance;
 
-//  Returns an alphabetical list of albums
-	Future getLibraryList() async {
-		final db = await database;
-		final response = await db.rawQuery('SELECT * FROM $dbName ORDER BY name ASC');
-		List<Album> list = response.map((a) => Album.fromJSON(a)).toList();
-		return list;
-	}
+  Future<List<Album>> getLibraryList() async {
+    final db = await database;
+    final response = await db.query(dbName, orderBy: 'title ASC');
+    if (response.isEmpty)
+      return _downloadAlbums();
+    else
+      return response.map((a) => Album.fromSQL(a)).toList();
+  }
 
-	@override
-	Future<List<Album>> updateWithJsonList(List<Map<String, dynamic>> jsonList) async {
-		List<Album> albumList = [];
+  Future<List<Album>> _downloadAlbums() async {
+    final size = 500;
+    int offset = 0;
+    bool hasChildren = true;
+    final albumList = <Album>[];
 
-		jsonList.forEach((json) {
-			final elements = json['album'];
-			elements.forEach((a) => albumList.add(Album.fromJSON(a)));
-		});
-		final db = await database;
-		await db.rawDelete('DELETE FROM $dbName');
-		albumList.forEach((a) async {
-			await db.insert(dbName, a.toJSON());
-		});
-		return albumList;
-	}
+    // Clear db in preparation for new entries
+    await (await database).delete(dbName);
 
-	Future<int> getArtistId(int albumId) async {
-		final db = await database;
-		final response =
-		await db.rawQuery('SELECT artistId FROM $dbName WHERE id = "$albumId"');
-		return response.first.values.first;
-	}
+    do {
+      final response = await ServerProvider()
+          .fetchXML('getAlbumList2?type=alphabeticalByName&size=$size&offset=$offset');
+      if (response == null) break;
+      final elementList = response.findAllElements('album').toList();
+      if (elementList.isEmpty) {
+        hasChildren = false;
+      } else {
+        albumList.addAll(await _addXmlElements(elementList));
+        offset += size;
+      }
+    } while (hasChildren);
 
-	Future<List<Album>> getAlbumFromArtistId(String artistId) async {
-		final db = await database;
-		final response = await db.query(dbName, where: 'artistId = ?', whereArgs: [artistId]);
-		return response.map((e) => Album.fromJSON(e)).toList();
-	}
+    return albumList;
+  }
 
-	@override
-	Future updateWithJson(Map<String, dynamic> json) => throw UnimplementedError();
+  Future<List<Album>> _addXmlElements(List<xml.XmlElement> elementList) async {
+    final albumList = elementList.map((e) => Album.fromServer(e)).toList();
+
+    final db = await database;
+    for (var album in albumList) await db.insert(dbName, album.toSQL());
+
+    return albumList;
+  }
+
+  Future<int> getArtistId(int albumId) async {
+    final db = await database;
+    final response = await db.query(
+      dbName,
+      columns: ['artistId'],
+      where: 'id = ?',
+      whereArgs: [albumId],
+    );
+    return response.first['artistId'];
+  }
+
+  Future<List<Album>> getAlbumList({@required int artistId}) async {
+    final db = await database;
+    final response = await db.query(dbName, where: 'artistId = ?', whereArgs: [artistId]);
+    return response.map((e) => Album.fromSQL(e)).toList();
+  }
 }

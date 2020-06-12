@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 import 'package:airstream/temp_password_holder.dart';
 
 class ServerProvider {
@@ -45,49 +46,50 @@ class ServerProvider {
   }
 
   Future<int> streamFile(String request, StreamController<List<int>> controller) async {
-		if (isStreaming)
-			return null;
-		isStreaming = true;
-		final url = _constructUrl(request);
-		final response = await httpClient.send(http.Request('GET', Uri.parse(url)));
-		response.stream.pipe(controller);
-		isStreaming = false;
-		return response.contentLength;
-	}
+    if (isStreaming) return null;
+    isStreaming = true;
+    final url = _constructUrl(request);
+    final response = await httpClient.send(http.Request('GET', Uri.parse(url)));
+    response.stream.pipe(controller);
+    isStreaming = false;
+    return response.contentLength;
+  }
 
   /// Fetch JSON files from the Airsonic server
-	///
-	/// The response is a single monolithic 'subsonic-response' object. This function formats
-	/// the data by only sending the 'body' of the json response. It returns null when the
-	/// server fails generally or doesn't send data within 5 seconds.
-	Future<Map<String, dynamic>> fetchJson(String request) async {
-		final String url = _constructUrl(request) + '&f=json';
-		final response =
-		await httpClient.get(url).timeout(
-				Duration(seconds: 5), onTimeout: () => throw Exception('Server timeout'));
+  ///
+  /// The response is a single monolithic 'subsonic-response' object. This function formats
+  /// the data by only sending the 'body' of the json response. It returns null when the
+  /// server fails generally or doesn't send data within 5 seconds.
+  Future<xml.XmlDocument> fetchXML(String request) async {
+    final String url = _constructUrl(request);
+    final response =
+        await httpClient.get(url).timeout(Duration(seconds: 5), onTimeout: () {
+      print('url: $url timedout');
+      return null;
+    });
 
-		if (response != null) {
-			final Map<String, dynamic> decodedResp =
-			jsonDecode(response.body)['subsonic-response'];
-			if (decodedResp['status'] != 'ok') {
-				final error = decodedResp['error'];
-				throw Exception('Server Provider. Url: $url\n'
-						'Code: ${error['code']}\n'
-						'Message: ${error['message']}');
-			}
-			final key = decodedResp.keys.toList()[2];
-			return decodedResp[key];
-		}
-		return null;
-	}
+    if (response != null) {
+      final xmlDoc = xml.parse(response.body);
+      final status =
+          xmlDoc.findAllElements('subsonic-response').first.getAttribute('status');
+      if (status != 'ok') {
+        final error = xmlDoc.findAllElements('error').first;
+        throw Exception('Server Provider. Url: $url\n'
+            'Code: ${error.getAttribute('code')}\n'
+            'Message: ${error.getAttribute('message')}');
+      }
+      return xmlDoc;
+    }
+    return null;
+  }
 
-	String _randomString(int stringLength) {
-		const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-		Random rnd = new Random(new DateTime.now().millisecondsSinceEpoch);
-		String result = "";
-		for (var i = 0; i < stringLength; i++) {
-			result += chars[rnd.nextInt(chars.length)];
-		}
-		return result;
-	}
+  String _randomString(int stringLength) {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    Random rnd = new Random(new DateTime.now().millisecondsSinceEpoch);
+    String result = "";
+    for (var i = 0; i < stringLength; i++) {
+      result += chars[rnd.nextInt(chars.length)];
+    }
+    return result;
+  }
 }

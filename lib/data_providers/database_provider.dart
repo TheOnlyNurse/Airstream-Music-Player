@@ -42,10 +42,4 @@ abstract class DatabaseProvider {
     _database = await getDatabaseInstance();
     return _database;
   }
-
-  Future updateWithJson(Map<String, dynamic> json);
-
-  Future updateWithJsonList(List<Map<String, dynamic>> jsonList);
-
-  Future getLibraryList();
 }

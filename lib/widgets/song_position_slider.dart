@@ -17,7 +17,7 @@ class SongPositionSlider extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           final Duration currPosition = snapshot.data;
           final maxDuration = _assetsAudioPlayer.current.value != null
-              ? _assetsAudioPlayer.current.value.audio.duration
+              ? _assetsAudioPlayer.current.value.audio.duration + Duration(seconds: 1)
               : currPosition;
           return SliderTheme(
             data: SliderTheme.of(context).copyWith(

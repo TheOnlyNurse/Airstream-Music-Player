@@ -16,13 +16,26 @@ class AudioProvider {
 
   AudioProvider._internal() {
     print("AudioProvider initialised.");
+    audioPlayer.currentPosition.listen((position) {
+      if (audioPlayer.current.value != null) {
+        final maxDuration = audioPlayer.current.value.audio.duration;
+        if (position == maxDuration) {
+          if (hasNext) {
+            currentSongIndex++;
+            _checkForPath();
+          } else {
+            audioPlayer.stop();
+          }
+        }
+      }
+    });
   }
 
   factory AudioProvider() => _instance;
 
   StreamSubscription _downloadSS;
   IOSink _tempSongSink;
-  final StreamController<PercentageModel> percentageSC = StreamController();
+  final StreamController<PercentageModel> percentageSC = StreamController.broadcast();
 
   assets.AssetsAudioPlayer get audioPlayer =>
       assets.AssetsAudioPlayer.withId('airstream');
@@ -46,6 +59,7 @@ class AudioProvider {
     _tempSongSink = tempFile.openWrite(mode: FileMode.append);
 
     final StreamController<List<int>> fileBytesSC = StreamController();
+    if (isNotPrefetch) percentageSC.add(PercentageModel(current: 0, total: 1));
     final totalFileSize = await ServerProvider().streamFile(
       'stream?id=${song.id}',
       fileBytesSC,
@@ -96,14 +110,13 @@ class AudioProvider {
       final song = songQueue[currentSongIndex + songsFetched + 1];
       final songPath = await AudioCacheProvider().getSongLocation(song.id);
       if (songPath == null) await _downloadSong(song, isNotPrefetch: false);
-      await Repository().getImage(song.coverArt);
+      await Repository().getImage(artId: song.art);
       songsFetched += 1;
-      print('fetched a song');
     }
   }
 
   void _updateCoverArt(assets.Audio audio, Song song) async {
-    final artResp = await Repository().getImage(song.coverArt);
+    final artResp = await Repository().getImage(artId: song.art);
     if (artResp.status == DataStatus.ok) {
       audio.updateMetas(
         player: audioPlayer,
@@ -113,8 +126,14 @@ class AudioProvider {
   }
 
   void skipTo(int skipBy) async {
-    this.currentSongIndex += skipBy;
-    this._checkForPath();
+    if (audioPlayer.currentPosition.value > Duration(seconds: 5) && skipBy == -1) {
+      audioPlayer.seek(Duration(seconds: 0));
+    } else {
+      if (currentSongIndex + skipBy + 1 > songQueue.length ||
+          currentSongIndex + skipBy < 0) return;
+      this.currentSongIndex += skipBy;
+      this._checkForPath();
+    }
   }
 
   Future _play(String songPath, Song song) async {

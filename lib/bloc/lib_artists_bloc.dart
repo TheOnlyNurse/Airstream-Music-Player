@@ -1,4 +1,3 @@
-import 'package:airstream/data_providers/artist_provider.dart';
 import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/events/lib_artists_event.dart';
 import 'package:airstream/states/lib_artists_state.dart';
@@ -16,10 +15,7 @@ class LibraryArtistsBloc extends Bloc<LibraryAlbumsEvent, LibraryAlbumsState> {
   Stream<LibraryAlbumsState> mapEventToState(LibraryAlbumsEvent event) async* {
     if (event is Fetch) {
       try {
-        final response = await _repository.fetchCategory(
-          request: 'getArtists?',
-          database: ArtistProvider(),
-        );
+        final response = await _repository.getLibrary(Library.artists);
         switch (response.status) {
           case DataStatus.ok:
             yield Loaded(artists: response.data);
