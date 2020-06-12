@@ -7,7 +7,7 @@ class ArtistProvider extends DatabaseProvider {
   @override
   String get dbName => 'artists';
 
-	@override
+  @override
   String get tableColumns => 'id INTEGER primary key NOT NULL,'
       'name TEXT NOT NULL,'
       'albumCount INTEGER,'
@@ -19,19 +19,34 @@ class ArtistProvider extends DatabaseProvider {
 
   factory ArtistProvider() => _instance;
 
+  final virtualCache = <Artist>[];
+
   Future<List<Artist>> getLibraryList() async {
+    if (virtualCache.isNotEmpty) {
+      return virtualCache;
+    }
+
     final db = await database;
     final response = await db.query(dbName, orderBy: 'name ASC');
-    if (response.isEmpty) return _downloadArtists();
-    return response.map((a) => Artist.fromSQL(a)).toList();
+
+    if (response.isEmpty) {
+      return _downloadArtists();
+    } else {
+      virtualCache.clear();
+      virtualCache.addAll(response.map((a) => Artist.fromSQL(a)).toList());
+      return virtualCache;
+    }
   }
 
   Future<List<Artist>> _downloadArtists() async {
-    final artistXml = await ServerProvider().fetchXML('getArtists?');
-    if (artistXml != null)
-      return _updateWithXml(artistXml);
-    else
-      return null;
+		final artistXml = await ServerProvider().fetchXML('getArtists?');
+		if (artistXml != null) {
+			virtualCache.clear();
+			virtualCache.addAll(await _updateWithXml(artistXml));
+			return virtualCache;
+		} else {
+			return null;
+		}
   }
 
   Future<List<Artist>> _updateWithXml(xml.XmlDocument doc) async {
@@ -46,17 +61,18 @@ class ArtistProvider extends DatabaseProvider {
     return artistList;
   }
 
-  Future queryArtist({String name}) async {
-    final List<Artist> artistList = [];
-    final db = await database;
-    final response = await db.query(
-      dbName,
-      where: 'name LIKE ?',
-      whereArgs: ['%$name%'],
-      limit: 5,
-    );
-    if (response.isNotEmpty)
-      artistList.addAll(response.map((e) => Artist.fromSQL(e)).toList());
-    return artistList;
+	Future query({String name}) async {
+		final db = await database;
+		final response = await db.query(
+			dbName,
+			where: 'name LIKE ?',
+			whereArgs: ['%$name%'],
+			limit: 5,
+		);
+
+		if (response.isNotEmpty) {
+			return response.map((e) => Artist.fromSQL(e)).toList();
+		}
+		return null;
   }
 }

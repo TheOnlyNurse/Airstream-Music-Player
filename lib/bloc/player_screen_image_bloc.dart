@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:airstream/data_providers/repository.dart';
-import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 import 'package:bloc/bloc.dart';
 
 enum PlayerScreenImageEvent { fetchImage }
@@ -20,13 +19,13 @@ class ImageLoaded extends PlayerScreenImageState {
 
 class PlayerScreenImageBloc extends Bloc<PlayerScreenImageEvent, PlayerScreenImageState> {
   StreamSubscription _songChangingSS;
-  final _assestAudioPlayer = assets.AssetsAudioPlayer.withId('airstream');
+  final _player = Repository().audioPlayer;
   final lastImages = <String, String>{};
   String _lastPlayedAudio;
 
   PlayerScreenImageBloc() {
-    _songChangingSS = _assestAudioPlayer.current.listen((playing) {
-      if (_lastPlayedAudio != playing.audio.audio.path) {
+    _songChangingSS = _player.current.listen((playing) {
+      if (playing != null && _lastPlayedAudio != playing.audio.audio.path) {
         _lastPlayedAudio = playing.audio.audio.path;
         this.add(PlayerScreenImageEvent.fetchImage);
       }

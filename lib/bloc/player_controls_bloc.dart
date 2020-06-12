@@ -39,7 +39,7 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
 
   PlayerControlsBloc() {
     _newTracksSS = _audioPlayer.current.listen((playing) {
-      if (_lastPlayed != playing.audio.audio.path) {
+      if (playing != null && _lastPlayed != playing.audio.audio.path) {
         _lastPlayed = playing.audio.audio.path;
         _lastEvent = _getControlEvent();
         this.add(_lastEvent);

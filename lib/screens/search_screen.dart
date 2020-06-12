@@ -1,57 +1,113 @@
 import 'package:airstream/bloc/search_screen_bloc.dart';
 import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/widgets/airstream_image.dart';
+import 'package:airstream/widgets/artist_circle.dart';
 import 'package:airstream/widgets/song_list_tile.dart';
+import 'package:airstream/widgets/titled_art_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchScreen extends StatelessWidget {
-  final GlobalKey<NavigatorState> navKey;
+	final GlobalKey<NavigatorState> navKey;
+  static final _textController = TextEditingController();
 
   const SearchScreen({Key key, this.navKey}) : super(key: key);
 
-  Widget _buildSearchWidget(BuildContext context, SearchScreenState state) {
-    if (state is SearchResultsLoaded) {
-      return SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            if (state.artistList.isNotEmpty)
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: state.artistList.length,
-                  itemBuilder: (context, index) {
-                    return _ArtistCircle(artist: state.artistList[index], navKey: navKey);
-                  },
-                ),
-              ),
-            if (state.songList.isNotEmpty)
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 2,
-                child: ListView.builder(
-                  itemCount: state.songList.length,
-                  itemBuilder: (context, index) {
-                    return SongListTile(
-                      song: state.songList[index],
-                      onTap: () => Repository().playPlaylist(state.songList),
-                    );
-                  },
-                ),
-              )
-          ],
-        ),
-      );
-    }
+  Widget _buildSearchResults(BuildContext context, SearchScreenState state) {
     if (state is LoadingSearchResults) {
       return Center(child: CircularProgressIndicator());
     }
+
     if (state is NoSearchResults) {
       return Center(child: Text('Hmm...I couldn\'t find anything'));
     }
-    return Center(child: Text('I can feel you want to ask me something!'));
+
+    if (state is SearchResultsLoaded) {
+      Widget _buildArtistCircles() {
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            height: 180,
+            child: ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              physics: BouncingScrollPhysics(),
+              itemCount: state.artistList.length,
+              itemBuilder: (context, index) {
+                final artist = state.artistList[index];
+                return ArtistCircle(
+                  artist: artist,
+                  onTap: () {
+                    final navState = navKey.currentState;
+                    if (navState.canPop()) {
+                      navState.popUntil((route) => route.isFirst);
+                    }
+                    Navigator.pop(context);
+                    _textController.clear();
+                    navState.pushNamed('library/singleArtist', arguments: artist);
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      }
+
+      Widget _buildAlbumCards() {
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              itemCount: state.albumList.length,
+              itemBuilder: (context, index) {
+                final album = state.albumList[index];
+                return TitledArtCard(
+                  artId: album.art,
+                  title: album.title,
+                  subtitle: album.artist,
+                  width: 150,
+                  onTap: () {
+                    final navState = navKey.currentState;
+                    if (navState.canPop()) {
+                      navState.popUntil((route) => route.isFirst);
+                    }
+                    Navigator.pop(context);
+                    _textController.clear();
+                    navState.pushNamed('library/singleAlbum', arguments: album);
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      }
+
+      Widget _buildSongTiles() {
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, int index) {
+              return SongListTile(
+                song: state.songList[index],
+                onTap: () => Repository().playPlaylist([state.songList[index]]),
+              );
+            },
+            childCount: state.songList.length,
+          ),
+        );
+      }
+
+      return CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: <Widget>[
+          if (state.artistList.isNotEmpty) _buildArtistCircles(),
+          if (state.albumList.isNotEmpty) _buildAlbumCards(),
+          if (state.songList.isNotEmpty) _buildSongTiles(),
+        ],
+      );
+    }
+
+    return Center(child: Text('Here to serve!'));
   }
 
   @override
@@ -68,13 +124,16 @@ class SearchScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+											icon: Icon(Icons.close),
+											onPressed: () {
+												Navigator.of(context, rootNavigator: true).pop();
+												_textController.clear();
+											},
                     ),
                   ),
                 ),
                 Expanded(
-                  child: _buildSearchWidget(context, state),
+									child: _buildSearchResults(context, state),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -91,15 +150,20 @@ class SearchScreen extends StatelessWidget {
                         SizedBox(width: 16),
                         Expanded(
                           child: TextField(
-                            onChanged: (query) =>
-                                context.bloc<SearchScreenBloc>().add(query),
-                            autofocus: true,
-                            maxLength: 25,
-                            decoration: InputDecoration(
-                              counterText: '',
-                              border: InputBorder.none,
-                              hintText: 'Search',
-                            ),
+														controller: _textController,
+														onChanged: (query) =>
+																context.bloc<SearchScreenBloc>().add(query),
+														autofocus: true,
+														maxLength: 25,
+														decoration: InputDecoration(
+															counterText: '',
+															border: InputBorder.none,
+															hintText: 'Search',
+															suffixIcon: IconButton(
+																onPressed: () => _textController.clear(),
+																icon: Icon(Icons.clear),
+															),
+														),
                           ),
                         ),
                       ],
@@ -111,42 +175,6 @@ class SearchScreen extends StatelessWidget {
           ),
         );
       }),
-    );
-  }
-}
-
-class _ArtistCircle extends StatelessWidget {
-  final Artist artist;
-  final GlobalKey<NavigatorState> navKey;
-
-  const _ArtistCircle({Key key, this.artist, this.navKey}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (navKey.currentState.canPop())
-          navKey.currentState.popUntil((route) => route.isFirst);
-        Navigator.pop(context);
-        navKey.currentState.pushNamed('library/singleArtist', arguments: artist);
-      },
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Container(
-								width: 80,
-								height: 80,
-								decoration: BoxDecoration(shape: BoxShape.circle),
-								clipBehavior: Clip.hardEdge,
-								child: AirstreamImage(coverArt: artist.art),
-              ),
-            ),
-            Text(artist.name),
-          ],
-        ),
-      ),
     );
   }
 }

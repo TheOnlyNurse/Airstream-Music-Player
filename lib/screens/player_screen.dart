@@ -12,7 +12,6 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  final imageKey = GlobalKey();
   Song songPlaying = Repository().currentSong;
 
   void updateCurrentSong() {

@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart' as xml;
 
 class Song extends Equatable {
-	final int id;
+  final int id;
   final String title;
   final String album;
   final String artist;
@@ -59,9 +59,11 @@ class Song extends Equatable {
         'artistId': artistId,
       };
 
-  Metas toMetas() => Metas(
-        title: title,
-        artist: artist,
-        album: album,
-      );
+	Metas toMetas({String image}) =>
+			Metas(
+				title: title,
+				artist: artist,
+				album: album,
+				image: image != null ? MetasImage.file(image) : null,
+			);
 }

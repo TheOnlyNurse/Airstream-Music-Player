@@ -53,6 +53,7 @@ class SongList extends StatelessWidget {
               ),
             );
             return CustomScrollView(
+							physics: BouncingScrollPhysics(),
               slivers: sliverList,
             );
           }

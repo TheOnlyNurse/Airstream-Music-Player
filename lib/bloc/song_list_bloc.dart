@@ -50,7 +50,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
       response = await Repository().getAlbumSongs(event.album);
     }
     if (event is FetchPlaylistSongs) {
-      response = await Repository().getSongsById(event.playlist.songIds);
+      response = await Repository().getSongListByIds(event.playlist.songIds);
     }
     if (event is FetchStarredSongs) {
 			response = await Repository().getLibrary(Library.songs);

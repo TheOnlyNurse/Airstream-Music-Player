@@ -5,7 +5,6 @@ import 'package:airstream/data_providers/artist_provider.dart';
 import 'package:airstream/data_providers/audio_provider.dart';
 import 'package:airstream/data_providers/image_cache_provider.dart';
 import 'package:airstream/data_providers/playlist_provider.dart';
-import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/data_providers/song_provider.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/artist_model.dart';
@@ -65,7 +64,10 @@ class Repository {
 
   Future<RepoResponse> getImage({String artId, int songId, hiDef = false}) async {
     if (songId != null) {
-      final song = (await SongProvider().querySongs(id: songId, searchLimit: 1)).first;
+      final song = (await SongProvider().query(id: songId, searchLimit: 1)).first;
+      if (song == null) {
+        return RepoResponse(status: DataStatus.error);
+      }
       artId = song.art;
     }
     final imageLocation = await ImageCacheProvider().getCoverArt(artId, hiDef);
@@ -75,20 +77,25 @@ class Repository {
     return RepoResponse(status: DataStatus.ok, data: File(imageLocation));
   }
 
+  /// Search
+
   Future<RepoResponse> search(String query, Library libraryType) async {
-    List<dynamic> list = [];
+    var list = [];
     switch (libraryType) {
       case Library.artists:
-        list = await ArtistProvider().queryArtist(name: query);
+        list = await ArtistProvider().query(name: query);
+        break;
+      case Library.albums:
+        list = await AlbumProvider().query(title: query);
         break;
       case Library.songs:
-        list = await SongProvider().querySongs(title: query, artist: query);
+        list = await SongProvider().query(title: query, artist: query);
         break;
       default:
         throw UnimplementedError();
     }
 
-    if (list.isEmpty)
+    if (list == null)
       return RepoResponse(status: DataStatus.error);
     else
       return RepoResponse(status: DataStatus.ok, data: list);
@@ -114,35 +121,19 @@ class Repository {
   /// The songlist retrieved is checked for missing tracks against the album song count,
   /// fetching from the server when deficient.
   Future<RepoResponse> getAlbumSongs(Album album) async {
-    List<Song> songList = await SongProvider().querySongs(albumId: album.id);
-    if (songList.length != album.songCount) {
-      final xmlDoc = await ServerProvider().fetchXML('getAlbum?id=${album.id}&');
-      songList = await SongProvider().updateWithXml(xmlDoc);
-      songList.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-    }
+    var songList = await SongProvider().query(albumId: album.id);
     if (songList == null)
       return RepoResponse(status: DataStatus.error);
     else
       return RepoResponse(status: DataStatus.ok, data: songList);
   }
 
-  Future<RepoResponse> getSongsById(List<int> songIds) async {
+  Future<RepoResponse> getSongListByIds(List<int> songIds) async {
     var songList = <Song>[];
     for (var id in songIds) {
-      final list = await SongProvider().querySongs(id: id, searchLimit: 1);
-      if (list.isNotEmpty) songList.add(list.first);
-    }
-    if (songList.length != songIds.length) {
-      final idsToFetch = songIds;
-      for (var song in songList) {
-        idsToFetch.remove(song.id);
-      }
-      for (var id in idsToFetch) {
-        final xmlDoc = await ServerProvider().fetchXML('getSong?id=$id&');
-        if (xmlDoc != null) {
-          final list = await SongProvider().updateWithXml(xmlDoc);
-          songList.add(list.first);
-        }
+      final list = await SongProvider().query(id: id, searchLimit: 1);
+      if (list.isNotEmpty) {
+        songList.add(list.first);
       }
     }
     if (songList.isEmpty)
@@ -170,27 +161,24 @@ class Repository {
   void skipToPrevious() => AudioProvider().skipTo(-1);
 
   void playPlaylist(List<Song> playlist, {int index = 0}) =>
-      AudioProvider().createQueueAndPlay(
-        playlist,
-        index,
-      );
+      AudioProvider().createQueueAndPlay(playlist, index);
 }
 
 enum Library {
-	playlists,
-	artists,
-	albums,
-	songs,
+  playlists,
+  artists,
+  albums,
+  songs,
 }
 
 enum DataStatus {
-	ok,
-	error,
+  ok,
+  error,
 }
 
 class RepoResponse {
-	final DataStatus status;
-	final data;
+  final DataStatus status;
+  final data;
 
-	const RepoResponse({@required this.status, this.data});
+  const RepoResponse({@required this.status, this.data});
 }

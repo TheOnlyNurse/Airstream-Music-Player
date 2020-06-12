@@ -30,12 +30,18 @@ class SearchScreenBloc extends Bloc<String, SearchScreenState> {
       yield LoadingSearchResults();
       final songResults = await Repository().search(event, Library.songs);
       final artistResults = await Repository().search(event, Library.artists);
+      final albumResults = await Repository().search(event, Library.albums);
       if (songResults.status == DataStatus.error &&
-          artistResults.status == DataStatus.error)
+          artistResults.status == DataStatus.error &&
+          albumResults.status == DataStatus.error) {
         yield NoSearchResults();
-      else
+      } else {
         yield SearchResultsLoaded(
-            songList: songResults.data ?? [], artistList: artistResults.data ?? []);
+          songList: songResults.data ?? [],
+          artistList: artistResults.data ?? [],
+          albumList: albumResults.data ?? [],
+        );
+      }
     } else {
       yield NoSearchRequested();
     }

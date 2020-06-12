@@ -16,19 +16,16 @@ class AudioProvider {
 
   AudioProvider._internal() {
     print("AudioProvider initialised.");
-    audioPlayer.currentPosition.listen((position) {
-      if (audioPlayer.current.value != null) {
-        final maxDuration = audioPlayer.current.value.audio.duration;
-        if (position == maxDuration) {
-          if (hasNext) {
-            currentSongIndex++;
-            _checkForPath();
-          } else {
-            audioPlayer.stop();
-          }
-        }
-      }
-    });
+//    audioPlayer.playerState.listen((playing) {
+//      if (playing == assets.PlayerState.stop) {
+//        if (hasNext) {
+//          currentSongIndex++;
+//          _checkForPath();
+//        } else {
+//          audioPlayer.stop();
+//        }
+//      }
+//    });
   }
 
   factory AudioProvider() => _instance;
@@ -60,10 +57,8 @@ class AudioProvider {
 
     final StreamController<List<int>> fileBytesSC = StreamController();
     if (isNotPrefetch) percentageSC.add(PercentageModel(current: 0, total: 1));
-    final totalFileSize = await ServerProvider().streamFile(
-      'stream?id=${song.id}',
-      fileBytesSC,
-    );
+    final totalFileSize =
+        await ServerProvider().streamFile('stream?id=${song.id}', fileBytesSC);
     int currentFileSize = 0;
 
     _downloadSS = fileBytesSC.stream.listen((bytes) {
@@ -118,19 +113,17 @@ class AudioProvider {
   void _updateCoverArt(assets.Audio audio, Song song) async {
     final artResp = await Repository().getImage(artId: song.art);
     if (artResp.status == DataStatus.ok) {
-      audio.updateMetas(
-        player: audioPlayer,
-        image: assets.MetasImage.file(artResp.data.path),
-      );
+      audio.updateMetas(image: assets.MetasImage.file(artResp.data.path));
     }
   }
 
   void skipTo(int skipBy) async {
     if (audioPlayer.currentPosition.value > Duration(seconds: 5) && skipBy == -1) {
-      audioPlayer.seek(Duration(seconds: 0));
+      audioPlayer.seek(Duration(seconds: 0), force: true);
+    } else if (currentSongIndex + skipBy + 1 > songQueue.length ||
+        currentSongIndex + skipBy < 0) {
+      return;
     } else {
-      if (currentSongIndex + skipBy + 1 > songQueue.length ||
-          currentSongIndex + skipBy < 0) return;
       this.currentSongIndex += skipBy;
       this._checkForPath();
     }
@@ -143,8 +136,6 @@ class AudioProvider {
         audio,
         showNotification: true,
         notificationSettings: assets.NotificationSettings(
-          prevEnabled: this.hasPrevious,
-          nextEnabled: this.hasNext,
           customPrevAction: (player) => this.skipTo(-1),
           customNextAction: (player) => this.skipTo(1),
         ),

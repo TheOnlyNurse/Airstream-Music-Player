@@ -1,4 +1,12 @@
+import 'package:flutter/material.dart';
+
 abstract class NavigationBarEvent {}
+
+class NavigationBarStarted extends NavigationBarEvent {
+  final GlobalKey<NavigatorState> libraryNavKey;
+
+  NavigationBarStarted(this.libraryNavKey);
+}
 
 class NavigationBarMusicStopped extends NavigationBarEvent {}
 

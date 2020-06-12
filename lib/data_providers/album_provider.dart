@@ -22,48 +22,75 @@ class AlbumProvider extends DatabaseProvider {
 
   factory AlbumProvider() => _instance;
 
+  final virtualCache = <Album>[];
+
   Future<List<Album>> getLibraryList() async {
+    if (virtualCache.isNotEmpty) {
+      return virtualCache;
+    }
+
     final db = await database;
     final response = await db.query(dbName, orderBy: 'title ASC');
-    if (response.isEmpty)
+
+    if (response.isEmpty) {
       return _downloadAlbums();
-    else
-      return response.map((a) => Album.fromSQL(a)).toList();
+    } else {
+      virtualCache.addAll(response.map((a) => Album.fromSQL(a)).toList());
+      return virtualCache;
+    }
   }
 
   Future<List<Album>> _downloadAlbums() async {
-    final size = 500;
-    int offset = 0;
-    bool hasChildren = true;
-    final albumList = <Album>[];
+		final size = 500;
+		int offset = 0;
+		bool hasChildren = true;
+		final albumList = <Album>[];
 
-    // Clear db in preparation for new entries
-    await (await database).delete(dbName);
+		// Clear db in preparation for new entries
+		virtualCache.clear();
+		await (await database).delete(dbName);
 
-    do {
-      final response = await ServerProvider()
-          .fetchXML('getAlbumList2?type=alphabeticalByName&size=$size&offset=$offset');
-      if (response == null) break;
-      final elementList = response.findAllElements('album').toList();
-      if (elementList.isEmpty) {
-        hasChildren = false;
-      } else {
-        albumList.addAll(await _addXmlElements(elementList));
-        offset += size;
-      }
-    } while (hasChildren);
+		do {
+			final response = await ServerProvider()
+					.fetchXML('getAlbumList2?type=alphabeticalByName&size=$size&offset=$offset');
+			if (response == null) break;
+			final elementList = response.findAllElements('album').toList();
+			if (elementList.isEmpty) {
+				hasChildren = false;
+			} else {
+				albumList.addAll(await _addXmlElements(elementList));
+				offset += size;
+			}
+		} while (hasChildren);
 
-    return albumList;
-  }
+		virtualCache.addAll(albumList);
+		return albumList;
+	}
 
-  Future<List<Album>> _addXmlElements(List<xml.XmlElement> elementList) async {
-    final albumList = elementList.map((e) => Album.fromServer(e)).toList();
+	Future<List<Album>> query({String title}) async {
+		final db = await database;
+		final response = await db.query(
+			dbName,
+			where: 'title LIKE ?',
+			whereArgs: ['%$title%'],
+			limit: 5,
+		);
 
-    final db = await database;
-    for (var album in albumList) await db.insert(dbName, album.toSQL());
+		if (response.isNotEmpty) {
+			return response.map((e) => Album.fromSQL(e)).toList();
+		}
+		return null;
+	}
 
-    return albumList;
-  }
+	Future<List<Album>> _addXmlElements(List<xml.XmlElement> elementList) async {
+		final albumList = elementList.map((e) => Album.fromServer(e)).toList();
+
+		final db = await database;
+		for (var album in albumList)
+			await db.insert(dbName, album.toSQL());
+
+		return albumList;
+	}
 
   Future<int> getArtistId(int albumId) async {
     final db = await database;

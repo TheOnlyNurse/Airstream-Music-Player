@@ -7,20 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AirstreamNavBar extends StatelessWidget {
-  final PageController pageController;
-  final GlobalKey<NavigatorState> libNavKey;
-
-  const AirstreamNavBar({Key key, this.pageController, this.libNavKey}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bool _isMusicPlaying(NavigationBarState state) {
+      return state is NavigationBarLoaded && state.musicPlaying;
+    }
+
     return BlocBuilder<NavigationBarBloc, NavigationBarState>(
       builder: (context, state) {
         final currentIndex = state is NavigationBarLoaded ? state.index : null;
+
         return BottomAppBar(
-          shape: state is NavigationBarLoaded && state.musicPlaying
-              ? CircularNotchedRectangle()
-              : null,
+          shape: _isMusicPlaying(state) ? CircularNotchedRectangle() : null,
           child: AnimatedContainer(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             duration: Duration(milliseconds: 500),
@@ -49,10 +48,9 @@ class AirstreamNavBar extends StatelessWidget {
                         selectedIndex: currentIndex,
                         index: 1,
                       ),
-                      Container(
-                        width: 70,
-                        height: 60,
-                        color: Colors.transparent,
+                      Visibility(
+                        visible: _isMusicPlaying(state) ? true : false,
+                        child: Spacer(),
                       ),
                       _AirstreamBottomBarIcon(
                         iconData: Icons.album,
@@ -105,23 +103,25 @@ class _AirstreamBottomBarIcon extends StatelessWidget {
       child: SizedBox(
         height: 60,
         child: InkWell(
-					onTap: () =>
-							context.bloc<NavigationBarBloc>().add(NavigationBarNavigate(index)),
-					child: Column(
-						mainAxisAlignment: MainAxisAlignment.center,
-						children: <Widget>[
-							Icon(
-								iconData,
-								color: selectedIndex == index
-										? Theme
-										.of(context)
-										.accentColor
-										: Theme
-										.of(context)
-										.disabledColor,
-							),
-							if (selectedIndex == index)
-                Text(title, style: TextStyle(color: Theme.of(context).accentColor)),
+          onTap: () =>
+              context.bloc<NavigationBarBloc>().add(NavigationBarNavigate(index)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                iconData,
+                color: selectedIndex == index
+                    ? Theme
+                    .of(context)
+                    .accentColor
+                    : Theme
+                    .of(context)
+                    .disabledColor,
+              ),
+              if (selectedIndex == index)
+                Text(title, style: TextStyle(color: Theme
+                    .of(context)
+                    .accentColor)),
             ],
           ),
         ),
