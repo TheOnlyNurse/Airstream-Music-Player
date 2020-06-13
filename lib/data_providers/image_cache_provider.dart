@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:airstream/data_providers/cache_provider.dart';
 import 'package:airstream/data_providers/server_provider.dart';
+import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:path/path.dart' as p;
 
 class ImageCacheProvider extends CacheProvider {
@@ -14,7 +15,8 @@ class ImageCacheProvider extends CacheProvider {
       'size INTEGER NOT NULL';
 
   @override
-  int get maxCacheSize => 20 * 1024 * 1024;
+  Future<int> get maxCacheSize async =>
+      (await SettingsProvider().imageCacheSize) * 1024 * 1024;
 
   ImageCacheProvider._internal();
 
@@ -48,9 +50,9 @@ class ImageCacheProvider extends CacheProvider {
   }
 
   Future<String> _downloadImage(String artId, bool isHiDef) async {
-    String url =
+    String request =
         isHiDef ? 'getCoverArt?id=$artId&size=512&' : 'getCoverArt?id=$artId&size=256&';
-    final response = await ServerProvider().downloadFile(url);
+    final response = await ServerProvider().fetchRequest(request);
     if (response == null) return null;
     return await this._cacheImage(artId, isHiDef, response.bodyBytes);
   }

@@ -19,7 +19,7 @@ abstract class CacheProvider {
   final Uuid idGenerator = Uuid();
 
   // Dart reads files in bytes.
-  int get maxCacheSize;
+  Future<int> get maxCacheSize;
 
   //  Open database if it hasn't been opened yet (as judged by the getter database)
   Future<Database> getDatabaseInstance() async {
@@ -73,7 +73,7 @@ abstract class CacheProvider {
     var rawQuery = await db.rawQuery('SELECT size FROM $dbName');
     final cacheSize = rawQuery.fold(0, (prev, curr) => prev + curr.values.first);
     // Standardise the cache size and compare
-    if (cacheSize > maxCacheSize) {
+    if (cacheSize > await maxCacheSize) {
       // Get the rowId => location of file => delete file => delete database entry
       var rawQuery =
           await db.rawQuery('SELECT location FROM $dbName ORDER BY ROWID ASC LIMIT 1');

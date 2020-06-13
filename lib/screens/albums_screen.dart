@@ -41,7 +41,9 @@ class AlbumsScreen extends StatelessWidget {
                 );
               }
               return AlphabeticalGridView(
-                  controller: controller, modelList: state.albums);
+                controller: controller,
+                modelList: state.albums,
+              );
             }
             return Center(
               child: Text('Fatal state error.'),

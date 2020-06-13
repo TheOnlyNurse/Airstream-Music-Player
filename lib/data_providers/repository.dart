@@ -5,6 +5,7 @@ import 'package:airstream/data_providers/artist_provider.dart';
 import 'package:airstream/data_providers/audio_provider.dart';
 import 'package:airstream/data_providers/image_cache_provider.dart';
 import 'package:airstream/data_providers/playlist_provider.dart';
+import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/data_providers/song_provider.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/artist_model.dart';
@@ -64,11 +65,11 @@ class Repository {
 
   Future<RepoResponse> getImage({String artId, int songId, hiDef = false}) async {
     if (songId != null) {
-      final song = (await SongProvider().query(id: songId, searchLimit: 1)).first;
-      if (song == null) {
+      final songResults = await SongProvider().query(id: songId, searchLimit: 1);
+      if (songResults == null) {
         return RepoResponse(status: DataStatus.error);
       }
-      artId = song.art;
+      artId = songResults.first.art;
     }
     final imageLocation = await ImageCacheProvider().getCoverArt(artId, hiDef);
 
@@ -77,7 +78,7 @@ class Repository {
     return RepoResponse(status: DataStatus.ok, data: File(imageLocation));
   }
 
-  /// Search
+  /// Querying database providers
 
   Future<RepoResponse> search(String query, Library libraryType) async {
     var list = [];
@@ -86,10 +87,13 @@ class Repository {
         list = await ArtistProvider().query(name: query);
         break;
       case Library.albums:
-        list = await AlbumProvider().query(title: query);
+        list = await AlbumProvider().query(title: query, searchLimit: 5);
         break;
       case Library.songs:
-        list = await SongProvider().query(title: query, artist: query);
+        list = await SongProvider().query(title: query, searchLimit: 5);
+        final artistSearch = await SongProvider().query(artist: query, searchLimit: 5);
+        if (list != null && artistSearch != null) list.addAll(artistSearch);
+        if (list == null && artistSearch != null) list = artistSearch;
         break;
       default:
         throw UnimplementedError();
@@ -101,17 +105,25 @@ class Repository {
       return RepoResponse(status: DataStatus.ok, data: list);
   }
 
-  /// Album Repo
-
   Future<RepoResponse> getArtistAlbums(Artist artist) async {
-    List<Album> albumList = await AlbumProvider().getAlbumList(artistId: artist.id);
-    if (albumList == null) {
-      return RepoResponse(
-        status: DataStatus.error,
-      );
-    } else {
+    final albumList = await AlbumProvider().query(
+      artistId: artist.id,
+      searchLimit: artist.albumCount,
+    );
+
+    if (albumList == null)
+      return RepoResponse(status: DataStatus.error);
+    else
       return RepoResponse(status: DataStatus.ok, data: albumList);
-    }
+  }
+
+  Future<RepoResponse> getAlbumFromSong(Song song) async {
+    final albumList = await AlbumProvider().query(id: song.albumId, searchLimit: 1);
+
+    if (albumList == null)
+      return RepoResponse(status: DataStatus.error);
+    else
+      return RepoResponse(status: DataStatus.ok, data: albumList.first);
   }
 
   /// Song Repo
@@ -121,7 +133,10 @@ class Repository {
   /// The songlist retrieved is checked for missing tracks against the album song count,
   /// fetching from the server when deficient.
   Future<RepoResponse> getAlbumSongs(Album album) async {
-    var songList = await SongProvider().query(albumId: album.id);
+    var songList = await SongProvider().query(
+      albumId: album.id,
+      searchLimit: album.songCount,
+    );
     if (songList == null)
       return RepoResponse(status: DataStatus.error);
     else
@@ -132,9 +147,7 @@ class Repository {
     var songList = <Song>[];
     for (var id in songIds) {
       final list = await SongProvider().query(id: id, searchLimit: 1);
-      if (list.isNotEmpty) {
-        songList.add(list.first);
-      }
+      if (list != null) songList.add(list.first);
     }
     if (songList.isEmpty)
       return RepoResponse(status: DataStatus.error);
@@ -162,23 +175,38 @@ class Repository {
 
   void playPlaylist(List<Song> playlist, {int index = 0}) =>
       AudioProvider().createQueueAndPlay(playlist, index);
+
+  /// Settings Repo
+  Future<RepoSettingsContainer> getSettings() async {
+    final provider = SettingsProvider();
+    return RepoSettingsContainer(
+      prefetch: await provider.prefetchValue,
+      isOffline: await provider.isOffline,
+      imageCacheSize: await provider.imageCacheSize,
+      musicCacheSize: await provider.musicCacheSize,
+    );
+  }
+
+  void setSettings(SettingsChangedType type, dynamic value) =>
+      SettingsProvider().setSetting(type, value);
 }
 
-enum Library {
-  playlists,
-  artists,
-  albums,
-  songs,
-}
-
-enum DataStatus {
-  ok,
-  error,
-}
+enum Library { playlists, artists, albums, songs }
+enum DataStatus { ok, error }
 
 class RepoResponse {
   final DataStatus status;
   final data;
 
   const RepoResponse({@required this.status, this.data});
+}
+
+class RepoSettingsContainer {
+  final int prefetch;
+  final bool isOffline;
+  final int imageCacheSize;
+  final int musicCacheSize;
+
+  RepoSettingsContainer(
+      {this.prefetch, this.isOffline, this.imageCacheSize, this.musicCacheSize});
 }

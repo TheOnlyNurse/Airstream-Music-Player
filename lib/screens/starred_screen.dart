@@ -6,6 +6,8 @@ class StarredScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SongList();
+    return SongList(
+      onError: Center(child: Text('Unable to load starred')),
+    );
   }
 }

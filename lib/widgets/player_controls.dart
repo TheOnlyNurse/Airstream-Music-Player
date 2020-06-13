@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PlayerControls extends StatelessWidget {
-  final Function onNextOrPrevious;
-
-  const PlayerControls({Key key, this.onNextOrPrevious}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,45 +39,36 @@ class PlayerControls extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => PlayerControlsBloc(),
-      child:
-          BlocBuilder<PlayerControlsBloc, PlayerControlsState>(builder: (context, state) {
-        final isPrevious = _isPreviousEnabled(state);
-        final isNext = _isNextEnabled(state);
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            RawMaterialButton(
-              shape: CircleBorder(),
-              child: Icon(
-                Icons.skip_previous,
-                size: 40.0,
-                color: isPrevious ? enabledColor : disabledColor,
+      child: BlocBuilder<PlayerControlsBloc, PlayerControlsState>(
+        builder: (context, state) {
+          final isPrevious = _isPreviousEnabled(state);
+          final isNext = _isNextEnabled(state);
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              RawMaterialButton(
+                shape: CircleBorder(),
+                child: Icon(
+                  Icons.skip_previous,
+                  size: 40.0,
+                  color: isPrevious ? enabledColor : disabledColor,
+                ),
+                onPressed: isPrevious ? () => Repository().skipToPrevious() : null,
               ),
-              onPressed: isPrevious
-                  ? () {
-                      Repository().skipToPrevious();
-                      onNextOrPrevious();
-                    }
-                  : null,
-            ),
-            PlayButton(),
-            RawMaterialButton(
-              shape: CircleBorder(),
-              child: Icon(
-                Icons.skip_next,
-                size: 40.0,
-                color: isNext ? enabledColor : disabledColor,
+              PlayButton(),
+              RawMaterialButton(
+                shape: CircleBorder(),
+                child: Icon(
+                  Icons.skip_next,
+                  size: 40.0,
+                  color: isNext ? enabledColor : disabledColor,
+                ),
+                onPressed: isNext ? () => Repository().skipToNext() : null,
               ),
-              onPressed: isNext
-                  ? () {
-                      Repository().skipToNext();
-                      onNextOrPrevious();
-                    }
-                  : null,
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }

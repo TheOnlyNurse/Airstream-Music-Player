@@ -6,10 +6,10 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 class AlphabeticalGridView extends StatelessWidget {
   final List<dynamic> modelList;
-  final List<Widget> initialSlivers;
+  final List<Widget> leading;
   final ScrollController controller;
 
-  AlphabeticalGridView({@required this.modelList, this.initialSlivers, this.controller});
+  AlphabeticalGridView({@required this.modelList, this.leading, this.controller});
 
   Map<String, Map<String, int>> _getHeaderIndexes() {
     final list = this.modelList;
@@ -44,7 +44,7 @@ class AlphabeticalGridView extends StatelessWidget {
   List<Widget> _createMultipleGrids(Map<String, Map<String, int>> headerIndexes) {
     final list = this.modelList;
     // The first widget should be the search bar widget
-    List<Widget> sliverList = initialSlivers != null ? initialSlivers : [];
+    List<Widget> sliverList = leading != null ? leading : [];
     // Build the grid with a header
     headerIndexes.forEach((letter, range) {
       final subList = list.sublist(range['startIndex'], range['endIndex']);

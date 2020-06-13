@@ -17,9 +17,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../complex_widgets/nav_bar.dart';
 
 class LibraryWidget extends StatefulWidget {
-  final GlobalKey<NavigatorState> libraryNavKey;
+  final GlobalKey<NavigatorState> navKey;
 
-  const LibraryWidget({Key key, this.libraryNavKey}) : super(key: key);
+  const LibraryWidget({Key key, this.navKey}) : super(key: key);
 
   _LibraryState createState() => _LibraryState();
 }
@@ -43,7 +43,7 @@ class _LibraryState extends State<LibraryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final libraryNavKey = this.widget.libraryNavKey;
+    final libraryNavKey = this.widget.navKey;
 
     return MultiBlocProvider(
       providers: [
@@ -51,23 +51,19 @@ class _LibraryState extends State<LibraryWidget> {
           create: (context) =>
               NavigationBarBloc()..add(NavigationBarStarted(libraryNavKey)),
         ),
-        BlocProvider<MinimisedPlayerBloc>(
-          create: (context) => MinimisedPlayerBloc(),
-        ),
-        BlocProvider<PlayerTargetBloc>(
-          create: (context) => PlayerTargetBloc(),
-        ),
+        BlocProvider<MinimisedPlayerBloc>(create: (context) => MinimisedPlayerBloc()),
+        BlocProvider<PlayerTargetBloc>(create: (context) => PlayerTargetBloc()),
       ],
       child: BlocListener<NavigationBarBloc, NavigationBarState>(
         listener: (context, state) {
-          if (state is NavigationBarLoaded && state.isNewScreen) {
+          if (state is NavigationBarLoaded && state.newIndex != -1) {
             if (libraryNavKey.currentState.canPop())
               libraryNavKey.currentState.popUntil((route) => route.isFirst);
 
             pageController.animateToPage(
-              state.index,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
+              state.newIndex,
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeInQuart,
             );
           }
         },
@@ -77,6 +73,7 @@ class _LibraryState extends State<LibraryWidget> {
               libraryNavKey.currentState.pop();
               return false;
             }
+
             return true;
           },
           child: Scaffold(
@@ -84,7 +81,7 @@ class _LibraryState extends State<LibraryWidget> {
               child: Stack(
                 children: <Widget>[
                   Navigator(
-                    key: this.widget.libraryNavKey,
+                    key: this.widget.navKey,
                     initialRoute: 'library/',
                     onGenerateRoute: (settings) {
                       WidgetBuilder builder;

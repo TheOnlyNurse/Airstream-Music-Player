@@ -9,9 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SongList extends StatelessWidget {
   final Album album;
   final Playlist playlist;
-  final List<Widget> initialSlivers;
+  final List<Widget> leading;
+  final Widget onError;
 
-  SongList({this.initialSlivers, this.album, this.playlist});
+  SongList({@required this.onError, this.leading, this.album, this.playlist});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class SongList extends StatelessWidget {
         builder: (context, state) {
           if (state is SongListLoaded) {
             final List<Widget> sliverList = [];
-            if (this.initialSlivers != null) sliverList.addAll(this.initialSlivers);
+            if (this.leading != null) sliverList.addAll(this.leading);
             sliverList.add(
               SliverPadding(
                 padding: const EdgeInsets.only(bottom: 30.0),
@@ -53,34 +54,13 @@ class SongList extends StatelessWidget {
               ),
             );
             return CustomScrollView(
-							physics: BouncingScrollPhysics(),
+              physics: BouncingScrollPhysics(),
               slivers: sliverList,
             );
           }
           if (state is SongListUninitialised)
             return Center(child: CircularProgressIndicator());
-          return Center(
-            child: SizedBox(
-              height: 80.0,
-              child: Column(
-                children: <Widget>[
-                  Text('Hmm...I couldn\'t find any songs'),
-                  RawMaterialButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    fillColor: Colors.transparent,
-                    elevation: 0.0,
-                    highlightElevation: 0.0,
-                    constraints: BoxConstraints.tightFor(
-                      width: 50,
-                      height: 50,
-                    ),
-                    shape: CircleBorder(),
-                    child: Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return onError;
         },
       ),
     );

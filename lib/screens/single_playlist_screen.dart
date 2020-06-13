@@ -13,7 +13,7 @@ class SinglePlaylistScreen extends StatelessWidget {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SongList(
         playlist: playlist,
-        initialSlivers: <Widget>[
+        leading: <Widget>[
           SliverAppBar(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             leading: RawMaterialButton(
@@ -23,6 +23,26 @@ class SinglePlaylistScreen extends StatelessWidget {
             ),
           ),
         ],
+        onError: Stack(
+          children: <Widget>[
+            Center(child: Text('Unable to load playlist')),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: RawMaterialButton(
+                  shape: CircleBorder(),
+                  constraints: BoxConstraints.tightFor(
+                    width: 60,
+                    height: 60,
+                  ),
+                  child: Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

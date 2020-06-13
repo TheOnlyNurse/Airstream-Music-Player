@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:xml/xml.dart' as xml;
 
 class Playlist extends Equatable {
-	final int id;
+  final int id;
   final String name;
   final String comment;
   final String date;
@@ -15,7 +17,7 @@ class Playlist extends Equatable {
 
   factory Playlist.fromServer(xml.XmlDocument doc) {
     final songIds =
-        doc.findAllElements('entry').map((e) => int.parse(e.getAttribute('id'))).toList();
+    doc.findAllElements('entry').map((e) => int.parse(e.getAttribute('id'))).toList();
     final element = doc.findAllElements('playlist').first;
     return Playlist(
       id: int.parse(element.getAttribute('id')),
@@ -26,30 +28,19 @@ class Playlist extends Equatable {
     );
   }
 
-  factory Playlist.fromSQL(Map<String, dynamic> json) {
-    List<int> _decodeListFromString(String initialString) {
-      final withoutBrackets = initialString.substring(1, initialString.length - 1);
-      if (withoutBrackets.length == 0) return [];
-      if (!withoutBrackets.contains(',')) return [int.parse(withoutBrackets)];
-      final stringList = withoutBrackets.split(', ');
-      return stringList.map((e) => int.parse(e)).toList();
-    }
+  factory Playlist.fromSQL(Map<String, dynamic> column) => Playlist(
+        id: column['id'],
+        name: column['name'],
+        comment: column['comment'],
+        date: column['date'],
+        songIds: jsonDecode(column['songIds']).cast<int>(),
+      );
 
-    return Playlist(
-      id: json['id'],
-      name: json['name'],
-      comment: json['comment'],
-      date: json['date'],
-      songIds: _decodeListFromString(json['songIds']),
-    );
-  }
-
-	Map<String, dynamic> toSQL() =>
-			{
-				'id': id,
-				'name': name,
-				'comment': comment,
-				'date': date,
-				'songIds': songIds.toString(),
-			};
+  Map<String, dynamic> toSQL() => {
+        'id': id,
+        'name': name,
+        'comment': comment,
+        'date': date,
+        'songIds': jsonEncode(songIds),
+      };
 }

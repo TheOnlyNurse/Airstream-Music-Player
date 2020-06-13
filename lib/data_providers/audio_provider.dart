@@ -97,7 +97,7 @@ class AudioProvider {
 
   void _prefetch() async {
     final int songsToFetch = Math.min(
-      SettingsProvider().prefetchValue,
+      await SettingsProvider().prefetchValue,
       this.songQueue.length - this.currentSongIndex - 1,
     );
     int songsFetched = 0;

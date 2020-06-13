@@ -33,7 +33,7 @@ class PlaylistProvider extends DatabaseProvider {
         final songList = <Song>[];
         for (var id in playlist.songIds) {
           final list = await SongProvider().query(id: id, searchLimit: 1);
-          if (list.isNotEmpty) songList.add(list.first);
+          if (list != null) songList.add(list.first);
         }
         return songList;
         break;

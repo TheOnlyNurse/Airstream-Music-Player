@@ -47,11 +47,11 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
     if (currentState is NavigationBarLoaded) {
       if (event is NavigationBarNavigate) {
         final cannotPop = !libraryNavKey.currentState.canPop();
-        if (currentState.index == event.index && cannotPop) {
-          yield currentState.copyWith(isNewScreen: true, isDoubleTap: true);
-        } else {
-          yield currentState.copyWith(index: event.index, isNewScreen: true);
-        }
+
+        if (currentState.index == event.index && cannotPop)
+          yield currentState.copyWith(newIndex: event.index, isDoubleTap: true);
+        else
+          yield currentState.copyWith(newIndex: event.index);
       }
 
       if (event is NavigationBarUpdate) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:airstream/data_providers/cache_provider.dart';
+import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:path/path.dart' as p;
 
 class AudioCacheProvider extends CacheProvider {
@@ -7,12 +8,12 @@ class AudioCacheProvider extends CacheProvider {
   String get dbName => 'audioCache';
 
   @override
-  int get maxCacheSize => 100 * 1024 * 1024;
+  Future<int> get maxCacheSize async =>
+      (await SettingsProvider().imageCacheSize) * 1024 * 1024;
 
   @override
   String get tableColumns => 'location TEXT NOT NULL,'
       'songId INTEGER,'
-      'artist TEXT,'
       'albumId INTEGER,'
       'size INTEGER NOT NULL';
 
@@ -24,17 +25,37 @@ class AudioCacheProvider extends CacheProvider {
     return _instance;
   }
 
-	Future<String> getSongLocation(int songId) async {
-		final db = await database;
-		final response = await db.query(
-			dbName,
-			columns: ['location'],
-			where: 'songId = ?',
-			whereArgs: [songId],
-		);
-		if (response.length > 0) {
-			return response.first['location'];
-		}
+  Future<List<int>> getCachedList({bool songs = false, bool albums = false}) async {
+    assert(songs != albums);
+
+    final db = await database;
+    final queryArgs = <String, dynamic>{};
+
+    if (songs) {
+      queryArgs['columns'] = ['songId'];
+    }
+    if (albums) {
+      queryArgs['columns'] = ['albumId'];
+    }
+
+    final response = await db.query(dbName, columns: queryArgs['columns']);
+    if (response.isEmpty) return null;
+    if (songs) {
+      return response.map((e) => e['songId'] as int).toList();
+    }
+    if (albums) {
+      return response.map((e) => e['albumId'] as int).toList();
+    }
+    return null;
+  }
+
+  Future<String> getSongLocation(int songId) async {
+    final db = await database;
+    final response = await db.query(dbName,
+        columns: ['location'], where: 'songId = ?', whereArgs: [songId]);
+    if (response.isNotEmpty) {
+      return response.first['location'];
+    }
     return null;
   }
 
@@ -42,36 +63,33 @@ class AudioCacheProvider extends CacheProvider {
   ///
   /// Songs and albums can be reliably tracked by their id. Artists cannot. Therefore,
   /// artist names are used instead.
-	Future<String> cacheFile(File audioFile,
-			{int songId, String artistName, int albumId}) async {
-		// Generator random filename and write file to cache
-		final String fileName = idGenerator.v4();
-		final String filePath = p.join(await cacheLocation, fileName);
-		final File file = await File(filePath).create(recursive: true);
-		await file.writeAsBytes(audioFile.readAsBytesSync());
-		final fileSize = file
-				.statSync()
-				.size;
-		// Attach reference of cached file to database
-		final db = await database;
-		await db.insert(dbName, {
-			'location': filePath,
+  Future<String> cacheFile(File audioFile,
+      {int songId, String artistName, int albumId}) async {
+    // Generator random filename and write file to cache
+    final String name = idGenerator.v4();
+    final String path = p.join(await cacheLocation, name);
+    final File cacheFile = await File(path).create(recursive: true);
+    await cacheFile.writeAsBytes(audioFile.readAsBytesSync());
+    final fileSize = cacheFile.statSync().size;
+    // Attach reference of cached file to database
+    final db = await database;
+    await db.insert(dbName, {
+      'location': path,
       'songId': songId,
-      'artist': artistName,
       'albumId': albumId,
       'size': fileSize,
     });
     // Make sure cache still adheres to size constraints
     this.checkCacheSize();
     // Return the cached location for display
-    return filePath;
+    return path;
   }
 
-	Future deleteSongFile(int songId) async {
-		final db = await database;
-		final details = await db.query(dbName, where: 'songId = ?', whereArgs: [songId]);
-		await db.delete(dbName, where: 'songId = ?', whereArgs: [songId]);
-		final cacheFile = File(details.first['location']);
-		if (cacheFile.existsSync()) cacheFile.deleteSync();
-	}
+  Future deleteSongFile(int songId) async {
+    final db = await database;
+    final details = await db.query(dbName, where: 'songId = ?', whereArgs: [songId]);
+    await db.delete(dbName, where: 'songId = ?', whereArgs: [songId]);
+    final cacheFile = File(details.first['location']);
+    if (cacheFile.existsSync()) cacheFile.deleteSync();
+  }
 }

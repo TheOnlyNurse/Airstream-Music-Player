@@ -24,8 +24,8 @@ class App extends StatelessWidget {
           )),
       initialRoute: '/',
       routes: {
-        '/': (context) => LibraryWidget(libraryNavKey: libraryNavKey),
-        '/musicPlayer': (context) => PlayerScreen(),
+        '/': (context) => LibraryWidget(navKey: libraryNavKey),
+        '/musicPlayer': (context) => PlayerScreen(navKey: libraryNavKey),
         '/settings': (context) => SettingsScreen(),
         '/search': (context) => SearchScreen(navKey: libraryNavKey),
       },
