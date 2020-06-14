@@ -1,109 +1,137 @@
 import 'package:airstream/bloc/search_screen_bloc.dart';
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/widgets/artist_circle.dart';
-import 'package:airstream/widgets/song_list_tile.dart';
+import 'package:airstream/widgets/song_list.dart';
 import 'package:airstream/widgets/titled_art_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchScreen extends StatelessWidget {
-	final GlobalKey<NavigatorState> navKey;
+  final GlobalKey<NavigatorState> navKey;
   static final _textController = TextEditingController();
 
   const SearchScreen({Key key, this.navKey}) : super(key: key);
 
-  Widget _buildSearchResults(BuildContext context, SearchScreenState state) {
-    if (state is LoadingSearchResults) {
+  Widget _buildSearchResults(BuildContext context, SearchState state) {
+    Widget _title(String title) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(title, style: Theme.of(context).textTheme.headline5),
+      );
+    }
+
+    Widget _titleDivider() {
+      return Divider(
+        endIndent: 20,
+        indent: 20,
+      );
+    }
+
+    if (state is SearchLoading) {
       return Center(child: CircularProgressIndicator());
     }
 
-    if (state is NoSearchResults) {
+    if (state is SearchFailure) {
       return Center(child: Text('Hmm...I couldn\'t find anything'));
     }
 
-    if (state is SearchResultsLoaded) {
+    if (state is SearchSuccess) {
       Widget _buildArtistCircles() {
         return SliverToBoxAdapter(
-          child: SizedBox(
-            height: 180,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              itemCount: state.artistList.length,
-              itemBuilder: (context, index) {
-                final artist = state.artistList[index];
-                return ArtistCircle(
-                  artist: artist,
-                  onTap: () {
-                    final navState = navKey.currentState;
-                    if (navState.canPop()) {
-                      navState.popUntil((route) => route.isFirst);
-                    }
-                    Navigator.pop(context);
-                    _textController.clear();
-                    navState.pushNamed('library/singleArtist', arguments: artist);
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _title('Artists'),
+              _titleDivider(),
+              SizedBox(
+                height: 180,
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: state.artistList.length,
+                  itemBuilder: (context, index) {
+                    final artist = state.artistList[index];
+                    return ArtistCircle(
+                      artist: artist,
+                      onTap: () {
+                        final navState = navKey.currentState;
+                        if (navState.canPop()) {
+                          navState.popUntil((route) => route.isFirst);
+                        }
+                        Navigator.pop(context);
+                        _textController.clear();
+                        navState.pushNamed('library/singleArtist', arguments: artist);
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         );
       }
 
       Widget _buildAlbumCards() {
         return SliverToBoxAdapter(
-          child: SizedBox(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: state.albumList.length,
-              itemBuilder: (context, index) {
-                final album = state.albumList[index];
-                return TitledArtCard(
-                  artId: album.art,
-                  title: album.title,
-                  subtitle: album.artist,
-                  width: 150,
-                  onTap: () {
-                    final navState = navKey.currentState;
-                    if (navState.canPop()) {
-                      navState.popUntil((route) => route.isFirst);
-                    }
-                    Navigator.pop(context);
-                    _textController.clear();
-                    navState.pushNamed('library/singleAlbum', arguments: album);
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _title('Albums'),
+              _titleDivider(),
+              SizedBox(
+                height: 180,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: state.albumList.length,
+                  itemBuilder: (context, index) {
+                    final album = state.albumList[index];
+                    return AspectRatio(
+                      aspectRatio: 1 / 1.25,
+                      child: TitledArtCard(
+                        artId: album.art,
+                        title: album.title,
+                        subtitle: album.artist,
+                        onTap: () {
+                          final navState = navKey.currentState;
+                          if (navState.canPop()) {
+                            navState.popUntil((route) => route.isFirst);
+                          }
+                          Navigator.pop(context);
+                          _textController.clear();
+                          navState.pushNamed('library/singleAlbum', arguments: album);
+                        },
+                      ),
+                    );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         );
       }
 
-      Widget _buildSongTiles() {
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, int index) {
-              return SongListTile(
-                song: state.songList[index],
-                onTap: () => Repository().playPlaylist([state.songList[index]]),
-              );
-            },
-            childCount: state.songList.length,
-          ),
-        );
-      }
-
-      return CustomScrollView(
-        physics: BouncingScrollPhysics(),
-        slivers: <Widget>[
+      return SongList(
+        leading: <Widget>[
           if (state.artistList.isNotEmpty) _buildArtistCircles(),
           if (state.albumList.isNotEmpty) _buildAlbumCards(),
-          if (state.songList.isNotEmpty) _buildSongTiles(),
+          if (state.songList.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 8),
+                  _title('Songs'),
+                  _titleDivider(),
+                ],
+              ),
+            ),
         ],
+        type: SongListType.search,
+        typeValue: state.songList,
       );
     }
 
@@ -113,8 +141,8 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SearchScreenBloc(),
-      child: BlocBuilder<SearchScreenBloc, SearchScreenState>(builder: (context, state) {
+      create: (context) => SearchBloc(),
+      child: BlocBuilder<SearchBloc, SearchState>(builder: (context, state) {
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -124,16 +152,16 @@ class SearchScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
-											icon: Icon(Icons.close),
-											onPressed: () {
-												Navigator.of(context, rootNavigator: true).pop();
-												_textController.clear();
-											},
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        _textController.clear();
+                      },
                     ),
                   ),
                 ),
                 Expanded(
-									child: _buildSearchResults(context, state),
+                  child: _buildSearchResults(context, state),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -150,20 +178,22 @@ class SearchScreen extends StatelessWidget {
                         SizedBox(width: 16),
                         Expanded(
                           child: TextField(
-														controller: _textController,
-														onChanged: (query) =>
-																context.bloc<SearchScreenBloc>().add(query),
-														autofocus: true,
-														maxLength: 25,
-														decoration: InputDecoration(
-															counterText: '',
-															border: InputBorder.none,
-															hintText: 'Search',
-															suffixIcon: IconButton(
-																onPressed: () => _textController.clear(),
-																icon: Icon(Icons.clear),
-															),
-														),
+                            controller: _textController,
+                            onChanged: (query) => context.bloc<SearchBloc>().add(query),
+                            autofocus: true,
+                            maxLength: 25,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              border: InputBorder.none,
+                              hintText: 'Search',
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  _textController.clear();
+                                  context.bloc<SearchBloc>().add('');
+                                },
+                              ),
+                            ),
                           ),
                         ),
                       ],

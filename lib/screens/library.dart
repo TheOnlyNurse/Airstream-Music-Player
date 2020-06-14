@@ -3,7 +3,7 @@ import 'package:airstream/bloc/nav_bar_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
 import 'package:airstream/events/nav_bar_event.dart';
 import 'package:airstream/screens/albums_screen.dart';
-import 'package:airstream/screens/artists_route.dart';
+import 'package:airstream/screens/artists_screen.dart';
 import 'package:airstream/screens/playlists_screen.dart';
 import 'package:airstream/screens/single_playlist_screen.dart';
 import 'package:airstream/screens/starred_screen.dart';
@@ -63,7 +63,7 @@ class _LibraryState extends State<LibraryWidget> {
             pageController.animateToPage(
               state.newIndex,
               duration: const Duration(milliseconds: 900),
-              curve: Curves.easeInQuart,
+              curve: Curves.easeOutQuart,
             );
           }
         },

@@ -1,6 +1,7 @@
 import 'package:airstream/bloc/settings_bloc.dart';
-import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/events/settings_event.dart';
+import 'package:airstream/states/settings_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -82,36 +83,34 @@ class _SettingsState extends State<SettingsScreen> {
                               divisions: 99,
                               label: state.musicCacheSize.toString(),
                               value: state.musicCacheSize.toDouble(),
-                              onChanged: (value) =>
-                                  settingsBloc(SettingsChanging(
-                                    SettingsChangedType.musicCache,
-                                    value.round(),
-                                  )),
-                              onChangeEnd: (double value) =>
-                                  settingsBloc(SettingsChanged(
-                                    SettingsChangedType.musicCache,
-                                    value.round(),
-                                  )),
+                              onChanged: (value) => settingsBloc(SettingsChanging(
+                                SettingsChangedType.musicCache,
+                                value.round(),
+                              )),
+                              onChangeEnd: (double value) => settingsBloc(SettingsChanged(
+                                SettingsChangedType.musicCache,
+                                value.round(),
+                              )),
                             ),
                           ),
                           ListTile(
                             title: Text('Image Cache'),
                             subtitle: Slider(
-                              min: 20,
-                              max: 1000,
-                              divisions: 98,
-                              label: state.imageCacheSize.toString(),
-                              value: state.imageCacheSize.toDouble(),
-                              onChanged: (value) =>
-                                  settingsBloc(SettingsChanging(
-                                    SettingsChangedType.imageCache,
-                                    value.round(),
-                                  )),
-                              onChangeEnd: (double value) =>
-                                  settingsBloc(SettingsChanged(
-                                    SettingsChangedType.imageCache,
-                                    value.round(),
-                                  )),
+															min: 20,
+															max: 1000,
+															divisions: 98,
+															label: state.imageCacheSize.toString(),
+															value: state.imageCacheSize.toDouble(),
+															onChanged: (value) =>
+																	settingsBloc(SettingsChanging(
+																		SettingsChangedType.imageCache,
+																		value.round(),
+																	)),
+															onChangeEnd: (double value) =>
+																	settingsBloc(SettingsChanged(
+																		SettingsChangedType.imageCache,
+																		value.round(),
+																	)),
                             ),
                           )
                         ],
@@ -139,16 +138,16 @@ class _SettingsState extends State<SettingsScreen> {
                         ),
                         Card(
                           child: SwitchListTile(
-                            secondary: Icon(Icons.cloud_download),
-                            title: Text('Go offline?'),
-                            value: state.isOffline,
-                            activeColor: Theme
-                                .of(context)
-                                .accentColor,
-                            onChanged: (bool value) =>
-                                context.bloc<SettingsBloc>().add(
-                                    SettingsChanged(
-                                        SettingsChangedType.isOffline, value)),
+														secondary: Icon(Icons.cloud_download),
+														title: Text('Go offline?'),
+														value: state.isOffline,
+														activeColor: Theme
+																.of(context)
+																.accentColor,
+														onChanged: (bool value) =>
+																context.bloc<SettingsBloc>().add(
+																	SettingsChanged(SettingsChangedType.isOffline, value),
+																),
                           ),
                         ),
                         Card(

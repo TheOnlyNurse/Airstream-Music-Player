@@ -1,49 +1,66 @@
-import 'package:airstream/bloc/airstream_image_bloc.dart';
+import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/models/provider_response.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AirstreamImage extends StatelessWidget {
-  final String coverArt;
-  final int songId;
-  final bool isHiDef;
-  final BoxFit fit;
-
-  AirstreamImage({
+  const AirstreamImage({
     Key key,
     this.coverArt,
     this.songId,
     this.isHiDef = false,
     this.fit = BoxFit.cover,
-  }) : super(key: key);
+    this.width,
+    this.height,
+  })  : assert(coverArt == null ? songId != null : true),
+        assert(songId == null ? coverArt != null : true),
+        super(key: key);
+
+  final String coverArt;
+  final int songId;
+  final bool isHiDef;
+  final BoxFit fit;
+  final width;
+  final height;
+
+  Future _getFuture() {
+    if (coverArt != null) {
+      return Repository().image.fromArt(coverArt);
+    } else {
+      return Repository().image.fromSongId(songId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AirstreamImageBloc()
-        ..add(
-          this.coverArt != null
-              ? FetchImage(coverArt: coverArt, isHiDef: isHiDef)
-              : this.songId != null
-							? FetchImage(songId: songId, isHiDef: isHiDef)
-							: throw Exception('No image detected by Airstream Image'),
-        ),
-      child: BlocBuilder<AirstreamImageBloc, AirstreamImageState>(
-        builder: (context, state) {
-          if (state is ImageLoaded) {
-            return Image.file(
-              state.image,
-              fit: fit,
+    return FutureBuilder(
+      future: _getFuture(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final imageResponse = snapshot.data;
+          assert(imageResponse is ProviderResponse);
+
+          if (imageResponse.status == DataStatus.ok) {
+            return Container(
+              height: height,
+              width: width,
+              child: Image.file(imageResponse.data, fit: fit),
+            );
+          } else {
+            return Container(
+              height: height,
+              width: width,
+              padding: const EdgeInsets.all(16),
+              child: Image.asset('lib/graphics/album.png', fit: fit),
             );
           }
-          if (state is ImageUninitialised) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Image.asset('lib/graphics/album.png'),
+        } else {
+          return Container(
+            height: height,
+            width: width,
+            child: Center(child: CircularProgressIndicator()),
           );
-        },
-      ),
+        }
+      },
     );
   }
 }

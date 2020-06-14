@@ -53,7 +53,7 @@ class PlayerControls extends StatelessWidget {
                   size: 40.0,
                   color: isPrevious ? enabledColor : disabledColor,
                 ),
-                onPressed: isPrevious ? () => Repository().skipToPrevious() : null,
+                onPressed: isPrevious ? () => Repository().audio.skipToPrevious() : null,
               ),
               PlayButton(),
               RawMaterialButton(
@@ -63,7 +63,7 @@ class PlayerControls extends StatelessWidget {
                   size: 40.0,
                   color: isNext ? enabledColor : disabledColor,
                 ),
-                onPressed: isNext ? () => Repository().skipToNext() : null,
+                onPressed: isNext ? () => Repository().audio.skipToNext() : null,
               ),
             ],
           );

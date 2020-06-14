@@ -17,8 +17,9 @@ class SongPositionSlider extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           final Duration currPosition = snapshot.data;
           final maxDuration = _assetsAudioPlayer.current.value != null
-              ? _assetsAudioPlayer.current.value.audio.duration + Duration(seconds: 1)
+              ? _assetsAudioPlayer.current.value.audio.duration
               : currPosition;
+          final cappedValue = currPosition > maxDuration ? maxDuration : currPosition;
           return SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTickMarkColor: Theme.of(context).accentColor,
@@ -30,7 +31,7 @@ class SongPositionSlider extends StatelessWidget {
                 Slider(
                   min: 0,
                   max: maxDuration.inSeconds.roundToDouble(),
-                  value: currPosition.inSeconds.roundToDouble(),
+                  value: cappedValue.inSeconds.roundToDouble(),
                   onChanged: (seconds) =>
                       _assetsAudioPlayer.seek(Duration(seconds: seconds.round())),
                 ),

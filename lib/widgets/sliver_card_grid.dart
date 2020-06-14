@@ -24,10 +24,10 @@ class SliverCardGrid extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 30.0),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200.0,
+          maxCrossAxisExtent: 250,
           mainAxisSpacing: 5.0,
           crossAxisSpacing: 2.0,
-          childAspectRatio: 1 / 1,
+          childAspectRatio: 1 / 1.25,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, int index) {

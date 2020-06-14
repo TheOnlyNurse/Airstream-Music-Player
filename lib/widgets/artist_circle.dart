@@ -16,7 +16,7 @@ class ArtistCircle extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[

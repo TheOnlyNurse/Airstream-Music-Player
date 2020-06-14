@@ -8,7 +8,7 @@ enum PlayerControlsEvent { firstTrack, lastTrack, noNavigation, middleOfPlaylist
 enum PlayerControlsState { noPrevious, noNext, noControls, allControls }
 
 class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> {
-  final _audioPlayer = Repository().audioPlayer;
+  final _audioPlayer = Repository().audio.audioPlayer;
   PlayerControlsEvent _lastEvent;
   String _lastPlayed;
   bool isRewindPossible = false;
@@ -16,8 +16,8 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
   StreamSubscription _newTracksSS;
 
   PlayerControlsEvent _getControlEvent() {
-    final listLength = Repository().playlistLength;
-    final current = Repository().currentIndex;
+    final listLength = Repository().audio.playlistLength;
+    final current = Repository().audio.index;
     if (listLength == 1) return PlayerControlsEvent.noNavigation;
     if (current == 0) return PlayerControlsEvent.firstTrack;
     if (current + 1 == listLength) return PlayerControlsEvent.lastTrack;

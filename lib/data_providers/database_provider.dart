@@ -22,7 +22,6 @@ abstract class DatabaseProvider {
     var completer = new Completer<Null>();
     _creationLocker = completer.future;
 
-    print('Opening database instance for $dbName.');
     final db = await openDatabase(p.join(await getDatabasesPath(), '$dbName.db'),
         version: 1, onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE $dbName ($tableColumns)');

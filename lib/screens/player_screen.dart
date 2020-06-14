@@ -1,4 +1,3 @@
-import 'package:airstream/bloc/play_button_bloc.dart';
 import 'package:airstream/bloc/player_bloc.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:airstream/widgets/player_controls.dart';
@@ -66,79 +65,72 @@ class PlayerScreen extends StatelessWidget {
       return Container();
     }
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<PlayButtonBloc>(create: (context) => PlayButtonBloc()),
-        BlocProvider<PlayerBloc>(
-          create: (context) => PlayerBloc()..add(PlayerEvent.fetch),
-        ),
-      ],
-      child: BlocListener<PlayButtonBloc, PlayButtonState>(
+    return BlocProvider(
+      create: (context) => PlayerBloc()..add(PlayerEvent.fetchAlbum),
+      child: BlocConsumer<PlayerBloc, PlayerState>(
         listener: (context, state) {
-          if (state == PlayButtonState.audioStopped) {
+          if (state is PlayerSuccess && state.isFinished) {
             Navigator.of(context, rootNavigator: true).pop();
           }
         },
-        child: Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                Container(
-                  height: screenHeight / 2,
-                  child: BlocBuilder<PlayerBloc, PlayerState>(
-                    builder: (context, state) {
-                      return Stack(
-                        children: <Widget>[
-                          _buildImage(state),
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [artTint.withOpacity(0.4), artTint],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
+        builder: (context, state) {
+          return Scaffold(
+            body: SafeArea(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    height: screenHeight / 2,
+                    child: Stack(
+                      children: <Widget>[
+                        _buildImage(state),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [artTint.withOpacity(0.4), artTint],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                           ),
-                          Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  RawMaterialButton(
-                                    constraints:
-                                        BoxConstraints.tightFor(width: 60, height: 60),
-                                    shape: CircleBorder(),
-                                    child: Icon(Icons.close),
-                                    onPressed: () =>
-                                        Navigator.of(context, rootNavigator: true).pop(),
-                                  ),
-                                  RawMaterialButton(
-                                    constraints:
-                                        BoxConstraints.tightFor(width: 60, height: 60),
-                                    shape: CircleBorder(),
-                                    child: Icon(Icons.queue_music),
-                                    onPressed: () => null,
-                                  ),
-                                ],
-                              ),
-                              Spacer(),
-                              _buildTitles(state),
-                            ],
-                          )
-                        ],
-                      );
-                    },
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                RawMaterialButton(
+                                  constraints:
+                                      BoxConstraints.tightFor(width: 60, height: 60),
+                                  shape: CircleBorder(),
+                                  child: Icon(Icons.close),
+                                  onPressed: () =>
+                                      Navigator.of(context, rootNavigator: true).pop(),
+                                ),
+                                RawMaterialButton(
+                                  constraints:
+                                      BoxConstraints.tightFor(width: 60, height: 60),
+                                  shape: CircleBorder(),
+                                  child: Icon(Icons.queue_music),
+                                  onPressed: () => null,
+                                ),
+                              ],
+                            ),
+                            Spacer(),
+                            _buildTitles(state),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                Spacer(),
-                SongPositionSlider(),
-                Spacer(),
-                PlayerControls(),
-                Spacer(),
-              ],
+                  Spacer(),
+                  SongPositionSlider(),
+                  Spacer(),
+                  PlayerControls(),
+                  Spacer(),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

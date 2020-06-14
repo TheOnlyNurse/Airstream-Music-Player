@@ -1,32 +1,62 @@
+import 'dart:async';
 import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/events/lib_artists_event.dart';
-import 'package:airstream/states/lib_artists_state.dart';
-
-// Core
+import 'package:airstream/models/artist_model.dart';
+import 'package:airstream/models/provider_response.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 
-class LibraryArtistsBloc extends Bloc<LibraryAlbumsEvent, LibraryAlbumsState> {
-  final Repository _repository = Repository();
+class LibraryArtistsBloc extends Bloc<AlbumListEvent, AlbumListState> {
+  StreamSubscription settingSS;
+
+  LibraryArtistsBloc() {
+    settingSS = Repository().settings.changed.listen((hasChanged) {
+      if (hasChanged) this.add(AlbumListFetch());
+    });
+  }
 
   @override
-  LibraryAlbumsState get initialState => Uninitialised();
+  AlbumListState get initialState => AlbumListInitial();
 
   @override
-  Stream<LibraryAlbumsState> mapEventToState(LibraryAlbumsEvent event) async* {
-    if (event is Fetch) {
-      try {
-        final response = await _repository.getLibrary(Library.artists);
-        switch (response.status) {
-          case DataStatus.ok:
-            yield Loaded(artists: response.data);
-            break;
-          case DataStatus.error:
-            yield Error();
-            break;
-        }
-      } catch (error, stacktrace) {
-        print('lib_artists_bloc $error\n$stacktrace');
+  Stream<AlbumListState> mapEventToState(AlbumListEvent event) async* {
+    if (event is AlbumListFetch) {
+      final response = await Repository().artist.library();
+      switch (response.status) {
+        case DataStatus.ok:
+          yield AlbumListSuccess(artists: response.data);
+          break;
+        case DataStatus.error:
+          yield AlbumListFailure(response.message);
+          break;
       }
     }
   }
+
+  @override
+  Future<void> close() {
+    settingSS.cancel();
+    return super.close();
+  }
+}
+
+abstract class AlbumListEvent {}
+
+class AlbumListFetch extends AlbumListEvent {}
+
+abstract class AlbumListState {
+  const AlbumListState();
+}
+
+class AlbumListInitial extends AlbumListState {}
+
+class AlbumListFailure extends AlbumListState {
+  final Widget error;
+
+  AlbumListFailure(this.error);
+}
+
+class AlbumListSuccess extends AlbumListState {
+  final List<Artist> artists;
+
+  const AlbumListSuccess({this.artists});
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:airstream/data_providers/audio_cache_provider.dart';
 import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/models/provider_response.dart';
 import 'package:path/path.dart' as p;
 import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/models/percentage_model.dart';
@@ -12,40 +13,64 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:math' as Math;
 
 class AudioProvider {
-  static final AudioProvider _instance = AudioProvider._internal();
-
-  AudioProvider._internal() {
-    print("AudioProvider initialised.");
-//    audioPlayer.playerState.listen((playing) {
-//      if (playing == assets.PlayerState.stop) {
-//        if (hasNext) {
-//          currentSongIndex++;
-//          _checkForPath();
-//        } else {
-//          audioPlayer.stop();
-//        }
-//      }
-//    });
-  }
-
-  factory AudioProvider() => _instance;
-
-  StreamSubscription _downloadSS;
-  IOSink _tempSongSink;
+  /// Global Variables
   final StreamController<PercentageModel> percentageSC = StreamController.broadcast();
-
-  assets.AssetsAudioPlayer get audioPlayer =>
-      assets.AssetsAudioPlayer.withId('airstream');
-
   final List<Song> songQueue = <Song>[];
   int currentSongIndex = 0;
   bool downloadIsIdling = true;
 
+  assets.AssetsAudioPlayer get audioPlayer =>
+      assets.AssetsAudioPlayer.withId('airstream');
+
   Song get currentSong => songQueue[currentSongIndex];
 
-  bool get hasPrevious => currentSongIndex > 0;
+  /// Private Variables
+  StreamSubscription _downloadSS;
+  IOSink _tempSongSink;
 
-  bool get hasNext => currentSongIndex + 1 < songQueue.length;
+  bool get _hasPrevious => currentSongIndex > 0;
+
+  bool get _hasNext => currentSongIndex + 1 < songQueue.length;
+
+  /// Global Functions
+  void createQueueAndPlay(List<Song> playlist, int index) {
+    this.songQueue.clear();
+    this.songQueue.addAll(playlist);
+    this.currentSongIndex = index;
+    this._checkForPath();
+  }
+
+  void skipTo(int skipBy) async {
+    if (audioPlayer.currentPosition.value > Duration(seconds: 5) && skipBy == -1) {
+      audioPlayer.seek(Duration(seconds: 0), force: true);
+    } else if (currentSongIndex + skipBy + 1 > songQueue.length ||
+        currentSongIndex + skipBy < 0) {
+      return;
+    } else {
+      this.currentSongIndex += skipBy;
+      this._checkForPath();
+    }
+  }
+
+  /// Private Functions
+  /// Functions/streams listened to when initialised
+  void _onStart() {
+    audioPlayer.playlistFinished.listen((isFinished) {
+      if (audioPlayer.current.value != null) {
+        final isAtEnd = audioPlayer.currentPosition.value >=
+            audioPlayer.current.value.audio.duration - Duration(seconds: 2);
+        if (isAtEnd) {
+          if (_hasNext) {
+            currentSongIndex++;
+            _checkForPath();
+          } else {
+            audioPlayer.seek(Duration(seconds: 0));
+            audioPlayer.pause();
+          }
+        }
+      }
+    });
+  }
 
   /// Download Song, place into cache and prompt play
   Future<Null> _downloadSong(Song song, {bool isNotPrefetch = true}) async {
@@ -88,13 +113,6 @@ class AudioProvider {
     return _completer.future;
   }
 
-  createQueueAndPlay(List<Song> playlist, int index) {
-    this.songQueue.clear();
-    this.songQueue.addAll(playlist);
-    this.currentSongIndex = index;
-    this._checkForPath();
-  }
-
   void _prefetch() async {
     final int songsToFetch = Math.min(
       await SettingsProvider().prefetchValue,
@@ -102,44 +120,32 @@ class AudioProvider {
     );
     int songsFetched = 0;
     while (songsToFetch - songsFetched > 0 && downloadIsIdling) {
-      final song = songQueue[currentSongIndex + songsFetched + 1];
+			final song = songQueue[currentSongIndex + songsFetched + 1];
       final songPath = await AudioCacheProvider().getSongLocation(song.id);
       if (songPath == null) await _downloadSong(song, isNotPrefetch: false);
-      await Repository().getImage(artId: song.art);
+      await Repository().image.fromArt(song.art);
       songsFetched += 1;
     }
   }
 
   void _updateCoverArt(assets.Audio audio, Song song) async {
-    final artResp = await Repository().getImage(artId: song.art);
-    if (artResp.status == DataStatus.ok) {
-      audio.updateMetas(image: assets.MetasImage.file(artResp.data.path));
-    }
-  }
+		final artResp = await Repository().image.fromArt(song.art);
+		if (artResp.status == DataStatus.ok) {
+			audio.updateMetas(image: assets.MetasImage.file(artResp.data.path));
+		}
+	}
 
-  void skipTo(int skipBy) async {
-    if (audioPlayer.currentPosition.value > Duration(seconds: 5) && skipBy == -1) {
-      audioPlayer.seek(Duration(seconds: 0), force: true);
-    } else if (currentSongIndex + skipBy + 1 > songQueue.length ||
-        currentSongIndex + skipBy < 0) {
-      return;
-    } else {
-      this.currentSongIndex += skipBy;
-      this._checkForPath();
-    }
-  }
-
-  Future _play(String songPath, Song song) async {
-    final audio = assets.Audio.file(songPath, metas: song.toMetas());
-    try {
-      await audioPlayer.open(
-        audio,
-        showNotification: true,
-        notificationSettings: assets.NotificationSettings(
-          customPrevAction: (player) => this.skipTo(-1),
-          customNextAction: (player) => this.skipTo(1),
-        ),
-      );
+	void _play(String songPath, Song song) async {
+		final audio = assets.Audio.file(songPath, metas: song.toMetas());
+		try {
+			await audioPlayer.open(
+				audio,
+				showNotification: true,
+				notificationSettings: assets.NotificationSettings(
+					customPrevAction: (player) => this.skipTo(-1),
+					customNextAction: (player) => this.skipTo(1),
+				),
+			);
       _updateCoverArt(audio, song);
       _prefetch();
     } catch (e) {
@@ -148,17 +154,26 @@ class AudioProvider {
     }
   }
 
-  Future<void> _checkForPath() async {
-    // Cancel any existing downloads in favour of the new song
-    if (_downloadSS != null) _downloadSS.cancel();
+	void _checkForPath() async {
+		// Cancel any existing downloads in favour of the new song
+		if (_downloadSS != null) _downloadSS.cancel();
 
-    final song = this.currentSong;
-    final songPath = await AudioCacheProvider().getSongLocation(song.id);
-    if (songPath != null) {
-      this._play(songPath, song);
-    } else {
-      if (audioPlayer.current.value != null) audioPlayer.pause();
-      _downloadSong(song);
-    }
-  }
+		final song = this.currentSong;
+		final songPath = await AudioCacheProvider().getSongLocation(song.id);
+		if (songPath != null) {
+			this._play(songPath, song);
+		} else {
+			if (audioPlayer.current.value != null) audioPlayer.pause();
+			_downloadSong(song);
+		}
+	}
+
+	/// Singleton boilerplate code
+	static final AudioProvider _instance = AudioProvider._internal();
+
+	AudioProvider._internal() {
+		_onStart();
+	}
+
+	factory AudioProvider() => _instance;
 }

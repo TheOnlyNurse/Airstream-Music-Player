@@ -1,8 +1,6 @@
 import 'package:airstream/bloc/single_artist_bloc.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/sliver_card_grid.dart';
-import 'package:airstream/events/single_artist_event.dart';
+import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/states/single_artist_state.dart';
 import 'package:airstream/widgets/airstream_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,17 +13,17 @@ class SingleArtistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SingleArtistBloc()..add(FetchArtistInfo(artist: artist)),
+      create: (context) => SingleArtistBloc()..add(SingleArtistFetch(artist: artist)),
       child: Container(
         color: Theme.of(context).canvasColor,
         child:
             BlocBuilder<SingleArtistBloc, SingleArtistState>(builder: (context, state) {
-          if (state is ArtistScreenUninitialised) {
+          if (state is SingleArtistInitial) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
-          if (state is ArtistScreenLoaded) {
+          if (state is SingleArtistSuccess) {
             return CustomScrollView(
               slivers: <Widget>[
                 SliverAppBar(

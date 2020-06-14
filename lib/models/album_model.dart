@@ -26,7 +26,7 @@ class Album extends Equatable {
         title: element.getAttribute('name'),
         artist: element.getAttribute('artist'),
         artistId: int.parse(element.getAttribute('artistId')),
-        songCount: int.parse(element.getAttribute('artistId')),
+        songCount: int.parse(element.getAttribute('songCount')),
         art: element.getAttribute('coverArt'),
       );
 

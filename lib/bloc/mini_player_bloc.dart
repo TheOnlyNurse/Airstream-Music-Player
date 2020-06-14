@@ -7,20 +7,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
   Repository _repository = Repository();
-  final _assetsAudioPlayer = Repository().audioPlayer;
+  final _assetsAudioPlayer = Repository().audio.audioPlayer;
   StreamSubscription _audioEvents;
   StreamSubscription _audioFinished;
   StreamSubscription _percentageSS;
 
   MinimisedPlayerBloc() {
-    _percentageSS = _repository.percentageStream.listen((event) {
+    _percentageSS = _repository.audio.percentageStream.listen((event) {
       this.add(ButtonDownload(event.percent));
     });
+
     _audioEvents = _assetsAudioPlayer.playerState.listen((state) {
       if (state == PlayerState.play) this.add(ButtonAudioPlaying());
       if (state == PlayerState.pause) this.add(ButtonAudioPaused());
       if (state == PlayerState.stop) this.add(ButtonAudioStopped());
     });
+
     _audioFinished = _assetsAudioPlayer.playlistAudioFinished.listen((playing) {
       if (!playing.hasNext) this.add(ButtonAudioStopped());
     });

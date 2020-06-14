@@ -14,7 +14,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   GlobalKey<NavigatorState> libraryNavKey;
 
   NavigationBarBloc() {
-    _audioSS = Repository().audioPlayer.playerState.listen((state) {
+    _audioSS = Repository().audio.audioPlayer.playerState.listen((state) {
       if (state == PlayerState.play) {
         this.add(NavigationBarMusicStarted());
       }
@@ -24,7 +24,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
         notchDisplayed = false;
       }
     });
-    _downloadSS = Repository().percentageStream.listen((event) {
+    _downloadSS = Repository().audio.percentageStream.listen((event) {
       if (!notchDisplayed) {
         this.add(NavigationBarMusicStarted());
         notchDisplayed = true;
@@ -61,6 +61,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
       if (event is NavigationBarDrag) {
         if (event.height < 60 && event.height > 30) {
           yield currentState.copyWith(barHeight: 125);
+          Future.delayed(Duration(seconds: 5), () => this.add(NavigationBarDrag(70)));
         }
         if (event.height < 125 && event.height > 61) {
           yield currentState.copyWith(barHeight: 60);

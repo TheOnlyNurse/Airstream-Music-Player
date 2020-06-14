@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:airstream/data_providers/cache_provider.dart';
+import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/models/provider_response.dart';
 import 'package:path/path.dart' as p;
 
 class AudioCacheProvider extends CacheProvider {
@@ -9,7 +11,7 @@ class AudioCacheProvider extends CacheProvider {
 
   @override
   Future<int> get maxCacheSize async =>
-      (await SettingsProvider().imageCacheSize) * 1024 * 1024;
+      (await SettingsProvider().musicCacheSize) * 1024 * 1024;
 
   @override
   String get tableColumns => 'location TEXT NOT NULL,'
@@ -25,7 +27,10 @@ class AudioCacheProvider extends CacheProvider {
     return _instance;
   }
 
-  Future<List<int>> getCachedList({bool songs = false, bool albums = false}) async {
+  Future<ProviderResponse> getCachedList({
+    bool songs = false,
+    bool albums = false,
+  }) async {
     assert(songs != albums);
 
     final db = await database;
@@ -39,14 +44,24 @@ class AudioCacheProvider extends CacheProvider {
     }
 
     final response = await db.query(dbName, columns: queryArgs['columns']);
-    if (response.isEmpty) return null;
+
+    if (response.isEmpty) {
+      return ProviderResponse(
+				status: DataStatus.error,
+        source: ProviderSource.audioCache,
+        message: 'no cached songs',
+      );
+    }
     if (songs) {
-      return response.map((e) => e['songId'] as int).toList();
+      final songIds = response.map((e) => e['songId'] as int).toList();
+      return ProviderResponse(status: DataStatus.ok, data: songIds);
     }
     if (albums) {
-      return response.map((e) => e['albumId'] as int).toList();
+      final albumList = response.map((e) => e['albumId'] as int).toList();
+      return ProviderResponse(status: DataStatus.ok, data: albumList);
     }
-    return null;
+
+    throw UnimplementedError();
   }
 
   Future<String> getSongLocation(int songId) async {
