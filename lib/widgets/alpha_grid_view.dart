@@ -1,40 +1,38 @@
-import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 class AlphabeticalGridView extends StatelessWidget {
-  final List<dynamic> modelList;
+  const AlphabeticalGridView({
+    @required this.headerStrings,
+    @required this.builder,
+    this.leading,
+    this.controller,
+  })  : assert(headerStrings != null),
+        assert(builder != null);
+
+  final List<String> headerStrings;
+  final Widget Function(int startIndex, int endIndex) builder;
   final List<Widget> leading;
   final ScrollController controller;
 
-  AlphabeticalGridView({@required this.modelList, this.leading, this.controller});
-
   Map<String, Map<String, int>> _getHeaderIndexes() {
-    final list = this.modelList;
-    final listLength = list.length;
     final Map<String, Map<String, int>> headerIndexes = {};
     String currHeader;
 
-    for (var i = 0; i < listLength; i++) {
-      String firstLetter;
-      if (list[i] is Artist) {
-        firstLetter = list[i].name[0].toUpperCase();
-      }
-      if (list[i] is Album) {
-        firstLetter = list[i].title[0].toUpperCase();
-      }
-      if (firstLetter == null) {
-        throw Exception('Couldn\'t read first letter. Check model type.');
-      }
-      if (currHeader != firstLetter) {
-        // To ensure headers being update exist
+    for (var index = 0; index < headerStrings.length; index++) {
+      String _firstLetter = headerStrings[index][0].toUpperCase();
+
+      if (currHeader != _firstLetter) {
+        // Ensure headers can be updated to have an end index
         if (headerIndexes.containsKey(currHeader)) {
-          headerIndexes[currHeader]['endIndex'] = i;
+          headerIndexes[currHeader]['endIndex'] = index;
         }
-        headerIndexes[firstLetter] = {'startIndex': i, 'endIndex': listLength};
-        currHeader = firstLetter;
+        // Create new key for new header
+        headerIndexes[_firstLetter] = {
+          'startIndex': index,
+          'endIndex': headerStrings.length,
+        };
+        currHeader = _firstLetter;
       }
     }
 
@@ -42,16 +40,13 @@ class AlphabeticalGridView extends StatelessWidget {
   }
 
   List<Widget> _createMultipleGrids(Map<String, Map<String, int>> headerIndexes) {
-    final list = this.modelList;
-    // The first widget should be the search bar widget
     List<Widget> sliverList = leading != null ? leading : [];
     // Build the grid with a header
     headerIndexes.forEach((letter, range) {
-      final subList = list.sublist(range['startIndex'], range['endIndex']);
       sliverList.add(
         _CustomStickyHeader(
-          title: letter,
-          sliver: SliverCardGrid(modelList: subList),
+					title: letter,
+					sliver: builder(range['startIndex'], range['endIndex']),
         ),
       );
     });
@@ -80,20 +75,17 @@ class _CustomStickyHeader extends StatelessWidget {
       header: Container(
         color: Colors.transparent,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Align(
             alignment: Alignment.centerLeft,
             child: SizedBox(
               width: 50.0,
               height: 50.0,
               child: Card(
+                color: Theme.of(context).primaryColor,
                 elevation: 9.0,
-                shape: CircleBorder(),
                 child: Center(
-                  child: Text(
-                    title,
-                    textScaleFactor: 2.0,
-                  ),
+                  child: Text(title, textScaleFactor: 2.0),
                 ),
               ),
             ),

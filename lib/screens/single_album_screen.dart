@@ -5,53 +5,38 @@ import 'package:airstream/widgets/song_list.dart';
 import 'package:flutter/material.dart';
 
 class SingleAlbumScreen extends StatelessWidget {
-	final Album album;
+  final Album album;
 
-	SingleAlbumScreen({this.album});
+  SingleAlbumScreen({this.album});
 
-	@override
-	Widget build(BuildContext context) {
-		return Container(
-			color: Theme.of(context).canvasColor,
-			child: SongList(
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
+    return Container(
+      color: backgroundColor,
+      child: SongList(
         type: SongListType.album,
         typeValue: album,
         leading: <Widget>[
           SliverAppBar(
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: backgroundColor,
+            automaticallyImplyLeading: false,
+            titleSpacing: 12,
             expandedHeight: 400,
-            flexibleSpace: AirstreamImage(
-              coverArt: album.art,
-              isHiDef: true,
-            ),
-            leading: RawMaterialButton(
-              shape: CircleBorder(),
-              child: Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(),
+            flexibleSpace: AirstreamImage(coverArt: album.art, isHiDef: true),
+            title: SizedBox(
+              width: 50,
+              height: 50,
+              child: OutlineButton(
+                onPressed: () => Navigator.pop(context),
+                padding: const EdgeInsets.only(right: 0),
+                child: Icon(Icons.close, color: Theme.of(context).accentColor),
+              ),
             ),
           ),
         ],
-//				_onError: Stack(
-//					children: <Widget>[
-//						Center(child: Text('Unable to load album')),
-//						Align(
-//							alignment: Alignment.topLeft,
-//							child: Padding(
-//								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-//								child: RawMaterialButton(
-//									shape: CircleBorder(),
-//									constraints: BoxConstraints.tightFor(
-//										width: 60,
-//										height: 60,
-//									),
-//									child: Icon(Icons.close),
-//									onPressed: () => Navigator.of(context).pop(),
-//								),
-//							),
-//						),
-//					],
-//				),
       ),
-		);
-	}
+    );
+  }
 }

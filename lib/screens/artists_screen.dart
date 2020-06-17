@@ -1,61 +1,61 @@
-import 'package:airstream/bloc/lib_artists_bloc.dart';
-import 'package:airstream/bloc/nav_bar_bloc.dart';
-import 'package:airstream/states/nav_bar_state.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/complex_widgets/alpha_grid_view.dart';
+import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/models/album_model.dart';
+import 'package:airstream/models/artist_model.dart';
+import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/widgets/alpha_grid_view.dart';
+import 'package:airstream/widgets/artist_circle.dart';
+import 'package:airstream/widgets/sliver_card_grid.dart';
+import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ArtistsScreen extends StatefulWidget {
-  const ArtistsScreen({Key key}) : super(key: key);
-
-  _ArtistsScreenState createState() => _ArtistsScreenState();
-}
-
-class _ArtistsScreenState extends State<ArtistsScreen>
-    with AutomaticKeepAliveClientMixin<ArtistsScreen> {
-  static final controller = ScrollController();
+class ArtistsScreen extends StatelessWidget {
+  const ArtistsScreen();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return BlocListener<NavigationBarBloc, NavigationBarState>(
-      listener: (context, state) {
-        if (state is NavigationBarLoaded && state.index == 1 && state.isDoubleTap) {
-          controller.animateTo(
-            0,
-            duration: Duration(seconds: 2),
-            curve: Curves.easeOutQuart,
-          );
-        }
-      },
-      child: BlocProvider(
-        create: (context) => LibraryArtistsBloc()..add(AlbumListFetch()),
-        child: BlocBuilder<LibraryArtistsBloc, AlbumListState>(
-          builder: (context, state) {
-            if (state is AlbumListSuccess) {
-              if (state.artists.isEmpty) {
-                return Center(
-                  child: Text('No artists.'),
+    return Scaffold(
+      body: SafeArea(
+        child: FutureBuilder(
+          future: Repository().artist.library(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data.status == DataStatus.ok) {
+                final List<Artist> artistList = snapshot.data.data;
+
+                return AlphabeticalGridView(
+                  headerStrings: artistList.map((e) => e.name).toList(),
+                  builder: (start, end) => SliverPadding(
+                    padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 30.0),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10,
+                        childAspectRatio: 1 / 1.2,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, int index) {
+                          return ArtistCircle(
+                            artist: artistList.sublist(start, end)[index],
+                          );
+                        },
+                        childCount: artistList.sublist(start, end).length,
+                      ),
+                    ),
+                  ),
+                  leading: <Widget>[
+                    SliverCloseBar(),
+                  ],
                 );
               }
-              return AlphabeticalGridView(
-                controller: controller,
-                modelList: state.artists,
-              );
+
+              return Center(child: snapshot.data.message);
             }
-            if (state is AlbumListInitial) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (state is AlbumListFailure) {
-              return Center(child: state.error);
-            }
-            return Center(child: Text("Error reading state"));
+
+            return Center(child: CircularProgressIndicator());
           },
         ),
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

@@ -3,49 +3,51 @@ import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/widgets/song_list.dart';
 import 'package:flutter/material.dart';
 
-class SinglePlaylistScreen extends StatelessWidget {
-	final Playlist playlist;
+class SinglePlaylistScreen extends StatefulWidget {
+  final Playlist playlist;
 
-	const SinglePlaylistScreen({Key key, this.playlist}) : super(key: key);
+  const SinglePlaylistScreen({Key key, this.playlist}) : super(key: key);
 
-	@override
-	Widget build(BuildContext context) {
-		return Container(
-			color: Theme.of(context).scaffoldBackgroundColor,
-			child: SongList(
+  @override
+  _SinglePlaylistScreenState createState() => _SinglePlaylistScreenState();
+}
+
+class _SinglePlaylistScreenState extends State<SinglePlaylistScreen> {
+  bool appbarHidden = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: SongList(
         type: SongListType.playlist,
-        typeValue: playlist,
+        typeValue: widget.playlist,
         leading: <Widget>[
-          SliverAppBar(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            leading: RawMaterialButton(
-              shape: CircleBorder(),
-              child: Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(),
+          if (!appbarHidden)
+            SliverAppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              leading: RawMaterialButton(
+                child: Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                widget.playlist.name,
+                style: Theme.of(context).textTheme.headline4,
+              ),
             ),
           ),
         ],
-//        _onError: Stack(
-//					children: <Widget>[
-//						Center(child: Text('Unable to load playlist')),
-//						Align(
-//							alignment: Alignment.topLeft,
-//							child: Padding(
-//								padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-//								child: RawMaterialButton(
-//									shape: CircleBorder(),
-//									constraints: BoxConstraints.tightFor(
-//										width: 60,
-//										height: 60,
-//									),
-//									child: Icon(Icons.close),
-//									onPressed: () => Navigator.of(context).pop(),
-//								),
-//							),
-//						),
-//					],
-//				),
+        onSelection: (hasSelection) {
+          if (appbarHidden != hasSelection)
+            setState(() {
+              appbarHidden = hasSelection;
+            });
+        },
       ),
-		);
-	}
+    );
+  }
 }

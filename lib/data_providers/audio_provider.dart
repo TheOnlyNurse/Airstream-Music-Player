@@ -28,7 +28,6 @@ class AudioProvider {
   StreamSubscription _downloadSS;
   IOSink _tempSongSink;
 
-  bool get _hasPrevious => currentSongIndex > 0;
 
   bool get _hasNext => currentSongIndex + 1 < songQueue.length;
 

@@ -14,8 +14,8 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
       if (hasChanged) this.add(StarredEvent.fetch);
     });
 
-    starredChangedSS = Repository().song.changed.listen((hasChanged) {
-      if (hasChanged) this.add(StarredEvent.fetch);
+    starredChangedSS = Repository().song.changed.listen((event) {
+      if (event == SongChange.starred) this.add(StarredEvent.fetch);
     });
   }
 
@@ -24,16 +24,28 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
 
   @override
   Stream<StarredState> mapEventToState(StarredEvent event) async* {
-    if (event == StarredEvent.fetch) {
-      yield StarredInitial();
-      final response = await Repository().song.starred();
+		switch (event) {
+			case StarredEvent.fetch:
+				yield StarredInitial();
+				final response = await Repository().song.starred();
 
-      if (response.status == DataStatus.ok) {
-        yield StarredSuccess(response.data);
-      } else {
-        yield StarredFailure(response.message);
-      }
-    }
+				if (response.status == DataStatus.ok) {
+					yield StarredSuccess(response.data);
+				} else {
+					yield StarredFailure(response.message);
+				}
+				break;
+			case StarredEvent.refresh:
+				yield StarredInitial();
+				final response = await Repository().song.starred(force: true);
+
+				if (response.status == DataStatus.ok) {
+					yield StarredSuccess(response.data);
+				} else {
+					yield StarredFailure(response.message);
+				}
+				break;
+		}
   }
 
   @override
@@ -44,7 +56,7 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
   }
 }
 
-enum StarredEvent { fetch }
+enum StarredEvent { fetch, refresh }
 
 abstract class StarredState {}
 

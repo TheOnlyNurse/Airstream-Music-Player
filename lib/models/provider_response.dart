@@ -11,6 +11,7 @@ enum ProviderSource {
   playlist,
   server,
   song,
+  repository,
 }
 
 class ProviderResponse {
@@ -32,6 +33,7 @@ class ProviderResponse {
       child: Column(
         children: <Widget>[
           Text('Error!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+          SizedBox(height: 8),
           Text('Source: $source'),
           Text('Issue: $_message'),
         ],

@@ -1,36 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-abstract class NavigationBarState {
+abstract class NavigationBarState extends Equatable {
   const NavigationBarState();
+
+  @override
+  List<Object> get props => [];
 }
 
-class NavigationBarLoaded extends NavigationBarState {
+class NavigationBarSuccess extends NavigationBarState {
+  final bool isNotched;
   final int index;
-  final bool musicPlaying;
-  final int newIndex;
-  final bool isDoubleTap;
-  final double barHeight;
 
-  const NavigationBarLoaded({
-    @required this.index,
-    @required this.musicPlaying,
-    this.newIndex = -1,
-    this.isDoubleTap = false,
-    this.barHeight = 60,
-  });
+  const NavigationBarSuccess({this.isNotched, this.index});
 
-  NavigationBarLoaded copyWith({
-		int index,
-		bool musicPlaying,
-		int newIndex,
-		bool isDoubleTap,
-		double barHeight,
-	}) =>
-      NavigationBarLoaded(
-				index: index ?? this.index,
-				musicPlaying: musicPlaying ?? this.musicPlaying,
-				newIndex: newIndex ?? -1,
-				isDoubleTap: isDoubleTap ?? false,
-				barHeight: barHeight ?? 60,
+  NavigationBarSuccess copyWith({bool isNotched, int index}) => NavigationBarSuccess(
+        isNotched: isNotched ?? this.isNotched,
+        index: index ?? this.index,
       );
+
+  @override
+  List<Object> get props => [index, isNotched];
 }

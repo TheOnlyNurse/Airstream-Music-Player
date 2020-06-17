@@ -1,31 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-abstract class NavigationBarEvent {}
+abstract class NavigationBarEvent extends Equatable {
+  const NavigationBarEvent();
 
-class NavigationBarStarted extends NavigationBarEvent {
-  final GlobalKey<NavigatorState> libraryNavKey;
-
-  NavigationBarStarted(this.libraryNavKey);
+  @override
+  List<Object> get props => [];
 }
-
-class NavigationBarMusicStopped extends NavigationBarEvent {}
-
-class NavigationBarMusicStarted extends NavigationBarEvent {}
 
 class NavigationBarNavigate extends NavigationBarEvent {
   final int index;
 
-  NavigationBarNavigate(this.index);
+  const NavigationBarNavigate(this.index);
 }
 
 class NavigationBarUpdate extends NavigationBarEvent {
   final int index;
 
-  NavigationBarUpdate(this.index);
+  const NavigationBarUpdate(this.index);
 }
 
-class NavigationBarDrag extends NavigationBarEvent {
-  final double height;
+class NavigationBarNotch extends NavigationBarEvent {
+  final bool isNotched;
 
-  NavigationBarDrag(this.height);
+  const NavigationBarNotch(this.isNotched);
 }

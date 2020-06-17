@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/data_providers/scheduler.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/models/provider_response.dart';
@@ -84,7 +83,6 @@ class ServerProvider {
   /// Specific error codes can also be treated as completion.
   Future<bool> upload(String request) async {
     final response = await _fetch(_constructUrl(request));
-    print(request);
     if (response != null) {
       final xmlDoc = xml.parse(response.body);
       final status =

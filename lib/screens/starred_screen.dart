@@ -21,7 +21,13 @@ class _StarredScreenState extends State<StarredScreen>
       child: BlocBuilder<StarredBloc, StarredState>(
         builder: (context, state) {
           if (state is StarredSuccess) {
-            return SongList(type: SongListType.starred, typeValue: state.songList);
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.bloc<StarredBloc>().add(StarredEvent.refresh);
+                return;
+              },
+              child: SongList(type: SongListType.starred, typeValue: state.songList),
+            );
           }
           if (state is StarredInitial) {
             return Center(child: CircularProgressIndicator());

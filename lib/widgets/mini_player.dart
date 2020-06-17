@@ -66,35 +66,37 @@ class PlayerActionButton extends StatelessWidget {
 class PlayerButtonTarget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerTargetBloc, PlayerTargetState>(builder: (context, state) {
-      switch (state) {
-        case PlayerTargetState.visible:
-          return Stack(children: <Widget>[
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.black.withOpacity(0.5),
-            ),
-            DragTarget(
-              builder: (context, candidateData, rejectedData) {
-                return Container(
-                  height: MediaQuery.of(context).size.height - 200,
-                  width: MediaQuery.of(context).size.width,
-                );
-              },
-              onWillAccept: (data) => true,
-              onAccept: (data) =>
-                  Navigator.of(context, rootNavigator: true).pushNamed('/musicPlayer'),
-            ),
-          ]);
-          break;
-        default:
-          return Visibility(
-            visible: false,
-            child: Container(),
-          );
-      }
-    });
+    return BlocBuilder<PlayerTargetBloc, PlayerTargetState>(
+      builder: (context, state) {
+        switch (state) {
+          case PlayerTargetState.visible:
+            return Stack(children: <Widget>[
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.black.withOpacity(0.5),
+              ),
+              DragTarget(
+                  builder: (context, candidateData, rejectedData) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height - 200,
+                      width: MediaQuery.of(context).size.width,
+                    );
+                  },
+                  onWillAccept: (data) => true,
+                  onAccept: (data) {
+                    Navigator.of(context, rootNavigator: true).pushNamed('/musicPlayer');
+                  }),
+            ]);
+            break;
+          default:
+            return Visibility(
+              visible: false,
+              child: Container(),
+            );
+        }
+      },
+    );
   }
 }
 
@@ -118,6 +120,6 @@ class _CustomButton extends StatelessWidget {
 			constraints: BoxConstraints.tightFor(width: width, height: height),
 			child: icon != null ? Icon(icon) : null,
 			onPressed: onPressed,
-    );
+		);
   }
 }

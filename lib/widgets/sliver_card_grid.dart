@@ -1,22 +1,11 @@
 import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/widgets/titled_art_card.dart';
+import 'package:airstream/widgets/album_card.dart';
 import 'package:flutter/material.dart';
 
-class SliverCardGrid extends StatelessWidget {
-  final List<dynamic> modelList;
+class SliverAlbumGrid extends StatelessWidget {
+  const SliverAlbumGrid({@required this.albumList});
 
-  SliverCardGrid({@required this.modelList});
-
-  Function _getFunction(BuildContext context, dynamic model) {
-    if (model is Album)
-      return () =>
-          Navigator.of(context).pushNamed('library/singleAlbum', arguments: model);
-    if (model is Artist)
-      return () =>
-          Navigator.of(context).pushNamed('library/singleArtist', arguments: model);
-    return null;
-  }
+  final List<Album> albumList;
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +20,9 @@ class SliverCardGrid extends StatelessWidget {
         ),
         delegate: SliverChildBuilderDelegate(
           (context, int index) {
-            final model = modelList[index];
-            return TitledArtCard(
-              artId: model.art,
-              title: model is Album ? model.title : model is Artist ? model.name : null,
-              subtitle: model is Album ? model.artist : null,
-              onTap: _getFunction(context, model),
-            );
+            return AlbumCard(album: albumList[index]);
           },
-          childCount: modelList.length,
+          childCount: albumList.length,
         ),
       ),
     );

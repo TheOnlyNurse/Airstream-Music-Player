@@ -12,7 +12,7 @@ class PlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final artTint = Theme.of(context).canvasColor;
+    final artTint = Theme.of(context).scaffoldBackgroundColor;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 

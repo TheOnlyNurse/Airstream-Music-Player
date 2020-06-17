@@ -16,12 +16,24 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Airstream Music Player',
       theme: ThemeData.dark().copyWith(
-          primaryColor: Colors.blue,
-          accentColor: Colors.blueAccent,
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: Colors.blueAccent,
-            foregroundColor: Colors.white,
-          )),
+        primaryColor: const Color(0xFF515585),
+        accentColor: const Color(0xFF46b5d1),
+        scaffoldBackgroundColor: const Color(0xFF080A28),
+        canvasColor: const Color(0xFF5a6695),
+        cardColor: const Color(0xFF32407b),
+        bottomAppBarColor: const Color(0xFF13175B),
+        // Base purplish
+//        floatingActionButtonTheme: FloatingActionButtonThemeData(
+//          backgroundColor: Colors.blueAccent,
+//          foregroundColor: Colors.white,
+//        ),
+        textTheme: TextTheme().copyWith(
+          headline4: TextStyle().copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       initialRoute: '/',
       routes: {
         '/': (context) => LibraryWidget(navKey: libraryNavKey),

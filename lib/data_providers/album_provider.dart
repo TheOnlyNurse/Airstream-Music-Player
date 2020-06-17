@@ -1,19 +1,22 @@
+import 'dart:collection';
+import 'dart:convert';
+import 'dart:io';
 import 'package:airstream/data_providers/database_provider.dart';
-import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/provider_response.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart' as xml;
-
 import 'audio_cache_provider.dart';
 
 class AlbumProvider extends DatabaseProvider {
   /// Global Functions
   Future<ProviderResponse> library() async {
     final db = await database;
-    final response = await db.query(dbName, orderBy: 'title ASC');
+    final response = await db.query(dbName);
 
     if (response.isEmpty) {
       return await _checkOnlineStatus(await _download());
@@ -28,34 +31,20 @@ class AlbumProvider extends DatabaseProvider {
   }
 
   Future<ProviderResponse> query({
-    String title,
-    int artistId,
-    int id,
-    @required int searchLimit,
+    @required String where,
+    @required List<dynamic> args,
+    int searchLimit,
   }) async {
-    assert(searchLimit != null);
+    assert(where != null);
+    assert(args != null);
 
     final db = await database;
-    final queryArgs = <String, dynamic>{};
-
-    if (title != null) {
-      queryArgs['where'] = 'title LIKE ?';
-      queryArgs['whereArgs'] = ['%$title%'];
-    }
-    if (artistId != null) {
-      queryArgs['where'] = 'artistId = ?';
-      queryArgs['whereArgs'] = [artistId];
-    }
-    if (id != null) {
-      queryArgs['where'] = 'id = ?';
-      queryArgs['whereArgs'] = [id];
-    }
 
     final response = await db.query(
       dbName,
-      where: queryArgs['where'],
-      whereArgs: queryArgs['whereArgs'],
-      limit: 5,
+      where: where,
+      whereArgs: args,
+      limit: searchLimit,
     );
 
     if (response.isNotEmpty) {
@@ -66,8 +55,87 @@ class AlbumProvider extends DatabaseProvider {
     return ProviderResponse(
       status: DataStatus.error,
       source: ProviderSource.album,
-      message: 'did not find query: ${queryArgs['whereArgs']}',
+      message: 'did not find query: $args',
     );
+  }
+
+  Future<ProviderResponse> played(String type) async {
+    final serverResponse = await ServerProvider().fetchRequest(
+      'getAlbumList2?type=$type&size=50',
+      FetchType.xmlDoc,
+    );
+
+    final lastSavedFile = File(p.join(await getDatabasesPath(), type));
+    final idList = <int>[];
+    if (serverResponse.status == DataStatus.ok) {
+      final xml.XmlDocument xmlDoc = serverResponse.data;
+      idList.addAll(xmlDoc
+          .findAllElements('album')
+          .map((e) => int.parse(e.getAttribute('id')))
+          .toList());
+
+      lastSavedFile.writeAsStringSync(jsonEncode(idList));
+    } else {
+      idList.addAll(jsonDecode(lastSavedFile.readAsStringSync()).cast<int>());
+    }
+
+    final albumList = <Album>[];
+    for (int id in idList) {
+      final response = await query(where: 'id = ?', args: [id], searchLimit: 1);
+      if (response.status == DataStatus.ok) albumList.add(response.data.first);
+    }
+
+    if (albumList.isEmpty) {
+      return ProviderResponse(
+        status: DataStatus.error,
+        source: ProviderSource.album,
+        message: 'could not contact server to get $type',
+      );
+    } else {
+      return ProviderResponse(status: DataStatus.ok, data: albumList);
+    }
+  }
+
+  Future<ProviderResponse> collection(
+    CollectionType type, {
+    int limit,
+    dynamic arguments,
+  }) async {
+    final response = await library();
+    if (response.status == DataStatus.error) return response;
+    final List<Album> albumList = response.data;
+
+    switch (type) {
+      case CollectionType.random:
+        albumList.shuffle();
+        break;
+      case CollectionType.recent:
+        albumList.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case CollectionType.allDecades:
+        final decadesList = albumList.map((album) {
+          if (album.year == null) return null;
+          return (album.year / 10).floor() * 10;
+        }).toList();
+        decadesList.removeWhere((e) => e == null);
+        decadesList.sort((a, b) => b.compareTo(a));
+        final condensedDecades = LinkedHashSet<int>.from(decadesList).toList();
+        return ProviderResponse(status: DataStatus.ok, data: condensedDecades);
+        break;
+      case CollectionType.allGenres:
+        final genreList = albumList.map((e) => e.genre).toList();
+        genreList.removeWhere((e) => e == null);
+        genreList.sort((a, b) => a.compareTo(b));
+        final condensedGenres = LinkedHashSet<String>.from(genreList).toList();
+        return ProviderResponse(status: DataStatus.ok, data: condensedGenres);
+        break;
+      case CollectionType.alphabet:
+        albumList.sort((a, b) => a.title.compareTo(b.title));
+        break;
+    }
+
+    if (limit == null || limit > albumList.length) limit = albumList.length;
+    return ProviderResponse(status: DataStatus.ok, data: albumList.sublist(0, limit));
   }
 
   /// Private Functions
@@ -145,8 +213,7 @@ class AlbumProvider extends DatabaseProvider {
     final albumList = elementList.map((e) => Album.fromServer(e)).toList();
 
     final db = await database;
-    for (var album in albumList)
-      await db.insert(dbName, album.toSQL());
+    for (var album in albumList) await db.insert(dbName, album.toSQL());
 
     return albumList;
   }
@@ -161,7 +228,11 @@ class AlbumProvider extends DatabaseProvider {
       'artist TEXT,'
       'artistId INTEGER,'
       'songCount INTEGER,'
-      'art TEXT';
+      'art TEXT,'
+      'date TEXT,'
+      'genre TEXT,'
+      'year INTEGER,'
+      'mostPlayed INTEGER';
 
   /// Singleton boilerplate code
   AlbumProvider._internal();
@@ -170,3 +241,5 @@ class AlbumProvider extends DatabaseProvider {
 
   factory AlbumProvider() => _instance;
 }
+
+enum CollectionType { random, recent, allDecades, allGenres, alphabet }

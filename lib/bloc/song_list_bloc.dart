@@ -10,6 +10,7 @@ import 'package:bloc/bloc.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
   Playlist playlist;
+  Function(bool hasSelection) songsSelected;
 
   @override
   SongListState get initialState => SongListInitial();
@@ -20,6 +21,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
 
     if (event is SongListFetch) {
       ProviderResponse response;
+      songsSelected = event.callback;
 
       switch (event.type) {
         case SongListType.playlist:
@@ -52,15 +54,28 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
 
     if (currentState is SongListSuccess) {
       if (event is SongListSelection) {
-        if (currentState.selected.contains(event.index))
+        if (currentState.selected.contains(event.index)) {
           currentState.selected.remove(event.index);
-        else
+        } else {
           currentState.selected.add(event.index);
+        }
+
+        if (songsSelected != null) {
+          if (currentState.selected.isEmpty) {
+            songsSelected(false);
+          } else {
+            songsSelected(true);
+          }
+        }
 
         yield currentState.copyWith(selected: currentState.selected);
       }
 
       if (event is SongListClearSelection) {
+        if (songsSelected != null) {
+          songsSelected(false);
+        }
+
         yield currentState.copyWith(selected: []);
       }
 
@@ -75,19 +90,31 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
         this.add(SongListClearSelection());
       }
 
+      if (event is SongListPlaylistSelection) {
+        final addedSongs = <Song>[];
+
+        for (int index in currentState.selected) {
+          addedSongs.add(currentState.songList[index]);
+        }
+
+        Repository().playlist.addSongs(event.playlist, addedSongs);
+        this.add(SongListClearSelection());
+      }
+
       if (event is SongListRemoveSelection) {
         final songList = currentState.songList;
         final removeMap = <int, Song>{};
+        currentState.selected.sort((a, b) => b.compareTo(a));
 
         for (int index in currentState.selected) {
-          removeMap[index] = songList[index];
-          songList.removeAt(index);
+          removeMap[index] = currentState.songList[index];
+          songList.remove(removeMap[index]);
         }
 
         if (playlist != null) {
           Repository().playlist.removeSongs(playlist, currentState.selected);
         } else {
-          Repository().song.star(songList: removeMap.values.toList(), toStar: true);
+          Repository().song.star(songList: removeMap.values.toList(), toStar: false);
         }
 
         yield currentState.copyWith(

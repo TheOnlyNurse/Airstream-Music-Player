@@ -6,13 +6,11 @@ import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/models/provider_response.dart';
-import 'package:airstream/models/song_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart' as xml;
 
 class PlaylistProvider extends DatabaseProvider {
   /// Global variables
-  StreamController<PlaylistDatabase> onChangeController = StreamController.broadcast();
 
   /// Global Functions
   Future<ProviderResponse> library() async {
@@ -27,18 +25,38 @@ class PlaylistProvider extends DatabaseProvider {
     );
   }
 
-  Future<Null> removeSong(int id, int removeIndex) async {
-    final db = await database;
-    final response = await db.query(dbName, where: 'id = ?', whereArgs: [id]);
-    assert(response.isNotEmpty);
-    final playlist = response.map((e) => Playlist.fromSQL(e)).toList().first;
-    playlist.songIds.removeAt(removeIndex);
-    await db.update(dbName, playlist.toSQL(), where: 'id = ?', whereArgs: [id]);
-    onChangeController.add(PlaylistDatabase.songRemoved);
+  Future<Null> removeSong(int id, List<int> removeIndexes) async {
+    final playlist = await _getPlaylist(id);
+    for (int index in removeIndexes) {
+      playlist.songIds.removeAt(index);
+    }
+    await _updatePlaylist(playlist);
+    return;
+  }
+
+  Future<Null> addSong(int id, List<int> songIdList) async {
+    final playlist = await _getPlaylist(id);
+    playlist.songIds.addAll(songIdList);
+    await _updatePlaylist(playlist);
     return;
   }
 
   /// Private Functions
+  Future<Playlist> _getPlaylist(int id) async {
+    final db = await database;
+    final response = await db.query(dbName, where: 'id = ?', whereArgs: [id]);
+    return response
+        .map((e) => Playlist.fromSQL(e))
+        .toList()
+        .first;
+  }
+
+  Future<Null> _updatePlaylist(Playlist playlist) async {
+    final db = await database;
+    await db.update(dbName, playlist.toSQL(), where: 'id = ?', whereArgs: [playlist.id]);
+    return;
+  }
+
   Future<ProviderResponse> _checkOnlineState(ProviderResponse listResponse) async {
     if (listResponse.status == DataStatus.error) return listResponse;
     assert(listResponse.data is List<Playlist>);
@@ -108,7 +126,6 @@ class PlaylistProvider extends DatabaseProvider {
         message: 'found no playlists on server',
       );
     } else {
-      onChangeController.add(PlaylistDatabase.fetched);
       return ProviderResponse(status: DataStatus.ok, data: playlistArray);
     }
   }
@@ -149,5 +166,3 @@ class PlaylistProvider extends DatabaseProvider {
 }
 
 enum StarredType { songs, albums, artists }
-
-enum PlaylistDatabase { songRemoved, fetched }

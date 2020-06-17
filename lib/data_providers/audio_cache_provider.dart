@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:airstream/data_providers/cache_provider.dart';
-import 'package:airstream/data_providers/repository.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/models/provider_response.dart';
 import 'package:path/path.dart' as p;

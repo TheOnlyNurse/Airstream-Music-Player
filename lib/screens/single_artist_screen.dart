@@ -15,7 +15,7 @@ class SingleArtistScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => SingleArtistBloc()..add(SingleArtistFetch(artist: artist)),
       child: Container(
-        color: Theme.of(context).canvasColor,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child:
             BlocBuilder<SingleArtistBloc, SingleArtistState>(builder: (context, state) {
           if (state is SingleArtistInitial) {
@@ -42,8 +42,8 @@ class SingleArtistScreen extends StatelessWidget {
                     child: Icon(Icons.close),
                   ),
                 ),
-                SliverCardGrid(
-                  modelList: state.albums,
+                SliverAlbumGrid(
+                  albumList: state.albums,
                 ),
               ],
             );

@@ -9,22 +9,21 @@ class AirstreamImage extends StatelessWidget {
     this.songId,
     this.isHiDef = false,
     this.fit = BoxFit.cover,
-    this.width,
     this.height,
-  })  : assert(coverArt == null ? songId != null : true),
-        assert(songId == null ? coverArt != null : true),
+    this.width,
+  })  : assert(coverArt == null ? songId != null : coverArt != null),
         super(key: key);
 
   final String coverArt;
   final int songId;
   final bool isHiDef;
   final BoxFit fit;
-  final width;
-  final height;
+  final double height;
+  final double width;
 
   Future _getFuture() {
     if (coverArt != null) {
-      return Repository().image.fromArt(coverArt);
+      return Repository().image.fromArt(coverArt, isHiDef: isHiDef);
     } else {
       return Repository().image.fromSongId(songId);
     }
@@ -53,13 +52,13 @@ class AirstreamImage extends StatelessWidget {
               child: Image.asset('lib/graphics/album.png', fit: fit),
             );
           }
-        } else {
-          return Container(
-            height: height,
-            width: width,
-            child: Center(child: CircularProgressIndicator()),
-          );
         }
+
+        return Container(
+          height: height,
+          width: width,
+          child: Center(child: CircularProgressIndicator()),
+        );
       },
     );
   }
