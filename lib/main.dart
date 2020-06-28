@@ -22,6 +22,7 @@ class App extends StatelessWidget {
         canvasColor: const Color(0xFF5a6695),
         cardColor: const Color(0xFF32407b),
         bottomAppBarColor: const Color(0xFF13175B),
+        dialogBackgroundColor: const Color(0xFF32407b),
         // Base purplish
 //        floatingActionButtonTheme: FloatingActionButtonThemeData(
 //          backgroundColor: Colors.blueAccent,

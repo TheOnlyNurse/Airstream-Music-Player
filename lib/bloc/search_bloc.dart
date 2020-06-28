@@ -1,11 +1,7 @@
-import 'dart:async';
-
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/models/song_model.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {

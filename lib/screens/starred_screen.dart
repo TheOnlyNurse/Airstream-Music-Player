@@ -1,6 +1,6 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/bloc/starred_bloc.dart';
-import 'package:airstream/widgets/song_list.dart';
+import 'package:airstream/widgets/songlist/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

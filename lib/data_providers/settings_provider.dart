@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'package:airstream/barrel/provider_basics.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
 
 class SettingsProvider {
   final _cache = <String, dynamic>{};
@@ -76,5 +75,3 @@ class SettingsProvider {
 
   factory SettingsProvider() => _instance;
 }
-
-enum SettingsChangedType { prefetch, isOffline, imageCache, musicCache }

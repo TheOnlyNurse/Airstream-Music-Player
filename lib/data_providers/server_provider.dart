@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:airstream/data_providers/scheduler.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
-import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;

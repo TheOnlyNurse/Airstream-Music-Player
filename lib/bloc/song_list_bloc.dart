@@ -1,12 +1,9 @@
-import 'dart:async';
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/song_list_event.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:airstream/states/song_list_state.dart';
-import 'package:bloc/bloc.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
   Playlist playlist;
@@ -38,6 +35,10 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
           response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
           break;
         case SongListType.search:
+          assert(event.typeValue is List<Song>);
+          response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
+          break;
+        case SongListType.musicQueue:
           assert(event.typeValue is List<Song>);
           response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
           break;
@@ -127,4 +128,4 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
   }
 }
 
-enum SongListType { album, playlist, starred, search }
+enum SongListType { album, playlist, starred, search, musicQueue }

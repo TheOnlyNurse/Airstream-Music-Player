@@ -1,4 +1,4 @@
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/widgets/alpha_grid_view.dart';

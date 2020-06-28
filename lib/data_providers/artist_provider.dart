@@ -1,15 +1,13 @@
-import 'package:airstream/data_providers/album_provider.dart';
-import 'package:airstream/data_providers/database_provider.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/artist_model.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:xml/xml.dart' as xml;
 
 class ArtistProvider extends DatabaseProvider {
   /// Global Functions
-  Future<ProviderResponse> library() async {
+  Future<ProviderResponse> library(bool force) async {
+    if (force) await _downloadArtists();
+
     final db = await database;
     final response = await db.query(dbName, orderBy: 'name ASC');
 
@@ -85,7 +83,7 @@ class ArtistProvider extends DatabaseProvider {
 
     if (await SettingsProvider().isOffline) {
       final cachedList = <Artist>[];
-      final albumResponse = await AlbumProvider().library();
+      final albumResponse = await AlbumProvider().library(false);
 
       if (albumResponse.status == DataStatus.error) return albumResponse;
       assert(albumResponse.data is List<Album>);

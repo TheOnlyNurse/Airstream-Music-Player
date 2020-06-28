@@ -1,7 +1,8 @@
 import 'package:airstream/bloc/player_bloc.dart';
 import 'package:airstream/models/song_model.dart';
-import 'package:airstream/widgets/player_controls.dart';
-import 'package:airstream/widgets/song_position_slider.dart';
+import 'package:airstream/widgets/player/player_controls.dart';
+import 'package:airstream/widgets/player/queue_dialog.dart';
+import 'package:airstream/widgets/player/song_position_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -106,11 +107,18 @@ class PlayerScreen extends StatelessWidget {
                                       Navigator.of(context, rootNavigator: true).pop(),
                                 ),
                                 RawMaterialButton(
-                                  constraints:
+																	constraints:
                                       BoxConstraints.tightFor(width: 60, height: 60),
                                   shape: CircleBorder(),
                                   child: Icon(Icons.queue_music),
-                                  onPressed: () => null,
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return QueueDialog();
+                                      },
+                                    );
+                                  },
                                 ),
                               ],
                             ),

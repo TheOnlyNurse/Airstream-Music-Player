@@ -1,7 +1,7 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/events/song_list_event.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/widgets/songlist/add_to_playlist_dialog.dart';
+import 'package:airstream/widgets/songlist/playlist_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,7 +39,7 @@ class SongListBar extends StatelessWidget {
             final response = await showDialog(
                 context: context,
                 builder: (context) {
-                  return AddToPlaylistDialog();
+                  return PlaylistDialog();
                 });
             assert(response is Playlist || response == null);
 

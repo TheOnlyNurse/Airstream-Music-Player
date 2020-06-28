@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 
 enum PlayerTargetEvent { dragStart, dragEnd }
 enum PlayerTargetState { visible, invisible }

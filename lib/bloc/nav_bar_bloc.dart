@@ -2,10 +2,8 @@ import 'package:airstream/bloc/mini_player_bloc.dart';
 import 'package:airstream/events/nav_bar_event.dart';
 import 'package:airstream/states/mini_player_state.dart';
 import 'package:airstream/states/nav_bar_state.dart';
-import 'package:bloc/bloc.dart';
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
+import 'package:flutter/material.dart';
 
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   StreamSubscription _buttonState;

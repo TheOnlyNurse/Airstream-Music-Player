@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/playlists_library_bloc.dart';
-import 'package:airstream/widgets/playlist_tile.dart';
+import 'package:airstream/widgets/home/playlist_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

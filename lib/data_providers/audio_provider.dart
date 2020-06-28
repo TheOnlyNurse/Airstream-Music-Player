@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:airstream/data_providers/audio_cache_provider.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
-import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:path/path.dart' as p;
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/percentage_model.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;

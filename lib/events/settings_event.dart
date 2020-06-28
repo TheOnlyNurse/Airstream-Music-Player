@@ -1,4 +1,4 @@
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 
 abstract class SettingsEvent {}
 

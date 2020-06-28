@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/events/song_list_event.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:airstream/states/song_list_state.dart';
@@ -52,9 +52,7 @@ class SongList extends StatelessWidget {
               if (state.selected.contains(index))
                 return Icon(
                   Icons.check_circle_outline,
-                  color: Theme
-                      .of(context)
-                      .accentColor,
+                  color: Theme.of(context).accentColor,
                 );
 
               return null;
@@ -123,5 +121,3 @@ class SongList extends StatelessWidget {
     );
   }
 }
-
-

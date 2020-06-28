@@ -1,11 +1,8 @@
 import 'dart:collection';
-
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/random_event.dart';
 import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/states/random_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RandomBloc extends Bloc<RandomEvent, RandomState> {
   @override

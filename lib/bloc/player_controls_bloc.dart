@@ -1,7 +1,4 @@
-import 'dart:async';
-
-import 'package:airstream/data_providers/repository.dart';
-import 'package:bloc/bloc.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 
 enum PlayerControlsEvent { firstTrack, lastTrack, noNavigation, middleOfPlaylist }
 

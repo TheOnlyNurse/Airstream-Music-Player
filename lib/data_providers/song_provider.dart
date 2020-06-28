@@ -1,13 +1,6 @@
-import 'dart:async';
-import 'package:airstream/data_providers/audio_cache_provider.dart';
-import 'package:airstream/data_providers/database_provider.dart';
-import 'package:airstream/data_providers/scheduler.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
-import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:airstream/models/song_model.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/material.dart';
 import 'package:xml/xml.dart' as xml;
 
 class SongProvider extends DatabaseProvider {
@@ -86,10 +79,7 @@ class SongProvider extends DatabaseProvider {
         );
       }
     } else {
-      return _checkOnlineStatus(ProviderResponse(
-        status: DataStatus.ok,
-        data: songList,
-      ));
+      return _checkOnlineStatus(ProviderResponse(status: DataStatus.ok, data: songList));
     }
   }
 
@@ -117,12 +107,19 @@ class SongProvider extends DatabaseProvider {
     }
   }
 
-  void changeStar(Song song, bool toStar) async {
+	Future<Null> changeStars(List<Song> songList, bool toStar) async {
     final db = await database;
     final dbValue = toStar ? 1 : 0;
-    final request = toStar ? 'star' : 'unstar';
-    Scheduler().schedule('$request?id=${song.id}');
-    db.rawUpdate('UPDATE $dbName SET isStarred = ? WHERE id = ?', [dbValue, song.id]);
+    var request = toStar ? 'star?' : 'unstar?';
+    for (Song song in songList) {
+      request += '&id=${song.id}';
+      await db.rawUpdate(
+        'UPDATE $dbName SET isStarred = ? WHERE id = ?',
+        [dbValue, song.id],
+      );
+    }
+    Scheduler().schedule(request);
+    return;
   }
 
   /// Private Functions

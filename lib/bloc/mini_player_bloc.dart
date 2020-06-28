@@ -1,9 +1,7 @@
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/mini_player_event.dart';
 import 'package:airstream/states/mini_player_state.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 
 class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
   Repository _repository = Repository();
@@ -18,9 +16,9 @@ class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerStat
     });
 
     _audioEvents = _assetsAudioPlayer.playerState.listen((state) {
-      if (state == PlayerState.play) this.add(ButtonAudioPlaying());
-      if (state == PlayerState.pause) this.add(ButtonAudioPaused());
-      if (state == PlayerState.stop) this.add(ButtonAudioStopped());
+      if (state == assets.PlayerState.play) this.add(ButtonAudioPlaying());
+      if (state == assets.PlayerState.pause) this.add(ButtonAudioPaused());
+      if (state == assets.PlayerState.stop) this.add(ButtonAudioStopped());
     });
 
     _audioFinished = _assetsAudioPlayer.playlistAudioFinished.listen((playing) {

@@ -1,10 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
 
 class Scheduler {
   /// Global Variables
@@ -35,7 +31,6 @@ class Scheduler {
     final scheduleFile = await _scheduleFile;
     // If a schedule already exists, append the current request to it
     if (await hasJobs) {
-      print('adding to schedule');
       final json = scheduleFile.readAsStringSync();
       final List<String> currentSchedule = jsonDecode(json).cast<String>();
       currentSchedule.add(request);
@@ -43,7 +38,6 @@ class Scheduler {
       return;
     }
 
-    print('trying to uploaded');
     final notAccepted = !(await _upload(request));
 
     if (notAccepted) {
@@ -108,13 +102,11 @@ class Scheduler {
     }
 
     if (newSchedule.isNotEmpty) {
-      print('jobs not complete');
       final scheduleFile = await _scheduleFile;
       scheduleFile.createSync(recursive: true);
       scheduleFile.writeAsStringSync(jsonEncode(newSchedule));
       return false;
     } else {
-      print('jobs complete');
       return true;
     }
   }

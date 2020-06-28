@@ -7,10 +7,9 @@ class Playlist extends Equatable {
   final int id;
   final String name;
   final String comment;
-  final String date;
   final List<int> songIds;
 
-  const Playlist({this.id, this.name, this.comment, this.date, this.songIds});
+  const Playlist({this.id, this.name, this.comment, this.songIds});
 
   @override
   List<Object> get props => [id, name, songIds];
@@ -23,7 +22,6 @@ class Playlist extends Equatable {
       id: int.parse(element.getAttribute('id')),
       name: element.getAttribute('name'),
       comment: element.getAttribute('comment'),
-      date: element.getAttribute('created'),
       songIds: songIds,
     );
   }
@@ -32,7 +30,6 @@ class Playlist extends Equatable {
         id: column['id'],
         name: column['name'],
         comment: column['comment'],
-        date: column['date'],
         songIds: jsonDecode(column['songIds']).cast<int>(),
       );
 
@@ -40,7 +37,6 @@ class Playlist extends Equatable {
         'id': id,
         'name': name,
         'comment': comment,
-        'date': date,
         'songIds': jsonEncode(songIds),
       };
 }

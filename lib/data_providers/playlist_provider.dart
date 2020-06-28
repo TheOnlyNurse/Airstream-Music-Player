@@ -1,19 +1,14 @@
-import 'dart:async';
-
-import 'package:airstream/data_providers/audio_cache_provider.dart';
-import 'package:airstream/data_providers/database_provider.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/provider_response.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart' as xml;
 
 class PlaylistProvider extends DatabaseProvider {
   /// Global variables
 
   /// Global Functions
-  Future<ProviderResponse> library() async {
+  Future<ProviderResponse> library(bool force) async {
+    if (force) await _downloadPlaylists();
+
     final db = await database;
     final response = await db.query(dbName, orderBy: 'name ASC');
 
@@ -25,7 +20,7 @@ class PlaylistProvider extends DatabaseProvider {
     );
   }
 
-  Future<Null> removeSong(int id, List<int> removeIndexes) async {
+  Future<Null> removeSongs(int id, List<int> removeIndexes) async {
     final playlist = await _getPlaylist(id);
     for (int index in removeIndexes) {
       playlist.songIds.removeAt(index);
@@ -34,21 +29,42 @@ class PlaylistProvider extends DatabaseProvider {
     return;
   }
 
-  Future<Null> addSong(int id, List<int> songIdList) async {
+  Future<Null> addSongs(int id, List<int> songIdList) async {
     final playlist = await _getPlaylist(id);
     playlist.songIds.addAll(songIdList);
     await _updatePlaylist(playlist);
     return;
   }
 
+  Future<ProviderResponse> addPlaylist(String name, String comment) async {
+    final db = await database;
+    final lastItemList = await db.query(dbName, orderBy: 'id DESC', limit: 1);
+
+    int nextId;
+    if (lastItemList.isEmpty) {
+      nextId = 0;
+    } else {
+      final lastId = lastItemList.map((e) => Playlist.fromSQL(e)).toList().first.id;
+      nextId = lastId + 1;
+    }
+
+    Scheduler().schedule('createPlaylist?name=$name');
+    Scheduler().schedule('updatePlaylist?playlistId=$nextId&comment=$comment');
+    final newPlaylist = Playlist(
+      id: nextId,
+      name: name,
+      comment: comment,
+      songIds: [],
+    );
+    await db.insert(dbName, newPlaylist.toSQL());
+    return ProviderResponse(status: DataStatus.ok, data: newPlaylist);
+  }
+
   /// Private Functions
   Future<Playlist> _getPlaylist(int id) async {
     final db = await database;
     final response = await db.query(dbName, where: 'id = ?', whereArgs: [id]);
-    return response
-        .map((e) => Playlist.fromSQL(e))
-        .toList()
-        .first;
+    return response.map((e) => Playlist.fromSQL(e)).toList().first;
   }
 
   Future<Null> _updatePlaylist(Playlist playlist) async {
@@ -154,7 +170,6 @@ class PlaylistProvider extends DatabaseProvider {
   String get tableColumns => 'id INTEGER primary key NOT NULL,'
       'name TEXT NOT NULL,'
       'comment TEXT,'
-      'date TEXT,'
       'songIds TEXT';
 
   /// Singleton Boilerplate

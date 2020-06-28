@@ -1,4 +1,4 @@
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';

@@ -8,7 +8,7 @@ import 'package:airstream/screens/single_playlist_screen.dart';
 import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
-import 'package:airstream/widgets/mini_player.dart';
+import 'package:airstream/widgets/player/mini_player.dart';
 import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

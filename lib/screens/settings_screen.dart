@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/settings_bloc.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/events/settings_event.dart';
 import 'package:airstream/states/settings_state.dart';
 import 'package:flutter/material.dart';

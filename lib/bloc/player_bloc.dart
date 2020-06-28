@@ -1,12 +1,8 @@
-import 'dart:async';
 import 'dart:io';
-
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:airstream/models/song_model.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
-import 'package:bloc/bloc.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   StreamSubscription _newSongSS;

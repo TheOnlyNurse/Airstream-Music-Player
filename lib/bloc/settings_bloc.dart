@@ -1,8 +1,6 @@
-import 'package:airstream/data_providers/repository.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/settings_event.dart';
 import 'package:airstream/states/settings_state.dart';
-import 'package:bloc/bloc.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   @override

@@ -1,6 +1,6 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/widgets/song_list.dart';
+import 'package:airstream/widgets/songlist/song_list.dart';
 import 'package:flutter/material.dart';
 
 class SinglePlaylistScreen extends StatefulWidget {

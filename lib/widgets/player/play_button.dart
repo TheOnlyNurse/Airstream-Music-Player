@@ -1,4 +1,4 @@
-import 'package:airstream/data_providers/repository.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 

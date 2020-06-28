@@ -1,20 +1,15 @@
-import 'dart:collection';
+import 'package:airstream/barrel/provider_basics.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'package:airstream/data_providers/database_provider.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+import 'dart:collection';
 import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/provider_response.dart';
-import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
-import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart' as xml;
-import 'audio_cache_provider.dart';
 
 class AlbumProvider extends DatabaseProvider {
   /// Global Functions
-  Future<ProviderResponse> library() async {
+  Future<ProviderResponse> library(bool force) async {
+    if (force) await _download();
+
     final db = await database;
     final response = await db.query(dbName);
 
@@ -101,7 +96,7 @@ class AlbumProvider extends DatabaseProvider {
     int limit,
     dynamic arguments,
   }) async {
-    final response = await library();
+    final response = await library(false);
     if (response.status == DataStatus.error) return response;
     final List<Album> albumList = response.data;
 
