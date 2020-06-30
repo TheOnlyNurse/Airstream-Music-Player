@@ -1,8 +1,7 @@
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/models/response/album_response.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class DecadeScreen extends StatefulWidget {
   const DecadeScreen();
@@ -17,13 +16,13 @@ class _DecadeScreenState extends State<DecadeScreen> {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder(
-          future: Repository().album.decadesList(),
+          future: Repository().album.decades(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              final ProviderResponse response = snapshot.data;
+              final AlbumResponse response = snapshot.data;
 
-              if (response.status == DataStatus.ok) {
-                final List<int> decadesAvailable = response.data;
+              if (response.hasData) {
+                final List<int> decadesAvailable = response.decades;
                 return CustomScrollView(
                   physics: BouncingScrollPhysics(),
                   slivers: <Widget>[
@@ -35,15 +34,15 @@ class _DecadeScreenState extends State<DecadeScreen> {
                             decade: decadesAvailable[index],
                             index: index,
                           );
-                        },
-                        childCount: decadesAvailable.length,
-                      ),
-                    ),
-                  ],
-                );
-              }
+												},
+												childCount: decadesAvailable.length,
+											),
+										),
+									],
+								);
+							}
 
-              return Center(child: response.message);
+							return Center(child: response.message);
             }
 
             return Center(child: CircularProgressIndicator());
@@ -77,7 +76,7 @@ class _DecadeCard extends StatelessWidget {
       child: InkWell(
         onTap: () => Navigator.of(context).pushNamed(
           'library/albumList',
-          arguments: Repository().album.decade(decade),
+          arguments: () => Repository().album.decade(decade),
         ),
         child: Container(
           height: 250,

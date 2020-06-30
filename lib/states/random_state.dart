@@ -1,4 +1,4 @@
-import 'package:airstream/models/album_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -18,14 +18,14 @@ class RandomFailure extends RandomState {
 }
 
 class RandomSuccess extends RandomState {
-  final List<Album> albumList;
+	final List<Album> albums;
 
-  const RandomSuccess({this.albumList});
+  const RandomSuccess({this.albums});
 
   RandomSuccess copyWith({List<Album> albumList}) => RandomSuccess(
-        albumList: albumList ?? this.albumList,
+        albums: albumList ?? this.albums,
       );
 
   @override
-  List<Object> get props => [albumList];
+  List<Object> get props => [albums];
 }

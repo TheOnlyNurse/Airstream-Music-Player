@@ -1,73 +1,22 @@
 import 'package:airstream/bloc/player_bloc.dart';
-import 'package:airstream/models/song_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/widgets/player/player_controls.dart';
 import 'package:airstream/widgets/player/queue_dialog.dart';
-import 'package:airstream/widgets/player/song_position_slider.dart';
+import 'package:airstream/widgets/player/position_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 class PlayerScreen extends StatelessWidget {
-  final GlobalKey<NavigatorState> navKey;
+	final GlobalKey<NavigatorState> navKey;
 
   const PlayerScreen({Key key, this.navKey}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final artTint = Theme.of(context).scaffoldBackgroundColor;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    Widget _buildTitles(PlayerState state) {
-      final songTitleStyle = Theme.of(context).textTheme.headline5.copyWith(
-            fontWeight: FontWeight.bold,
-          );
-      final artistStyle = Theme.of(context).textTheme.subtitle1;
-
-      Widget textColumn(Song song) {
-        return Column(
-          children: <Widget>[
-            Text(song.title, style: songTitleStyle, softWrap: false),
-            SizedBox(height: 6),
-            Text(song.artist, style: artistStyle, softWrap: false),
-          ],
-        );
-      }
-
-      if (state is PlayerInitial) {
-        return textColumn(state.song);
-      }
-      if (state is PlayerSuccess) {
-        if (state.album != null) {
-          return GestureDetector(
-            onTap: () {
-              final navState = navKey.currentState;
-              if (navState.canPop()) {
-                navState.popUntil((route) => route.isFirst);
-              }
-              Navigator.pop(context);
-              navState.pushNamed('library/singleAlbum', arguments: state.album);
-            },
-            child: textColumn(state.song),
-          );
-        } else {
-          return textColumn(state.song);
-        }
-      }
-      return Text('State error');
-    }
-
-    Widget _buildImage(PlayerState state) {
-      if (state is PlayerSuccess && state.image != null) {
-        return Container(
-          width: screenWidth,
-          child: Image.file(state.image, fit: BoxFit.cover),
-        );
-      }
-      return Container();
-    }
-
     return BlocProvider(
-      create: (context) => PlayerBloc()..add(PlayerEvent.fetchAlbum),
+      create: (context) => PlayerBloc()..add(PlayerFetch()),
       child: BlocConsumer<PlayerBloc, PlayerState>(
         listener: (context, state) {
           if (state is PlayerSuccess && state.isFinished) {
@@ -79,58 +28,15 @@ class PlayerScreen extends StatelessWidget {
             body: SafeArea(
               child: Column(
                 children: <Widget>[
-                  Container(
-                    height: screenHeight / 2,
-                    child: Stack(
-                      children: <Widget>[
-                        _buildImage(state),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [artTint.withOpacity(0.4), artTint],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                        ),
-                        Column(
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                RawMaterialButton(
-                                  constraints:
-                                      BoxConstraints.tightFor(width: 60, height: 60),
-                                  shape: CircleBorder(),
-                                  child: Icon(Icons.close),
-                                  onPressed: () =>
-                                      Navigator.of(context, rootNavigator: true).pop(),
-                                ),
-                                RawMaterialButton(
-																	constraints:
-                                      BoxConstraints.tightFor(width: 60, height: 60),
-                                  shape: CircleBorder(),
-                                  child: Icon(Icons.queue_music),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return QueueDialog();
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            Spacer(),
-                            _buildTitles(state),
-                          ],
-                        )
-                      ],
-                    ),
+                  _ArtWork(
+                    state: state,
+                    overlay: <Widget>[
+                      _HeaderButtons(),
+                      _SongTitle(state: state, navKey: navKey),
+                    ],
                   ),
                   Spacer(),
-                  SongPositionSlider(),
+                  PositionSlider(),
                   Spacer(),
                   PlayerControls(),
                   Spacer(),
@@ -142,4 +48,147 @@ class PlayerScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ArtWork extends StatelessWidget {
+  final List<Widget> overlay;
+  final PlayerState state;
+
+  const _ArtWork({Key key, this.overlay, this.state})
+      : assert(state != null),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final currentState = state;
+    final animationLength = Duration(milliseconds: 300);
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+
+    return Container(
+      height: MediaQuery.of(context).size.height / 2,
+      child: Stack(
+        children: <Widget>[
+          if (currentState is PlayerSuccess && currentState.image != null)
+            PlayAnimation(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: animationLength,
+              builder: (context, child, value) {
+                return AnimatedOpacity(
+                  opacity: value,
+                  duration: animationLength,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Image.file(currentState.image, fit: BoxFit.cover),
+                  ),
+                );
+              },
+            ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [bgColor.withOpacity(0.4), bgColor],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: overlay ?? [],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _SongTitle extends StatelessWidget {
+  final PlayerState state;
+  final GlobalKey<NavigatorState> navKey;
+
+  const _SongTitle({Key key, this.state, this.navKey}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final currentState = state;
+
+    Widget textColumn(Song song) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: <Widget>[
+            Text(
+              song.title,
+              style: Theme.of(context).textTheme.headline5.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 6),
+            Text(
+              song.artist,
+              style: Theme.of(context).textTheme.subtitle1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (currentState is PlayerInitial) {
+      return textColumn(currentState.song);
+    }
+    if (currentState is PlayerSuccess) {
+      if (currentState.album != null) {
+        return GestureDetector(
+          onTap: () {
+            final navState = navKey.currentState;
+            if (navState.canPop()) {
+              navState.popUntil((route) => route.isFirst);
+            }
+            Navigator.pop(context);
+            navState.pushNamed('library/singleAlbum',
+                arguments: currentState.album);
+          },
+          child: textColumn(currentState.song),
+        );
+      } else {
+        return textColumn(currentState.song);
+      }
+    }
+
+    return Text('State error');
+  }
+}
+
+class _HeaderButtons extends StatelessWidget {
+	@override
+	Widget build(BuildContext context) {
+		return Row(
+			mainAxisAlignment: MainAxisAlignment.spaceBetween,
+			children: <Widget>[
+				RawMaterialButton(
+					constraints: BoxConstraints.tightFor(width: 60, height: 60),
+					shape: CircleBorder(),
+					child: Icon(Icons.close),
+					onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+				),
+				RawMaterialButton(
+					constraints: BoxConstraints.tightFor(width: 60, height: 60),
+					shape: CircleBorder(),
+					child: Icon(Icons.queue_music),
+					onPressed: () {
+						showDialog(
+							context: context,
+							builder: (context) {
+								return QueueDialog();
+							},
+						);
+					},
+				),
+			],
+		);
+	}
 }

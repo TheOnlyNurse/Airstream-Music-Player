@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
-import 'package:airstream/models/album_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/widgets/airstream_image.dart';
 import 'package:airstream/widgets/songlist/song_list.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +13,16 @@ class SingleAlbumScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
+    Widget _closeText({Color color, Paint foreground}) {
+      return Text(
+        'Back',
+        style: Theme.of(context).textTheme.headline6.copyWith(
+              foreground: foreground,
+              color: color,
+            ),
+      );
+    }
+
     return Container(
       color: backgroundColor,
       child: SongList(
@@ -22,16 +32,25 @@ class SingleAlbumScreen extends StatelessWidget {
           SliverAppBar(
             backgroundColor: backgroundColor,
             automaticallyImplyLeading: false,
-            titleSpacing: 12,
+            titleSpacing: 4,
             expandedHeight: 400,
             flexibleSpace: AirstreamImage(coverArt: album.art, isHiDef: true),
             title: SizedBox(
-              width: 50,
+              width: 80,
               height: 50,
-              child: OutlineButton(
+              child: RawMaterialButton(
                 onPressed: () => Navigator.pop(context),
-                padding: const EdgeInsets.only(right: 0),
-                child: Icon(Icons.close, color: Theme.of(context).accentColor),
+                child: Stack(
+                  children: <Widget>[
+                    _closeText(
+                      foreground: Paint()
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = 3
+                        ..color = Theme.of(context).primaryColor,
+                    ),
+                    _closeText(color: Colors.white),
+                  ],
+                ),
               ),
             ),
           ),

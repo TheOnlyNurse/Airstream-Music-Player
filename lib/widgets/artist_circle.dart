@@ -1,6 +1,5 @@
-import 'package:airstream/models/artist_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:flutter/material.dart';
-
 import 'airstream_image.dart';
 
 class ArtistCircle extends StatelessWidget {

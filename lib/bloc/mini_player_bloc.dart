@@ -1,47 +1,59 @@
 import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/mini_player_event.dart';
 import 'package:airstream/states/mini_player_state.dart';
-import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 
-class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
-  Repository _repository = Repository();
-  final _assetsAudioPlayer = Repository().audio.audioPlayer;
+class MinimisedPlayerBloc
+    extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
+  final _repository = Repository();
   StreamSubscription _audioEvents;
-  StreamSubscription _audioFinished;
   StreamSubscription _percentageSS;
 
   MinimisedPlayerBloc() {
-    _percentageSS = _repository.audio.percentageStream.listen((event) {
-      this.add(ButtonDownload(event.percent));
+    _percentageSS = _repository.download.percentageStream.listen((event) {
+      if (event.songId == Repository().audio.current.id) {
+        this.add(ButtonDownload(event));
+      }
     });
 
-    _audioEvents = _assetsAudioPlayer.playerState.listen((state) {
-      if (state == assets.PlayerState.play) this.add(ButtonAudioPlaying());
-      if (state == assets.PlayerState.pause) this.add(ButtonAudioPaused());
-      if (state == assets.PlayerState.stop) this.add(ButtonAudioStopped());
-    });
-
-    _audioFinished = _assetsAudioPlayer.playlistAudioFinished.listen((playing) {
-      if (!playing.hasNext) this.add(ButtonAudioStopped());
+    _audioEvents = _repository.audio.playerState.listen((state) {
+      if (state == AudioPlayerState.playing) this.add(ButtonAudioPlaying());
+      if (state == AudioPlayerState.paused) this.add(ButtonAudioPaused());
+      if (state == AudioPlayerState.stopped) this.add(ButtonAudioStopped());
     });
   }
 
   @override
   MinimisedPlayerState get initialState => ButtonNoAudio();
 
-  @override
-  Stream<MinimisedPlayerState> mapEventToState(MinimisedPlayerEvent event) async* {
-    if (event is ButtonPlayPause) _assetsAudioPlayer.playOrPause();
+	@override
+	Stream<MinimisedPlayerState> mapEventToState(
+			MinimisedPlayerEvent event) async* {
+		if (event is ButtonPlayPause) {
+			if (state is ButtonAudioIsPaused) {
+				_repository.audio.play();
+			}
+			if (state is ButtonAudioIsPlaying) {
+				_repository.audio.pause();
+			}
+		}
 
-    // React to Audio service event calls
-    if (event is ButtonDownload) {
-      yield ButtonIsDownloading(percentage: event.percentage);
-    }
-    if (event is ButtonAudioStopped) {
+		// React to Audio service event calls
+		if (event is ButtonDownload) {
+			if (event.percentModel.hasData) {
+				yield ButtonIsDownloading(percentage: event.percentModel.percentage);
+			} else {
+				yield ButtonFailure();
+				Future.delayed(
+					Duration(seconds: 2),
+							() => this.add(ButtonAudioStopped()),
+				);
+			}
+		}
+		if (event is ButtonAudioStopped) {
       yield ButtonNoAudio();
     }
     if (event is ButtonAudioPaused) {
-        yield ButtonAudioIsPaused();
+			yield ButtonAudioIsPaused();
     }
     if (event is ButtonAudioPlaying) {
       yield ButtonAudioIsPlaying();
@@ -50,7 +62,6 @@ class MinimisedPlayerBloc extends Bloc<MinimisedPlayerEvent, MinimisedPlayerStat
 
   @override
   Future<void> close() {
-    _audioFinished.cancel();
     _audioEvents.cancel();
     _percentageSS.cancel();
     return super.close();

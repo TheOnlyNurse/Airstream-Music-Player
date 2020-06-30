@@ -5,15 +5,15 @@ enum PlayerControlsEvent { firstTrack, lastTrack, noNavigation, middleOfPlaylist
 enum PlayerControlsState { noPrevious, noNext, noControls, allControls }
 
 class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> {
-  final _audioPlayer = Repository().audio.audioPlayer;
-  PlayerControlsEvent _lastEvent;
-  String _lastPlayed;
+  final _repository = Repository();
+
+  PlayerControlsEvent _originalLayout;
   bool isRewindPossible = false;
-  StreamSubscription _rewindPossibleSS;
-  StreamSubscription _newTracksSS;
+  StreamSubscription _rewindPossible;
+  StreamSubscription _newTracks;
 
   PlayerControlsEvent _getControlEvent() {
-    final listLength = Repository().audio.playlistLength;
+    final listLength = Repository().audio.queueLength;
     final current = Repository().audio.index;
     if (listLength == 1) return PlayerControlsEvent.noNavigation;
     if (current == 0) return PlayerControlsEvent.firstTrack;
@@ -22,37 +22,41 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
   }
 
   void _showRewindIsPossible() {
-    switch (_lastEvent) {
-      case PlayerControlsEvent.firstTrack:
-        this.add(PlayerControlsEvent.middleOfPlaylist);
-        break;
-      case PlayerControlsEvent.noNavigation:
-        this.add(PlayerControlsEvent.lastTrack);
-        break;
-      default:
-        break;
-    }
+		switch (_originalLayout) {
+			case PlayerControlsEvent.firstTrack:
+				this.add(PlayerControlsEvent.middleOfPlaylist);
+				break;
+			case PlayerControlsEvent.noNavigation:
+				this.add(PlayerControlsEvent.lastTrack);
+				break;
+			default:
+				break;
+		}
   }
 
   PlayerControlsBloc() {
-    _newTracksSS = _audioPlayer.current.listen((playing) {
-      if (playing != null && _lastPlayed != playing.audio.audio.path) {
-        _lastPlayed = playing.audio.audio.path;
-        _lastEvent = _getControlEvent();
-        this.add(_lastEvent);
-        isRewindPossible = false;
-      }
-    });
-    _rewindPossibleSS = _audioPlayer.currentPosition.listen((position) {
-      if (position > Duration(seconds: 5) && isRewindPossible == false) {
-        _showRewindIsPossible();
-        isRewindPossible = true;
-      }
-      if (position < Duration(seconds: 5) && isRewindPossible) {
-        isRewindPossible = false;
-        this.add(_lastEvent);
-      }
-    });
+		// Load initial layout (primer)
+		_originalLayout = _getControlEvent();
+		this.add(_originalLayout);
+
+		_newTracks = _repository.audio.songState.listen((state) {
+			if (state == AudioPlayerSongState.newSong) {
+				// Get new control structure
+				_originalLayout = _getControlEvent();
+				this.add(_originalLayout);
+				isRewindPossible = false;
+			}
+		});
+		_rewindPossible = _repository.audio.audioPosition.listen((position) {
+			if (position > Duration(seconds: 5) && isRewindPossible == false) {
+				_showRewindIsPossible();
+				isRewindPossible = true;
+			}
+			if (position < Duration(seconds: 5) && isRewindPossible) {
+				isRewindPossible = false;
+				this.add(_originalLayout);
+			}
+		});
   }
 
   @override
@@ -78,8 +82,8 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
 
   @override
   Future<void> close() {
-    _newTracksSS.cancel();
-    _rewindPossibleSS.cancel();
-    return super.close();
-  }
+		_newTracks.cancel();
+		_rewindPossible.cancel();
+		return super.close();
+	}
 }

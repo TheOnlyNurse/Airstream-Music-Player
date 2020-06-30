@@ -1,39 +1,30 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
-import 'package:airstream/data_providers/image_cache_provider.dart';
-import 'package:airstream/data_providers/song_provider.dart';
+part of repository_library;
 
-class ImageRepository {
-	Future<ProviderResponse> fromArt(String artId, {isHiDef = false}) async {
-		final imageResponse = await ImageCacheProvider().query(artId, isHiDef);
-		if (imageResponse.status == DataStatus.error && isHiDef) {
-			return fromArt(artId);
-		} else {
-			return imageResponse;
-		}
-	}
+class _ImageFilesRepository {
+  final ImageFilesDao dao;
 
-	Future<ProviderResponse> fromSongId(int songId) async {
-		final songResponse = await SongProvider().query(id: songId, searchLimit: 1);
-		if (songResponse.status == DataStatus.error) return songResponse;
-		assert(songResponse.data is List<Song>);
+  const _ImageFilesRepository({@required this.dao}) : assert(dao != null);
 
-		return fromArt(songResponse.data.first.art);
-	}
+  Future<Null> deleteAll() => dao.deleteAll();
 
-	Future<ProviderResponse> collage(List<int> songIds) async {
-		final imageList = <File>[];
-		ProviderResponse lastError;
+  Future<File> lowDef(String artId) => dao.byType(artId, ImageType.lowDef);
 
-		for (int id in songIds) {
-			final response = await fromSongId(id);
-			if (response.status == DataStatus.ok) imageList.add(response.data);
-			if (response.status == DataStatus.error) lastError = response;
-		}
+  Future<File> highDef(String artId) => dao.byType(artId, ImageType.hiDef);
 
-		if (imageList.isEmpty) {
-			return lastError;
-		} else {
-			return ProviderResponse(status: DataStatus.ok, data: imageList);
-		}
-	}
+  Future<File> fromSongId(int songId, {bool isHiDef = false}) async {
+    final response = await Repository().song.byId(songId);
+    if (response.hasNoData) return null;
+    final art = response.songList.first.art;
+    return isHiDef ? highDef(art) : lowDef(art);
+  }
+
+  Future<List<File>> collage(List<int> songIds) async {
+    final imageList = <File>[];
+    for (var id in songIds) {
+      final response = await fromSongId(id);
+      if (response != null) imageList.add(response);
+    }
+    if (imageList.isEmpty) return null;
+    return imageList;
+  }
 }

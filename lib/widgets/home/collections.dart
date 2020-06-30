@@ -16,7 +16,7 @@ class Collections extends StatelessWidget {
         'Recently Added',
         'vegetables.jpg',
         page: AlbumListScreen(
-          future: Repository().album.recent(100),
+          future: () => Repository().album.newlyAdded(),
           title: 'Recently Added',
         ),
       ),
@@ -24,7 +24,7 @@ class Collections extends StatelessWidget {
         'Most Played',
         'girl.jpg',
         page: AlbumListScreen(
-          future: Repository().album.mostPlayed(),
+          future: () => Repository().album.frequent(),
           title: 'Most Played',
         ),
       ),
@@ -32,7 +32,7 @@ class Collections extends StatelessWidget {
         'Recently Played',
         'bridal-veil-fall.jpg',
         page: AlbumListScreen(
-          future: Repository().album.recentlyPlayed(),
+          future: () => Repository().album.recent(),
           title: 'Recently Played',
         ),
       ),

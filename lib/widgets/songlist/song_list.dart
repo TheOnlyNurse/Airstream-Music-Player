@@ -1,10 +1,9 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/events/song_list_event.dart';
-import 'package:airstream/models/song_model.dart';
 import 'package:airstream/states/song_list_state.dart';
 import 'package:airstream/widgets/songlist/song_list_bar.dart';
-import 'package:airstream/widgets/songlist/songlist_tile.dart';
+import 'package:airstream/widgets/songlist/song_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,7 +35,7 @@ class SongList extends StatelessWidget {
           if (state is SongListSuccess && state.removeMap.isNotEmpty) {
             for (int index in state.removeMap.keys) {
               listKey.currentState.removeItem(index, (context, animation) {
-                return SongTile(
+								return SongListTile(
                   animation: animation,
                   song: state.removeMap[index],
                 );
@@ -51,7 +50,7 @@ class SongList extends StatelessWidget {
             Widget _trailingIcon(int index) {
               if (state.selected.contains(index))
                 return Icon(
-                  Icons.check_circle_outline,
+                  Icons.check,
                   color: Theme.of(context).accentColor,
                 );
 
@@ -65,17 +64,18 @@ class SongList extends StatelessWidget {
                   key: listKey,
                   initialItemCount: state.songList.length,
                   itemBuilder: (context, index, animation) {
-                    return SongTile(
-                      animation: animation,
-                      trailing: _trailingIcon(index),
-                      song: state.songList[index],
-                      onLongPress: () => bloc(SongListSelection(index)),
-                      onTap: () {
-                        if (state.selected.length > 0) {
-                          bloc(SongListSelection(index));
-                        } else {
-                          Repository().audio.play(playlist: state.songList, index: index);
-                        }
+										return SongListTile(
+											animation: animation,
+											trailing: _trailingIcon(index),
+											song: state.songList[index],
+											onLongPress: () => bloc(SongListSelection(index)),
+											onTap: () {
+												if (state.selected.length > 0) {
+													bloc(SongListSelection(index));
+												} else {
+													Repository().audio.start(
+															playlist: state.songList, index: index);
+												}
                       },
                     );
                   },

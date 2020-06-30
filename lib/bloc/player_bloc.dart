@@ -1,93 +1,61 @@
-import 'dart:io';
+
 import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/song_model.dart';
-import 'package:assets_audio_player/assets_audio_player.dart' as assets;
+import 'package:airstream/events/player_events.dart';
+import 'package:airstream/states/player_state.dart';
+export 'package:airstream/events/player_events.dart';
+export 'package:airstream/states/player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
-  StreamSubscription _newSongSS;
+  final _repository = Repository();
+
+  StreamSubscription _newSong;
   StreamSubscription _audioStopped;
-  Song currentSong = Repository().audio.current;
 
   PlayerBloc() {
-    final player = Repository().audio.audioPlayer;
-    _newSongSS = player.current.listen((playing) {
-      if (currentSong != Repository().audio.current) {
-        currentSong = Repository().audio.current;
-        this.add(PlayerEvent.fetchAlbum);
+    _newSong = _repository.audio.songState.listen((state) {
+      if (state == AudioPlayerSongState.newSong) {
+        this.add(PlayerFetch());
       }
     });
-    _audioStopped = player.playerState.listen((state) {
-      if (state == assets.PlayerState.stop) {
-        this.add(PlayerEvent.complete);
+    _audioStopped = _repository.audio.playerState.listen((state) {
+      if (state == AudioPlayerState.stopped) {
+        this.add(PlayerStopped());
       }
     });
   }
 
   @override
-  PlayerState get initialState => PlayerInitial(currentSong);
+  PlayerState get initialState => PlayerInitial(_repository.audio.current);
 
   @override
   Stream<PlayerState> mapEventToState(PlayerEvent event) async* {
-		final currentState = state;
+    final currentState = state;
 
-		if (event == PlayerEvent.fetchAlbum) {
-			final albumResponse = await Repository().album.fromSong(currentSong);
+    if (event is PlayerFetch) {
+      final song = _repository.audio.current;
+      final response = await Repository().album.fromSong(song);
+      if (response.hasData) {
+        yield PlayerSuccess(song: song, album: response.album);
+        this.add(PlayerFetchArt(song.art));
+      }
+    }
 
-			if (albumResponse.status == DataStatus.ok) {
-				yield PlayerSuccess(song: currentSong, album: albumResponse.data.first);
-				this.add(PlayerEvent.fetchArt);
-			}
-		}
+    if (event is PlayerFetchArt) {
+      final response = await _repository.image.highDef(event.artId);
+      if (response != null && currentState is PlayerSuccess) {
+        yield currentState.copyWith(image: response);
+      }
+    }
 
-		if (currentState is PlayerSuccess) {
-			if (event == PlayerEvent.fetchArt) {
-				final artResponse =
-				await Repository().image.fromArt(currentSong.art, isHiDef: true);
-
-				if (artResponse.status == DataStatus.ok) {
-					yield currentState.copyWith(image: artResponse.data);
-				}
-			}
-			if (event == PlayerEvent.complete) {
-				yield currentState.copyWith(isFinished: true);
-			}
+    if (event is PlayerStopped) {
+      yield PlayerSuccess(song: _repository.audio.current, isFinished: true);
     }
   }
 
   @override
   Future<void> close() {
-		_audioStopped.cancel();
-		_newSongSS.cancel();
-		return super.close();
-	}
+    _audioStopped.cancel();
+    _newSong.cancel();
+    return super.close();
+  }
 }
-
-enum PlayerEvent { fetchAlbum, fetchArt, complete }
-
-abstract class PlayerState {}
-
-class PlayerInitial extends PlayerState {
-  final Song song;
-
-  PlayerInitial(this.song);
-}
-
-class PlayerSuccess extends PlayerState {
-	final Song song;
-	final Album album;
-	final File image;
-	final bool isFinished;
-
-	PlayerSuccess({this.song, this.image, this.album, this.isFinished = false});
-
-	PlayerSuccess copyWith({Album album, File image, bool isFinished}) =>
-			PlayerSuccess(
-				song: this.song,
-				album: album ?? this.album,
-				image: image ?? this.image,
-				isFinished: isFinished ?? false,
-			);
-}
-
-class PlayerFailure extends PlayerState {}

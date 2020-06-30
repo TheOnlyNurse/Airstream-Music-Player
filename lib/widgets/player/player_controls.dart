@@ -1,6 +1,6 @@
 import 'package:airstream/bloc/player_controls_bloc.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/player/play_button.dart';
+import 'package:airstream/widgets/player/play_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -53,17 +53,17 @@ class PlayerControls extends StatelessWidget {
                   size: 40.0,
                   color: isPrevious ? enabledColor : disabledColor,
                 ),
-                onPressed: isPrevious ? () => Repository().audio.skipToPrevious() : null,
+                onPressed: isPrevious ? () => Repository().audio.previous() : null,
               ),
               PlayButton(),
               RawMaterialButton(
-                shape: CircleBorder(),
-                child: Icon(
-                  Icons.skip_next,
-                  size: 40.0,
-                  color: isNext ? enabledColor : disabledColor,
-                ),
-                onPressed: isNext ? () => Repository().audio.skipToNext() : null,
+								shape: CircleBorder(),
+								child: Icon(
+									Icons.skip_next,
+									size: 40.0,
+									color: isNext ? enabledColor : disabledColor,
+								),
+								onPressed: isNext ? () => Repository().audio.next() : null,
               ),
             ],
           );

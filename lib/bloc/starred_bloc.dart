@@ -1,17 +1,18 @@
 import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/models/song_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:flutter/material.dart';
 
 class StarredBloc extends Bloc<StarredEvent, StarredState> {
-  StreamSubscription settingSS;
-  StreamSubscription starredChangedSS;
+  final _repository = Repository();
+  StreamSubscription onNetworkChange;
+  StreamSubscription onStarredChange;
 
   StarredBloc() {
-    settingSS = Repository().settings.changed.listen((hasChanged) {
-      if (hasChanged) this.add(StarredEvent.fetch);
+    onNetworkChange = _repository.settings.onChange.listen((type) {
+      if (type == SettingType.isOffline) this.add(StarredEvent.fetch);
     });
 
-    starredChangedSS = Repository().song.changed.listen((event) {
+    onStarredChange = _repository.song.changed.listen((event) {
       if (event == SongChange.starred) this.add(StarredEvent.fetch);
     });
   }
@@ -24,33 +25,37 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
 		switch (event) {
 			case StarredEvent.fetch:
 				yield StarredInitial();
-				final response = await Repository().song.starred();
+        final response = await _repository.song.starred();
 
-				if (response.status == DataStatus.ok) {
-					yield StarredSuccess(response.data);
-				} else {
+        if (response.hasData) {
+          yield StarredSuccess(response.songList);
+        } else {
 					yield StarredFailure(response.message);
-				}
-				break;
-			case StarredEvent.refresh:
+        }
+        break;
+      case StarredEvent.refresh:
 				yield StarredInitial();
-				final response = await Repository().song.starred(force: true);
+        final response = await _repository.song.updateStarred();
 
-				if (response.status == DataStatus.ok) {
-					yield StarredSuccess(response.data);
-				} else {
-					yield StarredFailure(response.message);
-				}
-				break;
+        if (response.hasData) {
+          yield StarredSuccess(response.songList);
+        } else {
+          yield StarredFailure(response.message);
+          // Yield the old starred list after showing error
+          await Future.delayed(Duration(seconds: 5), () {
+            this.add(StarredEvent.fetch);
+          });
+        }
+        break;
 		}
   }
 
   @override
   Future<void> close() {
-    settingSS.cancel();
-    starredChangedSS.cancel();
-    return super.close();
-  }
+		onNetworkChange.cancel();
+		onStarredChange.cancel();
+		return super.close();
+	}
 }
 
 enum StarredEvent { fetch, refresh }

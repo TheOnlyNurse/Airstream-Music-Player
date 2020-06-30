@@ -12,14 +12,20 @@ class NavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _generateButtons(NavigationBarBloc bloc, NavigationBarState state) {
+    List<Widget> _generateButtons(
+        BuildContext context, NavigationBarState state) {
+      void bloc(NavigationBarEvent event) {
+        context.bloc<NavigationBarBloc>().add(event);
+      }
+
       final widgetList = <Widget>[];
       final selectedIndex = state is NavigationBarSuccess ? state.index : 0;
       for (int index = 0; index < buttonList.length; index++) {
         final isSelected = index == selectedIndex;
-        final color =
-            isSelected ? Theme.of(context).accentColor : Theme.of(context).disabledColor;
-        final onTap = () => bloc.add(NavigationBarNavigate(index));
+        final color = isSelected
+            ? Theme.of(context).accentColor
+            : Theme.of(context).disabledColor;
+        final onTap = () => bloc(NavigationBarNavigate(index));
 
         widgetList.add(buttonList[index].build(color, onTap));
       }
@@ -29,20 +35,55 @@ class NavigationBar extends StatelessWidget {
       return widgetList;
     }
 
-    _getShape(NavigationBarState state) {
-      if (state is NavigationBarSuccess && state.isNotched)
+    NotchedShape _getShape(NavigationBarState state) {
+      if (state is NavigationBarSuccess && state.isNotched) {
         return CircularNotchedRectangle();
-      else
+      } else {
         return null;
+      }
+    }
+
+    Widget _getOfflineBanner(NavigationBarState state) {
+      if (state is NavigationBarSuccess && state.isOffline) {
+        final theme = Theme.of(context);
+
+        return Container(
+          height: 20,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.transparent,
+                theme.cardColor,
+                Colors.transparent,
+              ],
+            ),
+          ),
+          child: Center(
+            child: Text(
+              'Offline mode',
+              style: theme.textTheme.subtitle2,
+            ),
+          ),
+        );
+      } else {
+        return Container();
+      }
     }
 
     return BlocBuilder<NavigationBarBloc, NavigationBarState>(
       builder: (context, state) {
         return BottomAppBar(
           shape: _getShape(state),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: _generateButtons(context.bloc<NavigationBarBloc>(), state),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: _generateButtons(context, state),
+              ),
+              _getOfflineBanner(state),
+            ],
           ),
         );
       },
@@ -51,31 +92,31 @@ class NavigationBar extends StatelessWidget {
 }
 
 class _IconButton {
-  const _IconButton({
-    @required this.iconData,
-    @required this.title,
-    this.height = 60.0,
-  }) : assert(iconData != null && title != null);
+	const _IconButton({
+		@required this.iconData,
+		@required this.title,
+		this.height = 60.0,
+	}) : assert(iconData != null && title != null);
 
-  final IconData iconData;
-  final String title;
-  final double height;
+	final IconData iconData;
+	final String title;
+	final double height;
 
-  Widget build(Color color, Function onTap) {
-    return Expanded(
-      child: SizedBox(
-        height: height,
-        child: InkWell(
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(iconData, color: color),
-              Text(title, style: TextStyle(color: color)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+	Widget build(Color color, Function onTap) {
+		return Expanded(
+			child: SizedBox(
+				height: height,
+				child: InkWell(
+					onTap: onTap,
+					child: Column(
+						mainAxisAlignment: MainAxisAlignment.center,
+						children: <Widget>[
+							Icon(iconData, color: color),
+							Text(title, style: TextStyle(color: color)),
+						],
+					),
+				),
+			),
+		);
+	}
 }

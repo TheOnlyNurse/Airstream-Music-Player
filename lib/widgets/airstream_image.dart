@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 class AirstreamImage extends StatelessWidget {
   const AirstreamImage({
@@ -11,6 +13,7 @@ class AirstreamImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.height,
     this.width,
+    this.animationLength = const Duration(milliseconds: 300),
   })  : assert(coverArt == null ? songId != null : coverArt != null),
         super(key: key);
 
@@ -20,12 +23,16 @@ class AirstreamImage extends StatelessWidget {
   final BoxFit fit;
   final double height;
   final double width;
+  final Duration animationLength;
 
   Future _getFuture() {
+    final _repo = Repository();
     if (coverArt != null) {
-      return Repository().image.fromArt(coverArt, isHiDef: isHiDef);
+      return isHiDef
+          ? _repo.image.highDef(coverArt)
+          : _repo.image.lowDef(coverArt);
     } else {
-      return Repository().image.fromSongId(songId);
+      return _repo.image.fromSongId(songId, isHiDef: isHiDef);
     }
   }
 
@@ -35,23 +42,25 @@ class AirstreamImage extends StatelessWidget {
       future: _getFuture(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final imageResponse = snapshot.data;
-          assert(imageResponse is ProviderResponse);
+          final File response = snapshot.data;
 
-          if (imageResponse.status == DataStatus.ok) {
-            return Container(
-              height: height,
-              width: width,
-              child: Image.file(imageResponse.data, fit: fit),
-            );
-          } else {
-            return Container(
-              height: height,
-              width: width,
-              padding: const EdgeInsets.all(16),
-              child: Image.asset('lib/graphics/album.png', fit: fit),
-            );
-          }
+          return PlayAnimation<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: animationLength,
+            builder: (context, child, value) {
+              return AnimatedOpacity(
+                opacity: value,
+                duration: animationLength,
+                child: Container(
+                  height: height,
+                  width: width,
+                  child: response != null
+                      ? Image.file(response, fit: fit)
+                      : Image.asset('lib/graphics/album.png', fit: fit),
+                ),
+              );
+            },
+          );
         }
 
         return Container(

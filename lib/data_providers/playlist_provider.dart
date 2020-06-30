@@ -1,149 +1,101 @@
 import 'package:airstream/barrel/provider_basics.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/playlist_model.dart';
+import 'package:airstream/models/response/playlist_response.dart';
 import 'package:xml/xml.dart' as xml;
 
-class PlaylistProvider extends DatabaseProvider {
-  /// Global variables
+class PlaylistProvider {
+  /// Private Variables
+  Box<Playlist> get _hiveBox => Hive.box('playlists');
 
   /// Global Functions
-  Future<ProviderResponse> library(bool force) async {
+  Future<PlaylistResponse> library({bool force = false}) async {
     if (force) await _downloadPlaylists();
-
-    final db = await database;
-    final response = await db.query(dbName, orderBy: 'name ASC');
-
-    if (response.isEmpty) return _checkOnlineState(await _downloadPlaylists());
-
-    final playlistArray = response.map((e) => Playlist.fromSQL(e)).toList();
-    return _checkOnlineState(
-      ProviderResponse(status: DataStatus.ok, data: playlistArray),
-    );
+    final playlists = _hiveBox.values.toList();
+    if (playlists.isEmpty) {
+      return _checkIfOnline(await _downloadPlaylists());
+    } else {
+      playlists.sort((a, b) => a.name.compareTo(b.name));
+      return _checkIfOnline(
+        PlaylistResponse(hasData: true, playlists: playlists),
+      );
+    }
   }
 
-  Future<Null> removeSongs(int id, List<int> removeIndexes) async {
-    final playlist = await _getPlaylist(id);
+  void removeSongs(int id, List<int> removeIndexes) {
+    final playlist = _hiveBox.get(id);
     for (int index in removeIndexes) {
       playlist.songIds.removeAt(index);
     }
-    await _updatePlaylist(playlist);
-    return;
+    _update(playlist);
   }
 
-  Future<Null> addSongs(int id, List<int> songIdList) async {
-    final playlist = await _getPlaylist(id);
+  void addSongs(int id, List<int> songIdList) {
+    final playlist = _hiveBox.get(id);
     playlist.songIds.addAll(songIdList);
-    await _updatePlaylist(playlist);
-    return;
+    _update(playlist);
   }
 
-  Future<ProviderResponse> addPlaylist(String name, String comment) async {
-    final db = await database;
-    final lastItemList = await db.query(dbName, orderBy: 'id DESC', limit: 1);
-
-    int nextId;
-    if (lastItemList.isEmpty) {
-      nextId = 0;
-    } else {
-      final lastId = lastItemList.map((e) => Playlist.fromSQL(e)).toList().first.id;
-      nextId = lastId + 1;
-    }
-
-    Scheduler().schedule('createPlaylist?name=$name');
-    Scheduler().schedule('updatePlaylist?playlistId=$nextId&comment=$comment');
-    final newPlaylist = Playlist(
-      id: nextId,
-      name: name,
-      comment: comment,
-      songIds: [],
-    );
-    await db.insert(dbName, newPlaylist.toSQL());
-    return ProviderResponse(status: DataStatus.ok, data: newPlaylist);
+  Future<PlaylistResponse> changeComment(int id, String comment) async {
+    final newPlaylist = _hiveBox.get(id).copyWith(comment: comment);
+    Scheduler().schedule('updatePlaylist?playlistId=$id&comment=$comment');
+    _update(newPlaylist);
+    return PlaylistResponse(hasData: true, playlist: newPlaylist);
   }
 
   /// Private Functions
-  Future<Playlist> _getPlaylist(int id) async {
-    final db = await database;
-    final response = await db.query(dbName, where: 'id = ?', whereArgs: [id]);
-    return response.map((e) => Playlist.fromSQL(e)).toList().first;
+  void _update(Playlist playlist) {
+    _hiveBox.delete(playlist.id);
+    _hiveBox.put(playlist.id, playlist);
   }
 
-  Future<Null> _updatePlaylist(Playlist playlist) async {
-    final db = await database;
-    await db.update(dbName, playlist.toSQL(), where: 'id = ?', whereArgs: [playlist.id]);
-    return;
-  }
+  Future<PlaylistResponse> _checkIfOnline(PlaylistResponse input) async {
+    if (Repository().settings.isOffline) {
+			if (!input.hasData) return input;
+			final availableList = <Playlist>[];
+			final cache = await Repository().audioCache.cachedSongs();
 
-  Future<ProviderResponse> _checkOnlineState(ProviderResponse listResponse) async {
-    if (listResponse.status == DataStatus.error) return listResponse;
-    assert(listResponse.data is List<Playlist>);
+			if (cache.hasNoData) return PlaylistResponse(passOn: cache);
 
-    if (await SettingsProvider().isOffline) {
-      final cachedList = <Playlist>[];
-      final offlineSongs = await AudioCacheProvider().getCachedList(songs: true);
+			// If a playlist has at least one cached song, then add it to return list
+			for (var playlist in input.playlists) {
+				for (var songId in cache.idList) {
+					if (playlist.songIds.contains(songId)) {
+						availableList.add(playlist);
+						break;
+					}
+				}
+			}
 
-      if (offlineSongs.status == DataStatus.error) return offlineSongs;
-      assert(offlineSongs.data is List<int>);
-
-      for (Playlist playlist in listResponse.data) {
-        for (int songId in offlineSongs.data) {
-          if (playlist.songIds.contains(songId)) {
-            cachedList.add(playlist);
-            break;
-          }
-        }
+      if (availableList.isEmpty) {
+        return PlaylistResponse(error: 'No cached playlists');
       }
-
-      if (cachedList.isEmpty) {
-        return ProviderResponse(
-          status: DataStatus.error,
-          source: ProviderSource.playlist,
-          message: 'no cached playlists',
-        );
-      } else {
-        return ProviderResponse(status: DataStatus.ok, data: cachedList);
-      }
+			return PlaylistResponse(hasData: true, playlists: availableList);
     }
 
-    return ProviderResponse(status: DataStatus.ok, data: listResponse.data);
+    return input;
   }
 
-  Future<ProviderResponse> _downloadPlaylists() async {
-    final response = await ServerProvider().fetchRequest(
-      'getPlaylists?',
-      FetchType.xmlDoc,
-    );
-
-    if (response.status == DataStatus.error) return response;
-    assert(response.data is xml.XmlDocument);
-
-    await (await database).delete(dbName);
-
+  Future<PlaylistResponse> _downloadPlaylists() async {
+    final response = await ServerProvider().fetchXml('getPlaylists?');
+    if (!response.hasData) return PlaylistResponse(passOn: response);
+    _hiveBox.clear();
     final playlistArray = <Playlist>[];
-    final idList = response.data
+    final idList = response.document
         .findAllElements('playlist')
         .map((element) => element.getAttribute('id'));
 
     for (var id in idList) {
-      final singlePlaylist = await ServerProvider().fetchRequest(
-        'getPlaylist?id=$id',
-        FetchType.xmlDoc,
-      );
-
-      if (singlePlaylist.status == DataStatus.error) break;
-      assert(singlePlaylist.data is xml.XmlDocument);
-
-      playlistArray.add(await _updateWithXml(singlePlaylist.data));
+      final playlist = await ServerProvider().fetchXml('getPlaylist?id=$id');
+      if (!playlist.hasData) break;
+      playlistArray.add(_updateWithXml(playlist.document));
     }
 
     if (playlistArray.isEmpty) {
-      return ProviderResponse(
-        status: DataStatus.error,
-        source: ProviderSource.playlist,
-        message: 'found no playlists on server',
-      );
-    } else {
-      return ProviderResponse(status: DataStatus.ok, data: playlistArray);
+      return PlaylistResponse(error: 'found no playlists on server');
     }
+
+		return PlaylistResponse(hasData: true, playlists: playlistArray);
   }
 
   /// Update one playlist from a json map
@@ -151,26 +103,11 @@ class PlaylistProvider extends DatabaseProvider {
   /// The information required to make a playlist class requires going through each
   /// playlist individually and the acquiring the song ids. Therefore, you can only "update"
   /// one playlist at a time.
-  Future<Playlist> _updateWithXml(xml.XmlDocument playlistXml) async {
+  Playlist _updateWithXml(xml.XmlDocument playlistXml) {
     final playlist = Playlist.fromServer(playlistXml);
-    final db = await database;
-    await db.insert(
-      dbName,
-      playlist.toSQL(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    _update(playlist);
     return playlist;
   }
-
-  /// Database Provider required overrides
-  @override
-  String get dbName => 'playlists';
-
-  @override
-  String get tableColumns => 'id INTEGER primary key NOT NULL,'
-      'name TEXT NOT NULL,'
-      'comment TEXT,'
-      'songIds TEXT';
 
   /// Singleton Boilerplate
   PlaylistProvider._internal();
@@ -179,5 +116,3 @@ class PlaylistProvider extends DatabaseProvider {
 
   factory PlaylistProvider() => _instance;
 }
-
-enum StarredType { songs, albums, artists }

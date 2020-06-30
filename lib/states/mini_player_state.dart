@@ -4,6 +4,8 @@ abstract class MinimisedPlayerState {}
 
 class ButtonNoAudio extends MinimisedPlayerState {}
 
+class ButtonFailure extends MinimisedPlayerState {}
+
 class ButtonAudioIsPlaying extends MinimisedPlayerState {}
 
 class ButtonAudioIsPaused extends MinimisedPlayerState {}

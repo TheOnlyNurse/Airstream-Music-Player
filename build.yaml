@@ -1,0 +1,7 @@
+# Used to enable Moor being executed in background isolate
+targets:
+  $default:
+    builders:
+      moor_generator:
+        options:
+          generate_connect_constructor: true

@@ -1,77 +1,103 @@
-import 'dart:convert';
+import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:path/path.dart' as p;
+import 'package:connectivity/connectivity.dart';
 
 class SettingsProvider {
-  final _cache = <String, dynamic>{};
-  final StreamController<bool> isOfflineChanged = StreamController.broadcast();
+  Box get _hiveBox => Hive.box('settings');
 
-  Future<int> get prefetchValue async =>
-      _cache['prefetchValue'] ?? await _getFromFile('prefetchValue');
+  /// Global
+  /// Listenable stream of changed settings
+  Stream<SettingType> get onSettingsChange => _settingChanged.stream;
 
-  Future<bool> get isOffline async =>
-      _cache['isOffline'] ?? await _getFromFile('isOffline');
+  /// Broadcast setting type on change
+  final _settingChanged = StreamController<SettingType>.broadcast();
 
-  Future<int> get musicCacheSize async =>
-      _cache['musicCacheSize'] ?? await _getFromFile('musicCacheSize');
+  /// Query a setting in box or return default
+  dynamic query(SettingType type) {
+    final response = _hiveBox.get(type.toString());
+    if (response == null) return _defaults[type];
+    return response;
+  }
 
-  Future<int> get imageCacheSize async =>
-			_cache['imageCacheSize'] ?? await _getFromFile('imageCacheSize');
+  /// Validate a given value before setting it as the new value
+  void change(SettingType type, dynamic newValue) async {
+    final isValid = _validate(type, newValue);
+    if (isValid) {
+      _hiveBox.put(type.toString(), newValue);
+      _settingChanged.add(type);
+    }
+  }
 
-	Future<dynamic> _getFromFile(cacheKey) async {
-		final file = File(p.join(await getDatabasesPath(), 'settings.json'));
+  List<int> range(SettingType type) => _range[type];
 
-		if (file.existsSync()) {
-			_cache.addAll(jsonDecode(file.readAsStringSync()));
-			return _cache[cacheKey];
-		} else {
-			file.createSync(recursive: true);
-			final defaults = {
-        'prefetchValue': 1,
-        'isOffline': false,
-        'musicCacheSize': 1000,
-        'imageCacheSize': 30,
-      };
-			file.writeAsStringSync(jsonEncode(defaults));
-			_cache.addAll(defaults);
-			return defaults[cacheKey];
-		}
-	}
+  /// Private
+  bool _validate(SettingType type, dynamic newValue) {
+    // Within applicable ranges
+    if (_range.containsKey(type)) {
+      if (newValue < _range[type][0] - 1) return false;
+      if (newValue > _range[type][1] + 1) return false;
+    }
+    // Same type
+    if (newValue.runtimeType != query(type).runtimeType) return false;
+    // Passed all tests
+    return true;
+  }
 
-	Future<Null> setSetting(SettingsChangedType type, dynamic value) async {
-		switch (type) {
-			case SettingsChangedType.prefetch:
-				if (value > -1 && value < 4) {
-					_cache['prefetchValue'] = value as int;
-				}
-				break;
-			case SettingsChangedType.isOffline:
-				if (value as bool != _cache['isOffline']) {
-					isOfflineChanged.add(true);
-					_cache['isOffline'] = value as bool;
-				}
-				break;
-			case SettingsChangedType.imageCache:
-				if (value > 20 && value < 1000) {
-					_cache['imageCacheSize'] = value as int;
-				}
-				break;
-      case SettingsChangedType.musicCache:
-        if (value > 99) {
-          _cache['musicCacheSize'] = value as int;
-        }
+  /// Defaults
+  final _range = <SettingType, dynamic>{
+    SettingType.prefetch: [0, 3],
+    SettingType.imageCache: [20, 200],
+    SettingType.musicCache: [100, 3000],
+    SettingType.mobileBitrate: [32, 320],
+    SettingType.wifiBitrate: [32, 320],
+  };
+
+  final _defaults = <SettingType, dynamic>{
+    SettingType.isOffline: false,
+    SettingType.prefetch: 1,
+    SettingType.imageCache: 80,
+    SettingType.musicCache: 1000,
+    SettingType.mobileBitrate: 256,
+    SettingType.wifiBitrate: 320,
+    SettingType.mobileOffline: false,
+  };
+
+  /// Change to offline mode when in aeroplane or similar mode
+  void _onConnectivityChange(ConnectivityResult result) async {
+    void onWifi() {
+      final mobileOffline = query(SettingType.mobileOffline);
+      if (mobileOffline) change(SettingType.isOffline, false);
+    }
+
+    void onMobile() {
+      final mobileOffline = query(SettingType.mobileOffline);
+      if (mobileOffline) change(SettingType.isOffline, true);
+    }
+
+    void onOffline() {
+      final isOffline = query(SettingType.isOffline);
+      if (!isOffline) change(SettingType.isOffline, true);
+    }
+
+    switch (result) {
+      case ConnectivityResult.wifi:
+        onWifi();
+        break;
+      case ConnectivityResult.mobile:
+        onMobile();
+        break;
+      case ConnectivityResult.none:
+        onOffline();
         break;
     }
-    final file = File(p.join(await getDatabasesPath(), 'settings.json'));
-    file.writeAsStringSync(jsonEncode(_cache));
-    return;
   }
 
   /// Singleton boilerplate code
   static final SettingsProvider _instance = SettingsProvider._internal();
 
-  SettingsProvider._internal();
+  SettingsProvider._internal() {
+    Connectivity().onConnectivityChanged.listen(_onConnectivityChange);
+  }
 
   factory SettingsProvider() => _instance;
 }

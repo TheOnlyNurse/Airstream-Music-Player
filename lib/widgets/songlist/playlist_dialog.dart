@@ -1,6 +1,7 @@
 import 'package:airstream/bloc/playlist_dialog.dart';
 import 'package:airstream/models/playlist_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PlaylistDialog extends StatelessWidget {
@@ -21,7 +22,7 @@ class PlaylistDialog extends StatelessWidget {
                   return Column(
                     children: <Widget>[
                       SizedBox(
-                        height: 230,
+                        height: 220,
                         child: _PlaylistOptions(playlists: state.playlists),
                       ),
                       _Indicator(currentIndex: state.currentView),
@@ -70,20 +71,28 @@ class _PlaylistOptions extends StatelessWidget {
     final _commentController = TextEditingController();
     void dialogBloc(PlaylistDialogEvent event) =>
         context.bloc<PlaylistDialogBloc>().add(event);
+    final _allowedText = <TextInputFormatter>[
+      WhitelistingTextInputFormatter(RegExp("[a-zA-z ]")),
+    ];
 
     return PageView(
-      onPageChanged: (index) =>
-          context.bloc<PlaylistDialogBloc>().add(
+      onPageChanged: (index) => context.bloc<PlaylistDialogBloc>().add(
             PlaylistDialogViewChange(index),
           ),
+      physics: BouncingScrollPhysics(),
       children: <Widget>[
         // Current playlists
         ListView.builder(
           itemCount: playlists.length,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          physics: BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(playlists[index].name),
-              onTap: () => dialogBloc(PlaylistDialogChosen(playlists[index])),
+            return Card(
+              color: Theme.of(context).primaryColor,
+              child: ListTile(
+                title: Text(playlists[index].name),
+                onTap: () => dialogBloc(PlaylistDialogChosen(playlists[index])),
+              ),
             );
           },
         ),
@@ -96,6 +105,7 @@ class _PlaylistOptions extends StatelessWidget {
               TextField(
                 controller: _nameController,
                 maxLength: 50,
+                inputFormatters: _allowedText,
                 decoration: InputDecoration(
                   labelText: 'Name',
                   counterText: '',
@@ -105,6 +115,7 @@ class _PlaylistOptions extends StatelessWidget {
               TextField(
                 controller: _commentController,
                 maxLines: 1,
+                inputFormatters: _allowedText,
                 decoration: InputDecoration(
                   labelText: 'Comment',
                 ),
@@ -137,7 +148,7 @@ class _Indicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget circleBar(bool isActive) {
+    Widget circle(bool isActive) {
       final theme = Theme.of(context);
       return AnimatedContainer(
         duration: Duration(milliseconds: 150),
@@ -150,12 +161,15 @@ class _Indicator extends StatelessWidget {
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        circleBar(currentIndex == 0),
-        circleBar(currentIndex == 1),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          circle(currentIndex == 0),
+          circle(currentIndex == 1),
+        ],
+      ),
     );
   }
 }

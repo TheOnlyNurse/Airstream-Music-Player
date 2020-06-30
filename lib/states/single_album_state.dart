@@ -1,4 +1,4 @@
-import 'package:airstream/models/song_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 
 abstract class SingleAlbumState {}
 

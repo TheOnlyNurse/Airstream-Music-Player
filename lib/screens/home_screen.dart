@@ -1,6 +1,7 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/widgets/home/collections.dart';
 import 'package:airstream/widgets/home/playlists.dart';
+import 'package:airstream/widgets/home/refresh_button.dart';
 import 'package:airstream/widgets/home/search_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -27,15 +28,15 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text('Collections', style: headlineStyle),
-                  _RefreshButton(
+                  RefreshButton(
                     onPressed: () async {
-                      await Repository().album.library(force: true);
-                      await Repository().artist.library(force: true);
+                      await Repository().album.update();
+                      await Repository().artist.update();
                     },
                   )
                 ],
@@ -45,12 +46,12 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           SliverToBoxAdapter(child: Collections()),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text('Playlists', style: headlineStyle),
-                  _RefreshButton(
+                  RefreshButton(
                     onPressed: () => Repository().playlist.library(force: true),
                   )
                 ],
@@ -66,23 +67,4 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
 
   @override
   bool get wantKeepAlive => true;
-}
-
-class _RefreshButton extends StatelessWidget {
-  final Function onPressed;
-
-  const _RefreshButton({Key key, this.onPressed}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return RawMaterialButton(
-      child: Icon(Icons.refresh),
-      shape: CircleBorder(),
-      constraints: BoxConstraints.tightFor(
-        width: 50,
-        height: 50,
-      ),
-      onPressed: onPressed,
-    );
-  }
 }

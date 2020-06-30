@@ -8,3 +8,5 @@ abstract class RandomEvent extends Equatable {
 }
 
 class RandomFetch extends RandomEvent {}
+
+class RandomNext extends RandomEvent {}

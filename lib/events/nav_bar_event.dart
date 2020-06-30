@@ -24,3 +24,5 @@ class NavigationBarNotch extends NavigationBarEvent {
 
   const NavigationBarNotch(this.isNotched);
 }
+
+class NavigationBarNetworkChange extends NavigationBarEvent {}

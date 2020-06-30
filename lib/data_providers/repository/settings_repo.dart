@@ -1,29 +1,20 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
+part of repository_library;
 
-class SettingsRepository {
-	Future<RepoSettingsContainer> get() async {
-		final provider = SettingsProvider();
-		return RepoSettingsContainer(
-			prefetch: await provider.prefetchValue,
-			isOffline: await provider.isOffline,
-			imageCacheSize: await provider.imageCacheSize,
-			musicCacheSize: await provider.musicCacheSize,
-		);
-	}
+class _SettingsRepository {
+  final _provider = SettingsProvider();
 
-	void set(SettingsChangedType type, dynamic value) =>
-			SettingsProvider().setSetting(type, value);
+  Stream<SettingType> get onChange => _provider.onSettingsChange;
 
-	Stream<bool> get changed => SettingsProvider().isOfflineChanged.stream;
-}
+  bool get isOffline {
+    final bool isOffline = _provider.query(SettingType.isOffline);
+    return isOffline;
+  }
 
-class RepoSettingsContainer {
-	final int prefetch;
-	final bool isOffline;
-	final int imageCacheSize;
-	final int musicCacheSize;
+  dynamic query(SettingType type) => _provider.query(type);
 
-	RepoSettingsContainer(
-			{this.prefetch, this.isOffline, this.imageCacheSize, this.musicCacheSize});
+  void change(SettingType type, dynamic newValue) {
+    _provider.change(type, newValue);
+  }
+
+  List<int> range(SettingType type) => _provider.range(type);
 }

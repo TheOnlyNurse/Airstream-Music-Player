@@ -2,15 +2,17 @@ import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/models/playlist_model.dart';
 import 'package:flutter/material.dart';
 
-class PlaylistsLibraryBloc extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
-  StreamSubscription settingsChange;
-  StreamSubscription playlistChange;
+class PlaylistsLibraryBloc
+    extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
+  final _repository = Repository();
+  StreamSubscription onNetworkChange;
+  StreamSubscription onPlaylistChange;
 
   PlaylistsLibraryBloc() {
-    settingsChange = Repository().settings.changed.listen((hasChanged) {
-      if (hasChanged) this.add(PlaylistsLibraryEvent.fetch);
+    onNetworkChange = _repository.settings.onChange.listen((type) {
+      if (type == SettingType.isOffline) this.add(PlaylistsLibraryEvent.fetch);
     });
-    playlistChange = Repository().playlist.changed.listen((event) {
+    onPlaylistChange = _repository.playlist.changed.listen((event) {
       this.add(PlaylistsLibraryEvent.fetch);
     });
   }
@@ -19,25 +21,23 @@ class PlaylistsLibraryBloc extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryS
   PlaylistsLibraryState get initialState => PlaylistsLibraryInitial();
 
   @override
-  Stream<PlaylistsLibraryState> mapEventToState(PlaylistsLibraryEvent event) async* {
+  Stream<PlaylistsLibraryState> mapEventToState(
+      PlaylistsLibraryEvent event) async* {
     switch (event) {
       case PlaylistsLibraryEvent.fetch:
-        final response = await Repository().playlist.library();
-        switch (response.status) {
-          case DataStatus.ok:
-            yield PlaylistsLibrarySuccess(response.data);
-            break;
-          case DataStatus.error:
-            yield PlaylistsLibraryFailure(response.message);
-            break;
+        final response = await _repository.playlist.library();
+        if (response.hasData) {
+          yield PlaylistsLibrarySuccess(response.playlists);
+        } else {
+					yield PlaylistsLibraryFailure(response.message);
         }
     }
   }
 
   @override
   Future<void> close() {
-    playlistChange.cancel();
-    settingsChange.cancel();
+    onPlaylistChange.cancel();
+    onNetworkChange.cancel();
     return super.close();
   }
 }

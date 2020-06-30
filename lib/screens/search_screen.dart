@@ -1,12 +1,12 @@
 import 'package:airstream/bloc/search_bloc.dart';
 import 'package:airstream/bloc/song_list_bloc.dart';
-import 'package:airstream/models/album_model.dart';
-import 'package:airstream/models/artist_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/widgets/artist_circle.dart';
 import 'package:airstream/widgets/album_card.dart';
 import 'package:airstream/widgets/songlist/song_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -44,23 +44,23 @@ class _SearchScreenState extends State<SearchScreen> {
     List<Widget> _leadingSlivers(SearchSuccess state) {
       final slivers = <Widget>[];
 
-      if (state.artistList.isNotEmpty) {
+			if (state.artists.isNotEmpty) {
         slivers.add(
           _ArtistCircles(
             title: _title('Artists'),
-            artistList: state.artistList,
+            artistList: state.artists,
             onTap: (artist) => _onTap('library/singleArtist', artist),
           ),
         );
       }
 
-      if (state.albumList.isNotEmpty) {
-        slivers.add(_AlbumCards(
-          title: _title('Albums'),
-          albumList: state.albumList,
-          onTap: (album) => _onTap('library/singleAlbum', album),
-        ));
-      }
+      if (state.albums.isNotEmpty) {
+				slivers.add(_AlbumCards(
+					title: _title('Albums'),
+					albumList: state.albums,
+					onTap: (album) => _onTap('library/singleAlbum', album),
+				));
+			}
 
       return slivers;
     }
@@ -77,18 +77,19 @@ class _SearchScreenState extends State<SearchScreen> {
                   builder: (context, state) {
                     if (state is SearchSuccess) {
                       return SongList(
-                        type: SongListType.search,
-                        typeValue: state.songList,
-                        leading: _leadingSlivers(state),
-                        title: _title('Songs'),
-                        onSelection: (hasSelection) {
-                          print('hasSelection: $hasSelection');
-                          if (hasSelection != hiddenSearchBar) {
-                            setState(() {
-                              hiddenSearchBar = hasSelection;
-                            });
-                          }
-                        },
+												type: SongListType.search,
+												typeValue: state.songs,
+												leading: _leadingSlivers(state),
+												title:
+												state.songs.isNotEmpty ? _title('Songs') : null,
+												onSelection: (hasSelection) {
+													print('hasSelection: $hasSelection');
+													if (hasSelection != hiddenSearchBar) {
+														setState(() {
+															hiddenSearchBar = hasSelection;
+														});
+													}
+												},
                       );
                     }
 
@@ -161,16 +162,20 @@ class _SearchBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: TextField(
-                  controller: textController,
-                  onChanged: (query) =>
-                      context.bloc<SearchBloc>().add(SearchQuery(query)),
-                  autofocus: textController.value.text.length == 0 ? true : false,
-                  maxLength: 25,
-                  decoration: InputDecoration(
-                    counterText: '',
-                    border: InputBorder.none,
-                    hintText: 'Search',
-                  ),
+									controller: textController,
+									inputFormatters: <TextInputFormatter>[
+										WhitelistingTextInputFormatter(RegExp("[a-zA-z ]"))
+									],
+									onChanged: (query) =>
+											context.bloc<SearchBloc>().add(SearchQuery(query)),
+									autofocus:
+									textController.value.text.length == 0 ? true : false,
+									maxLength: 25,
+									decoration: InputDecoration(
+										counterText: '',
+										border: InputBorder.none,
+										hintText: 'Search',
+									),
                 ),
               ),
             ),
@@ -195,21 +200,22 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _AlbumCards extends StatelessWidget {
-  final Widget title;
-  final List<Album> albumList;
-  final Function(Album) onTap;
+	final Widget title;
+	final List<Album> albumList;
+	final Function(Album) onTap;
 
-  const _AlbumCards({Key key, this.title, this.albumList, this.onTap}) : super(key: key);
+	const _AlbumCards({Key key, this.title, this.albumList, this.onTap})
+			: super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+	@override
+	Widget build(BuildContext context) {
+		return SliverToBoxAdapter(
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: <Widget>[
           title,
-          SizedBox(
-            height: 180,
+					SizedBox(
+						height: 180,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: BouncingScrollPhysics(),

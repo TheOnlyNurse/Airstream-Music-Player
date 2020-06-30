@@ -1,4 +1,4 @@
-import 'package:airstream/models/album_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/widgets/airstream_image.dart';
 import 'package:flutter/material.dart';
 

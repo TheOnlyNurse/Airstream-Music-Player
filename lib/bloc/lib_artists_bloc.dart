@@ -1,13 +1,14 @@
 import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/models/artist_model.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:flutter/material.dart';
 
 class LibraryArtistsBloc extends Bloc<AlbumListEvent, AlbumListState> {
-  StreamSubscription settingSS;
+  final _repository = Repository();
+  StreamSubscription _onNetworkChange;
 
   LibraryArtistsBloc() {
-    settingSS = Repository().settings.changed.listen((hasChanged) {
-      if (hasChanged) this.add(AlbumListFetch());
+    _onNetworkChange = _repository.settings.onChange.listen((type) {
+      if (type == SettingType.isOffline) this.add(AlbumListFetch());
     });
   }
 
@@ -17,21 +18,18 @@ class LibraryArtistsBloc extends Bloc<AlbumListEvent, AlbumListState> {
   @override
   Stream<AlbumListState> mapEventToState(AlbumListEvent event) async* {
     if (event is AlbumListFetch) {
-      final response = await Repository().artist.library();
-      switch (response.status) {
-        case DataStatus.ok:
-          yield AlbumListSuccess(artists: response.data);
-          break;
-        case DataStatus.error:
-          yield AlbumListFailure(response.message);
-          break;
+			final response = await _repository.artist.byAlphabet();
+      if (response.hasData) {
+        yield AlbumListSuccess(artists: response.artists);
+      } else {
+        yield AlbumListFailure(response.message);
       }
     }
   }
 
   @override
   Future<void> close() {
-    settingSS.cancel();
+    _onNetworkChange.cancel();
     return super.close();
   }
 }

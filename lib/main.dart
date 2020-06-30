@@ -1,7 +1,9 @@
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/screens/library.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/navigators/library.dart';
 import 'package:airstream/screens/player_screen.dart';
 import 'package:airstream/screens/search_screen.dart';
 import 'package:airstream/screens/settings_screen.dart';
+import 'package:flare_splash_screen/flare_splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -23,25 +25,42 @@ class App extends StatelessWidget {
         cardColor: const Color(0xFF32407b),
         bottomAppBarColor: const Color(0xFF13175B),
         dialogBackgroundColor: const Color(0xFF32407b),
-        // Base purplish
-//        floatingActionButtonTheme: FloatingActionButtonThemeData(
-//          backgroundColor: Colors.blueAccent,
-//          foregroundColor: Colors.white,
-//        ),
         textTheme: TextTheme().copyWith(
           headline4: TextStyle().copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+        sliderTheme: SliderThemeData().copyWith(
+          tickMarkShape: SliderTickMarkShape.noTickMark,
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
+        ),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LibraryWidget(navKey: libraryNavKey),
+      routes: <String, WidgetBuilder>{
         '/musicPlayer': (context) => PlayerScreen(navKey: libraryNavKey),
         '/settings': (context) => SettingsScreen(),
         '/search': (context) => SearchScreen(navKey: libraryNavKey),
       },
+      home: SplashScreen.navigate(
+        name: 'lib/graphics/splash-screen.flr',
+        next: (context) => LibraryNavigator(navKey: libraryNavKey),
+        transitionsBuilder: (_, animation, __, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, -1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        until: () => Repository().init(),
+        backgroundColor: const Color(0xFF32407b),
+        alignment: Alignment.center,
+        height: 300,
+        width: 300,
+        loopAnimation: 'loading',
+        endAnimation: 'done',
+      ),
     );
   }
 }

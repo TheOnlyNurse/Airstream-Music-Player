@@ -4,7 +4,6 @@ import 'package:airstream/states/random_state.dart';
 import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RandomScreen extends StatefulWidget {
@@ -29,7 +28,7 @@ class _RandomScreenState extends State<RandomScreen> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _randomBloc.add(RandomFetch());
+      _randomBloc.add(RandomNext());
     }
   }
 
@@ -44,16 +43,19 @@ class _RandomScreenState extends State<RandomScreen> {
               _randomBloc = context.bloc<RandomBloc>();
 
               return CustomScrollView(
-                controller: _scrollController,
+								controller: _scrollController,
+                physics: BouncingScrollPhysics(),
                 slivers: <Widget>[
                   SliverCloseBar(),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Text('Random', style: Theme.of(context).textTheme.headline4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Text('Random',
+                          style: Theme.of(context).textTheme.headline4),
                     ),
                   ),
-                  SliverAlbumGrid(albumList: state.albumList),
+                  SliverAlbumGrid(albumList: state.albums),
                 ],
               );
             }

@@ -5,4 +5,4 @@ export 'dart:async';
 
 // Repo
 export 'package:airstream/data_providers/repository/repository.dart';
-export 'package:airstream/models/provider_response.dart';
+export 'package:airstream/barrel/communication.dart';

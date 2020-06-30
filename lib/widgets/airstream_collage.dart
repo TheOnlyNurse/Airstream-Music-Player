@@ -1,6 +1,7 @@
+import 'dart:io';
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/provider_response.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 class AirstreamCollage extends StatelessWidget {
   const AirstreamCollage({
@@ -23,16 +24,16 @@ class AirstreamCollage extends StatelessWidget {
       future: Repository().image.collage(songIds),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final imageList = snapshot.data;
-          if (imageList.status == DataStatus.ok) {
+          final List<File> images = snapshot.data;
+          if (images != null) {
             return LayoutBuilder(
               builder: (context, constraints) {
                 return Wrap(
                   children: List.generate(
-                    imageList.data.length,
+                    images.length,
                     (index) {
-                      return Image.file(
-                        imageList.data[index],
+                      return _FadeInImage(
+                        image: images[index],
                         width: constraints.maxWidth / columns,
                         height: constraints.maxHeight / rows,
                         fit: fit,
@@ -49,10 +50,44 @@ class AirstreamCollage extends StatelessWidget {
             );
           }
         } else {
-					return Center(
-						child: CircularProgressIndicator(),
-					);
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
+      },
+    );
+  }
+}
+
+class _FadeInImage extends StatelessWidget {
+  final File image;
+  final double width;
+  final double height;
+  final fit;
+
+  const _FadeInImage(
+      {Key key, @required this.image, this.width, this.height, this.fit,})
+      : assert(image != null),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = Duration(milliseconds: 300);
+
+    return PlayAnimation<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: duration,
+      builder: (context, child, value) {
+        return AnimatedOpacity(
+          opacity: value,
+          duration: duration,
+          child: Image.file(
+            image,
+            width: width,
+            height: height,
+            fit: fit,
+          ),
+        );
       },
     );
   }

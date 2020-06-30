@@ -1,31 +1,35 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
-import 'package:airstream/models/percentage_model.dart';
-import 'package:assets_audio_player/assets_audio_player.dart' as assets;
-import 'package:airstream/data_providers/audio_provider.dart';
+part of repository_library;
 
-class AudioRepository {
+class _AudioRepository {
   final _provider = AudioProvider();
 
-  Stream<PercentageModel> get percentageStream => AudioProvider().percentageSC.stream;
+  ValueStream<AudioPlayerState> get playerState => _provider.playerState;
 
-  int get index => AudioProvider().currentSongIndex;
+  Stream<AudioPlayerSongState> get songState => _provider.songState;
 
-  Song get current => AudioProvider().currentSong;
+  ValueStream<Duration> get audioPosition => _provider.audioPosition;
 
-  int get playlistLength => AudioProvider().songQueue.length;
+  Duration get maxDuration => _provider.maxDuration;
 
-  List<Song> get queue {
-    final queue = <Song>[];
-    queue.addAll(_provider.songQueue);
-    return queue;
-  }
+  int get index => _provider.currentIndex;
 
-  assets.AssetsAudioPlayer get audioPlayer => AudioProvider().audioPlayer;
+  Song get current => _provider.currentSong;
 
-  void skipToNext() => AudioProvider().skipTo(1);
+  int get queueLength => _provider.songQueue.length;
 
-  void skipToPrevious() => AudioProvider().skipTo(-1);
+  List<Song> get queue => _provider.songQueue;
 
-  void play({@required List<Song> playlist, int index = 0}) =>
-      AudioProvider().createQueueAndPlay(playlist, index);
+  void next() => _provider.changePlayerState(ChangePlayerState.next);
+
+  void previous() => _provider.changePlayerState(ChangePlayerState.previous);
+
+  void pause() => _provider.changePlayerState(ChangePlayerState.pause);
+
+  void play() => _provider.changePlayerState(ChangePlayerState.play);
+
+  void start({@required List<Song> playlist, int index = 0}) =>
+      _provider.createQueueAndPlay(playlist, index);
+
+  void seek(double seconds) =>
+      _provider.seekPosition(Duration(seconds: seconds.floor()));
 }

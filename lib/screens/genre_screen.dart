@@ -1,5 +1,5 @@
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/provider_response.dart';
+import 'package:airstream/models/response/album_response.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -14,37 +14,42 @@ class GenreScreen extends StatelessWidget {
           future: Repository().album.allGenres(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              if (snapshot.data.status == DataStatus.ok) {
-                final List<String> genreList = snapshot.data.data;
-
+							final AlbumResponse response = snapshot.data;
+              if (snapshot.data.hasData) {
                 return CustomScrollView(
                   physics: BouncingScrollPhysics(),
                   slivers: <Widget>[
                     SliverCloseBar(),
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: Text(
                           'By Genre',
                           style: Theme.of(context).textTheme.headline4,
                         ),
                       ),
-                    ),
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 30.0),
-                      sliver: SliverGrid(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 250,
-                          childAspectRatio: 2 / 1,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, int index) {
-                            return _GenreRectangle(genre: genreList[index], index: index);
+										),
+										SliverPadding(
+											padding: const EdgeInsets.only(
+													left: 16.0, right: 16.0, bottom: 30.0),
+											sliver: SliverGrid(
+												gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+													maxCrossAxisExtent: 250,
+													childAspectRatio: 2 / 1,
+													mainAxisSpacing: 8,
+													crossAxisSpacing: 8,
+												),
+												delegate: SliverChildBuilderDelegate(
+															(context, int index) {
+                            return _GenreRectangle(
+                              genre: response.genres[index],
+                              index: index,
+                            );
                           },
-                          childCount: genreList.length,
+                          childCount: response.genres.length,
                         ),
                       ),
                     )
@@ -82,7 +87,7 @@ class _GenreRectangle extends StatelessWidget {
     return InkWell(
       onTap: () => Navigator.of(context).pushNamed(
         'library/albumList',
-        arguments: Repository().album.genre(genre),
+        arguments: () => Repository().album.genre(genre),
       ),
       child: Container(
         decoration: BoxDecoration(

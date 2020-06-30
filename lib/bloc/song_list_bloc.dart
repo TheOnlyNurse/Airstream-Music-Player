@@ -1,8 +1,8 @@
 import 'package:airstream/barrel/bloc_basics.dart';
+import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/events/song_list_event.dart';
-import 'package:airstream/models/album_model.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/song_model.dart';
+import 'package:airstream/models/response/song_response.dart';
 import 'package:airstream/states/song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
@@ -17,38 +17,38 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
     final currentState = state;
 
     if (event is SongListFetch) {
-      ProviderResponse response;
+			SongResponse response;
       songsSelected = event.callback;
 
       switch (event.type) {
         case SongListType.playlist:
           assert(event.typeValue is Playlist);
           playlist = event.typeValue;
-          response = await Repository().song.listFromPlaylist(event.typeValue);
+          response = await Repository().song.fromPlaylist(event.typeValue);
           break;
         case SongListType.album:
-          assert(event.typeValue is Album);
-          response = await Repository().song.listFromAlbum(event.typeValue);
+					assert(event.typeValue is Album);
+          response = await Repository().song.fromAlbum(event.typeValue);
           break;
         case SongListType.starred:
-          assert(event.typeValue is List<Song>);
-          response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
-          break;
-        case SongListType.search:
-          assert(event.typeValue is List<Song>);
-          response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
-          break;
-        case SongListType.musicQueue:
-          assert(event.typeValue is List<Song>);
-          response = ProviderResponse(status: DataStatus.ok, data: event.typeValue);
-          break;
-        default:
-          throw UnimplementedError();
-      }
+					assert(event.typeValue is List<Song>);
+					response = SongResponse(hasData: true, songList: event.typeValue);
+					break;
+				case SongListType.search:
+					assert(event.typeValue is List<Song>);
+					response = SongResponse(hasData: true, songList: event.typeValue);
+					break;
+				case SongListType.musicQueue:
+					assert(event.typeValue is List<Song>);
+					response = SongResponse(hasData: true, songList: event.typeValue);
+					break;
+				default:
+					throw UnimplementedError();
+			}
 
-      if (response.status == DataStatus.ok) {
-        yield SongListSuccess(songList: response.data);
-      } else {
+			if (response.hasData) {
+				yield SongListSuccess(songList: response.songList);
+			} else {
         yield SongListFailure(response.message);
       }
     }
@@ -115,8 +115,10 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
         if (playlist != null) {
           Repository().playlist.removeSongs(playlist, currentState.selected);
         } else {
-          Repository().song.star(songList: removeMap.values.toList(), toStar: false);
-        }
+					Repository()
+							.song
+							.star(songList: removeMap.values.toList(), toStar: false);
+				}
 
         yield currentState.copyWith(
           songList: songList,

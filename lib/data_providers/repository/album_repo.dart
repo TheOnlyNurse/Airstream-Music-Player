@@ -1,70 +1,41 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
-import 'package:airstream/data_providers/album_provider.dart';
+part of repository_library;
 
-class AlbumRepository {
-  final _provider = AlbumProvider();
+class _AlbumRepository {
+  const _AlbumRepository({@required this.dao}) : assert(dao != null);
 
-  Future<ProviderResponse> library({bool force = false}) async {
-    final response = await _provider.library(force);
-    return response;
+  final AlbumsDao dao;
+
+  Future<AlbumResponse> search({String request}) {
+    return dao.library(AlbumLibrary.search, argument: request);
   }
 
-  Future<ProviderResponse> search({String query}) => _provider.query(
-        where: 'title LIKE ?',
-        args: ['%$query%'],
-        searchLimit: 5,
-      );
+  Future<AlbumResponse> update() => dao.updateLibrary();
 
-  Future<ProviderResponse> fromArtist(Artist artist) => _provider.query(
-        where: 'artistId = ?',
-        args: [artist.id],
-        searchLimit: artist.albumCount,
-      );
+  Future<AlbumResponse> fromArtist(Artist artist) {
+    return dao.library(AlbumLibrary.byArtist, argument: artist.id);
+  }
 
-  Future<ProviderResponse> fromSong(Song song) => _provider.query(
-        where: 'id = ?',
-        args: [song.albumId],
-        searchLimit: 1,
-      );
+  Future<AlbumResponse> fromSong(Song song) => dao.byId(song.albumId);
 
-  Future<ProviderResponse> random(int limit) => _provider.collection(
-        CollectionType.random,
-        limit: limit ?? 100,
-      );
+  Future<AlbumResponse> random() => dao.library(AlbumLibrary.random);
 
-  Future<ProviderResponse> recent(int limit) => _provider.collection(
-        CollectionType.recent,
-        limit: limit ?? 100,
-      );
+  Future<AlbumResponse> newlyAdded() => dao.library(AlbumLibrary.newlyAdded);
 
-  Future<ProviderResponse> byAlphabet() => _provider.collection(CollectionType.alphabet);
+  Future<AlbumResponse> byAlphabet() => dao.library(AlbumLibrary.byAlphabet);
 
-  Future<ProviderResponse> allGenres() => _provider.collection(CollectionType.allGenres);
+  Future<AlbumResponse> allGenres() => dao.genres();
 
-  Future<ProviderResponse> genre(String genre) => _provider.query(
-        where: 'genre = ?',
-        args: [genre],
-      );
+  Future<AlbumResponse> genre(String genre) async {
+    return dao.library(AlbumLibrary.byGenre, argument: genre);
+  }
 
-  Future<ProviderResponse> decadesList() => _provider.collection(
-        CollectionType.allDecades,
-      );
+  Future<AlbumResponse> decades() => dao.decades();
 
-  Future<ProviderResponse> decade(int decade) async {
-		final albums = <Album>[];
+  Future<AlbumResponse> decade(int decade) {
+    return dao.library(AlbumLibrary.byDecade, argument: decade);
+  }
 
-		for (int year = 0; year < 10; year++) {
-			final ProviderResponse results = await _provider.query(
-				where: 'year = ?',
-				args: [decade + year],
-			);
-			if (results.status == DataStatus.ok) albums.addAll(results.data);
-		}
+  Future<AlbumResponse> frequent() => dao.library(AlbumLibrary.frequent);
 
-		return ProviderResponse(status: DataStatus.ok, data: albums);
-	}
-
-	Future<ProviderResponse> mostPlayed() async => _provider.played('frequent');
-
-	Future<ProviderResponse> recentlyPlayed() async => _provider.played('recent');
+  Future<AlbumResponse> recent() async => dao.library(AlbumLibrary.recent);
 }

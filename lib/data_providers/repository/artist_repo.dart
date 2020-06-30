@@ -1,13 +1,13 @@
-import 'package:airstream/barrel/repository_subdivision_tools.dart';
-import 'package:airstream/data_providers/artist_provider.dart';
+part of repository_library;
 
-class ArtistRepository {
-  final _provider = ArtistProvider();
+class _ArtistRepository {
+  final ArtistsDao dao;
 
-  Future<ProviderResponse> library({bool force = false}) async {
-    final response = await _provider.library(force);
-    return response;
-  }
+  const _ArtistRepository({this.dao});
 
-  Future<ProviderResponse> query({String query}) => _provider.query(name: query);
+  Future<ArtistResponse> byAlphabet() => dao.byAlphabet();
+
+  Future<ArtistResponse> search({String query}) => dao.search(query);
+
+  Future<ArtistResponse> update() => dao.updateLibrary();
 }
