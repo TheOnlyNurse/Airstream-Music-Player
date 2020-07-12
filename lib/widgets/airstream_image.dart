@@ -9,7 +9,7 @@ class AirstreamImage extends StatelessWidget {
     Key key,
     this.coverArt,
     this.songId,
-    this.isHiDef = false,
+    this.isThumbnail = false,
     this.fit = BoxFit.cover,
     this.height,
     this.width,
@@ -19,7 +19,7 @@ class AirstreamImage extends StatelessWidget {
 
   final String coverArt;
   final int songId;
-  final bool isHiDef;
+  final bool isThumbnail;
   final BoxFit fit;
   final double height;
   final double width;
@@ -28,11 +28,13 @@ class AirstreamImage extends StatelessWidget {
   Future _getFuture() {
     final _repo = Repository();
     if (coverArt != null) {
-      return isHiDef
-          ? _repo.image.highDef(coverArt)
-          : _repo.image.lowDef(coverArt);
+      if (isThumbnail) {
+        return _repo.image.thumbnail(coverArt);
+      } else {
+        return _repo.image.original(coverArt);
+      }
     } else {
-      return _repo.image.fromSongId(songId, isHiDef: isHiDef);
+      return _repo.image.fromSong(songId, isThumbnail: isThumbnail);
     }
   }
 

@@ -39,6 +39,13 @@ class ArtistsScreen extends StatelessWidget {
                           (context, int index) {
                             return ArtistCircle(
                               artist: list[index],
+                              onTap: (artist) {
+                                Navigator.pushNamed(
+                                  context,
+                                  'library/singleArtist',
+                                  arguments: artist,
+                                );
+                              },
                             );
                           },
                           childCount: list.length,
@@ -50,7 +57,7 @@ class ArtistsScreen extends StatelessWidget {
                 );
               }
 
-							return Center(child: snapshot.data.message);
+              return Center(child: snapshot.data.error);
             }
 
             return Center(child: CircularProgressIndicator());

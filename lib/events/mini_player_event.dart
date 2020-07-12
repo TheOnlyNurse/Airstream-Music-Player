@@ -1,21 +1,11 @@
-import 'package:airstream/models/percentage_model.dart';
+abstract class MiniPlayerEvent {}
 
-abstract class MinimisedPlayerEvent {}
+/// Events from user interaction with the button
+class MiniPlayerPlayPause extends MiniPlayerEvent {}
 
-// Events from user interaction with the button
+/// Events from streams
+class MiniPlayerStopped extends MiniPlayerEvent {}
 
-class ButtonPlayPause extends MinimisedPlayerEvent {}
+class MiniPlayerPlaying extends MiniPlayerEvent {}
 
-// Events from streams
-
-class ButtonDownload extends MinimisedPlayerEvent {
-  final PercentageModel percentModel;
-
-	ButtonDownload(this.percentModel);
-}
-
-class ButtonAudioStopped extends MinimisedPlayerEvent {}
-
-class ButtonAudioPlaying extends MinimisedPlayerEvent {}
-
-class ButtonAudioPaused extends MinimisedPlayerEvent {}
+class MiniPlayerPaused extends MiniPlayerEvent {}

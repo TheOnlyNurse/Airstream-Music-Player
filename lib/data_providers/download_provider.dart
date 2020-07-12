@@ -73,12 +73,12 @@ class DownloadProvider {
     index < currentIndex + songsToFetch + 1;
     index++) {
 			if (provider.currentSong.id != initialSong.id) break;
-			if (provider.songQueue.length != initialQueue.length) break;
+      if (provider.songQueue.length != initialQueue.length) break;
 
-			final song = initialQueue[index];
-			final songPath = await Repository().audioCache.pathOf(song);
-			if (songPath.hasNoData) await downloadSong(song);
-			await Repository().image.lowDef(song.art);
+      final song = initialQueue[index];
+      final songPath = await Repository().audioCache.pathOf(song);
+      if (songPath.hasNoData) await downloadSong(song);
+      await Repository().image.thumbnail(song.art);
     }
   }
 

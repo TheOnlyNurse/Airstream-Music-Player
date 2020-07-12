@@ -40,12 +40,49 @@ class ArtistsDao extends DatabaseAccessor<MoorDatabase> with _$ArtistsDaoMixin {
   /// Search for artist by name
   Future<ArtistResponse> search(String name) async {
     final query = select(artists);
-    query.where((tbl) => tbl.name.contains(name));
+    query.where((tbl) => tbl.name.like('%$name%'));
     final list = await query.get();
     if (list.isEmpty) {
       return ArtistResponse(error: 'Failed to find query: $name.');
     } else {
-      return ArtistResponse(hasData: true, artists: list);
+      return _checkIfOnline(ArtistResponse(hasData: true, artists: list));
+    }
+  }
+
+  Future<ArtistResponse> similar(Artist artist) async {
+    final _hiveBox = Hive.box('similarArtists');
+    List<int> cachedIdList = _hiveBox.get(artist.id);
+    if (cachedIdList == null) {
+      final response = await ServerProvider().fetchXml(
+        'getArtistInfo2?id=${artist.id}&count=10',
+      );
+      if (response.hasData) {
+        final elements = response.document.findAllElements('similarArtist');
+        cachedIdList = elements.map((e) {
+          return int.parse(e.getAttribute('id'));
+        }).toList();
+        _hiveBox.put(artist.id, cachedIdList);
+      } else {
+        cachedIdList = [];
+      }
+    }
+
+    final artists = await _byIdList(cachedIdList);
+    if (artists.isEmpty) {
+      return ArtistResponse(error: 'Failed to find similar artists.');
+    } else {
+      return ArtistResponse(hasData: true, artists: artists);
+    }
+  }
+
+  Future<ArtistResponse> byId(int id) async {
+    final query = select(artists);
+    query.where((tbl) => tbl.id.equals(id));
+    final result = await query.getSingle();
+    if (result == null) {
+      return ArtistResponse(error: 'Failed to find artist by id: $id.');
+    } else {
+      return _checkIfOnline(ArtistResponse(hasData: true, artists: [result]));
     }
   }
 
@@ -54,6 +91,15 @@ class ArtistsDao extends DatabaseAccessor<MoorDatabase> with _$ArtistsDaoMixin {
   Future<ArtistResponse> updateLibrary() async {
     await delete(artists).go();
     return _download();
+  }
+
+  Future<List<Artist>> _byIdList(List<int> idList) async {
+    final artists = <Artist>[];
+    for (var id in idList) {
+      final response = await byId(id);
+      if (response.hasData) artists.add(response.artist);
+    }
+    return artists;
   }
 
   /// If in offline mode, returns only artists that have cached songs

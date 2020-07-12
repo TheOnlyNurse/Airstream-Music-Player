@@ -10,6 +10,8 @@ class _SettingsRepository {
     return isOffline;
   }
 
+  bool get isOnline => !isOffline;
+
   dynamic query(SettingType type) => _provider.query(type);
 
   void change(SettingType type, dynamic newValue) {

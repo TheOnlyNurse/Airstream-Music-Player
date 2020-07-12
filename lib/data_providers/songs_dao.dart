@@ -20,8 +20,6 @@ class Songs extends Table {
 
   IntColumn get albumId => integer()();
 
-  BoolColumn get isStarred => boolean().nullable()();
-
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -39,9 +37,6 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
         final singleResult = await _byId(argument);
         result = singleResult == null ? [] : [singleResult];
         break;
-      case SongSearch.byStarred:
-        result = await _byStarred();
-        break;
       case SongSearch.byAlbum:
         result = await _byAlbum(argument);
         break;
@@ -56,45 +51,64 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     }
 
     if (result.isEmpty) {
-      if (byType == SongSearch.byStarred) {
-        return _checkIfOnline(await updateStarred());
-      } else {
-        return _checkIfOnline(await _download(byType, argument));
-      }
+      return _checkIfOnline(await _download(byType, argument));
     } else {
-      return _checkIfOnline(SongResponse(hasData: true, songList: result));
+      return _checkIfOnline(SongResponse(hasData: true, songs: result));
     }
   }
 
-  /// Updates songs as dictated by the server
-  Future<SongResponse> updateStarred() async {
-    final response = await ServerProvider().fetchXml('getStarred?');
+  /// Returns starred songs as dictated by starred provider
+  /// Because _byIdList supplies cached songs if offline (through the main
+  /// search function) there is no need to double up here
+  Future<SongResponse> starred() async {
+    final response = await Repository().starred.query('song');
     if (response.hasNoData) return SongResponse(passOn: response);
-    final companions = _documentToCompanions(
-      response.document,
-      isStarred: true,
-    );
-    await _resetAllStarred();
-    await _insertCompanions(companions, mode: InsertMode.replace);
-    final songs = await _companionsToSongs(companions);
+    final songs = await _byIdList(response.idList);
     if (songs.isEmpty) {
-      return SongResponse(error: 'Failed to find any starred songs.');
+      return SongResponse(error: 'Failed to find starred song ids.');
     } else {
-      return SongResponse(hasData: true, songList: songs);
+      return SongResponse(hasData: true, songs: songs);
     }
   }
 
-  Future<Null> changeStar(int songId, bool newStar) async {
-    final query = update(songs);
-    query.where((tbl) => tbl.id.equals(songId));
-    return query.write(SongsCompanion(isStarred: Value(newStar)));
+  /// Fetches top songs of a given artist from either a hive box or the server
+  Future<SongResponse> topSongsOf(Artist artist) async {
+    final _hiveBox = Hive.box('topSongs');
+    List<int> cachedIdList = _hiveBox.get(artist.id);
+    if (cachedIdList == null) {
+      final name = artist.name.replaceAll(' ', '+');
+      final response = await ServerProvider().fetchXml(
+        'getTopSongs?artist=$name&count=5',
+      );
+      if (response.hasData) {
+        final elements = response.document.findAllElements('song');
+        cachedIdList = elements.map((e) {
+          return int.parse(e.getAttribute('id'));
+        }).toList();
+        _hiveBox.put(artist.id, cachedIdList);
+      } else {
+        cachedIdList = [];
+      }
+    }
+
+    final songs = await _byIdList(cachedIdList);
+    if (songs.isEmpty) {
+      return SongResponse(error: 'Failed to find artist\'s top songs.');
+    } else {
+      return SongResponse(hasData: true, songs: songs);
+    }
   }
 
-  /// Set all starred songs to false
-  Future<int> _resetAllStarred() async {
-    final query = update(songs);
-    query.where((tbl) => tbl.isStarred.equals(true));
-    return query.write(SongsCompanion(isStarred: Value(false)));
+  /// Returns a song list given a list of ids
+  /// Since this goes through the search function of this dao, the ids can be
+  /// assured to be updated if missing
+  Future<List<Song>> _byIdList(List<int> idList) async {
+    final songs = <Song>[];
+    for (var id in idList) {
+      final response = await search(SongSearch.byId, argument: id);
+      if (response.hasData) songs.add(response.song);
+    }
+    return songs;
   }
 
   /// Search for song by id, fetching from server if necessary
@@ -113,26 +127,18 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
       if (offlineList.hasNoData) return SongResponse(passOn: offlineList);
 
-      for (var song in input.songList) {
-        if (offlineList.idList.contains(song.id)) cachedList.add(song);
-      }
+			for (var song in input.songs) {
+				if (offlineList.idList.contains(song.id)) cachedList.add(song);
+			}
 
       if (cachedList.isEmpty) {
         return SongResponse(error: 'No songs match cache');
       } else {
-        print(cachedList.length);
-        return SongResponse(hasData: true, songList: cachedList);
+				return SongResponse(hasData: true, songs: cachedList);
       }
     } else {
       return input;
     }
-  }
-
-  /// Returns songs that are starred
-  Future<List<Song>> _byStarred() async {
-    final query = select(songs);
-    query.where((tbl) => tbl.isStarred.equals(true));
-    return query.get();
   }
 
   /// Returns a song list by album id
@@ -144,17 +150,17 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
   /// Returns a song list by a title query
   Future<List<Song>> _byTitle(String title) {
-    final query = select(songs);
-    query.where((tbl) => tbl.title.like(title));
-    return query.get();
-  }
+		final query = select(songs);
+		query.where((tbl) => tbl.title.like('%$title%'));
+		return query.get();
+	}
 
   /// Returns a song list by artist name query
   Future<List<Song>> _byArtistName(String artist) {
-    final query = select(songs);
-    query.where((tbl) => tbl.artist.like(artist));
-    return query.get();
-  }
+		final query = select(songs);
+		query.where((tbl) => tbl.artist.like('%$artist%'));
+		return query.get();
+	}
 
   /// Downloads a song or song list by search type and argument from the server
   Future<SongResponse> _download(SongSearch byType, dynamic argument) async {
@@ -167,7 +173,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     await _insertCompanions(companions);
     final songs = await _companionsToSongs(companions);
 
-    return SongResponse(hasData: true, songList: songs);
+		return SongResponse(hasData: true, songs: songs);
   }
 
   /// Returns requests to the server split by type
@@ -229,23 +235,22 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     final elements = document.findAllElements('song');
     final songs = <SongsCompanion>[];
     for (var element in elements) {
-      songs.add(_elementToCompanion(element, isStarred));
+      songs.add(_elementToCompanion(element));
     }
     return songs;
   }
 
   /// Parses an xml element into a companion for database insertion
-  SongsCompanion _elementToCompanion(xml.XmlElement element, bool isStarred) {
-    return SongsCompanion.insert(
-      id: Value(_parseAsInt(element.getAttribute('id'))),
-      title: element.getAttribute('title'),
-      artist: element.getAttribute('artist'),
-      album: element.getAttribute('album'),
-      art: element.getAttribute('coverArt'),
-      albumId: _parseAsInt(element.getAttribute('albumId')),
-      isStarred: Value(isStarred),
-    );
-  }
+	SongsCompanion _elementToCompanion(xml.XmlElement element) {
+		return SongsCompanion.insert(
+			id: Value(_parseAsInt(element.getAttribute('id'))),
+			title: element.getAttribute('title'),
+			artist: element.getAttribute('artist'),
+			album: element.getAttribute('album'),
+			art: element.getAttribute('coverArt'),
+			albumId: _parseAsInt(element.getAttribute('albumId')),
+		);
+	}
 
   /// Either parses a string or returns null if the object is null
   int _parseAsInt(String attribute) {

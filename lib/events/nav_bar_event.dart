@@ -7,18 +7,6 @@ abstract class NavigationBarEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class NavigationBarNavigate extends NavigationBarEvent {
-  final int index;
-
-  const NavigationBarNavigate(this.index);
-}
-
-class NavigationBarUpdate extends NavigationBarEvent {
-  final int index;
-
-  const NavigationBarUpdate(this.index);
-}
-
 class NavigationBarNotch extends NavigationBarEvent {
   final bool isNotched;
 

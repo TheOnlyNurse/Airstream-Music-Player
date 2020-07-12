@@ -7,6 +7,8 @@ abstract class SongListTileEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class SongListTileFetch extends SongListTileEvent {}
+
 class SongListTileDownload extends SongListTileEvent {
   final int percentage;
 
@@ -27,4 +29,4 @@ class SongListTilePlaying extends SongListTileEvent {
 
 class SongListTileFinished extends SongListTileEvent {}
 
-class SongListTileEmpty extends SongListTileEvent {}
+class SongListTileReset extends SongListTileEvent {}

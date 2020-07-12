@@ -31,7 +31,7 @@ class AlphabetScreen extends StatelessWidget {
                 );
               }
 
-              return Center(child: response.message);
+              return Center(child: response.error);
             }
 
             return Center(child: CircularProgressIndicator());

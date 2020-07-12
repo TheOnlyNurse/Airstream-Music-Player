@@ -16,6 +16,7 @@ import 'package:airstream/screens/single_playlist_screen.dart';
 import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 class LibraryNavigator extends StatefulWidget {
   final GlobalKey<NavigatorState> navKey;
@@ -26,26 +27,14 @@ class LibraryNavigator extends StatefulWidget {
 }
 
 class _LibraryState extends State<LibraryNavigator> {
-  PageController pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    pageController = PageController(keepPage: false);
-  }
-
-  @override
-  void dispose() {
-    pageController.dispose();
-    super.dispose();
-  }
+	int index = 0;
 
   MaterialPageRoute _generateRoute(RouteSettings settings) {
     {
       WidgetBuilder builder;
       switch (settings.name) {
         case 'library/':
-          builder = (context) => _HomePages(pageController: pageController);
+          builder = (context) => _HomePages(index: index);
           break;
         case 'library/singleArtist':
           builder = (context) => SingleArtistScreen(artist: settings.arguments);
@@ -71,45 +60,52 @@ class _LibraryState extends State<LibraryNavigator> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<MinimisedPlayerBloc>(
-            create: (context) => MinimisedPlayerBloc()),
+        BlocProvider<MiniPlayerBloc>(create: (context) => MiniPlayerBloc()),
         BlocProvider<PlayerTargetBloc>(create: (context) => PlayerTargetBloc()),
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(
-            playerBloc: context.bloc<MinimisedPlayerBloc>(),
-            pageController: pageController,
+            playerBloc: context.bloc<MiniPlayerBloc>(),
             navigatorKey: widget.navKey,
           ),
         ),
       ],
       child: WillPopScope(
         onWillPop: () async {
-          final libraryNavKey = this.widget.navKey;
-
-          if (libraryNavKey.currentState.canPop()) {
-            libraryNavKey.currentState.pop();
-            return false;
-          } else {
-            return true;
-          }
-        },
+					if (widget.navKey.currentState.canPop()) {
+						widget.navKey.currentState.pop();
+						return false;
+					} else {
+						return true;
+					}
+				},
         child: Scaffold(
           body: SafeArea(
             child: Stack(
               children: <Widget>[
                 Navigator(
                   key: this.widget.navKey,
-                  initialRoute: 'library/',
-                  onGenerateRoute: _generateRoute,
-                ),
-                PlayerButtonTarget(),
-              ],
-            ),
-          ),
-          floatingActionButton: PlayerActionButton(),
-          floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: NavigationBar(),
+									initialRoute: 'library/',
+									onGenerateRoute: _generateRoute,
+								),
+								PlayerButtonTarget(),
+							],
+						),
+					),
+					floatingActionButton: PlayerActionButton(),
+					floatingActionButtonLocation:
+					FloatingActionButtonLocation.centerDocked,
+					bottomNavigationBar: NavigationBar(
+						index: index,
+						onTap: (newIndex) {
+							if (widget.navKey.currentState.canPop()) {
+								widget.navKey.currentState.popUntil((route) => route.isFirst);
+							} else {
+								setState(() {
+									index = newIndex;
+								});
+							}
+						},
+					),
         ),
       ),
     );
@@ -117,22 +113,21 @@ class _LibraryState extends State<LibraryNavigator> {
 }
 
 class _HomePages extends StatelessWidget {
-  final PageController pageController;
+	final int index;
 
-  const _HomePages({this.pageController});
+	const _HomePages({this.index});
 
-  @override
-  Widget build(BuildContext context) {
-    return PageView(
-      controller: pageController,
-      children: <Widget>[
-        HomeScreen(),
-        StarredScreen(),
-      ],
-      onPageChanged: (int index) {
-        context.bloc<NavigationBarBloc>().add(NavigationBarUpdate(index));
-      },
-      physics: BouncingScrollPhysics(),
-    );
-  }
+	@override
+	Widget build(BuildContext context) {
+		switch (index) {
+			case 0:
+				return HomeScreen();
+				break;
+			case 1:
+				return StarredScreen();
+				break;
+			default:
+				throw UnimplementedError('Page index: $index');
+		}
+	}
 }

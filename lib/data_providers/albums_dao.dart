@@ -46,49 +46,51 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
       if (response.hasNoData) return response;
     }
 
-    Future<List<Album>> returnList;
+    Future<List<Album>> futureAlbums;
     switch (type) {
       case AlbumLibrary.random:
-        returnList = _random();
+        futureAlbums = _random();
         break;
       case AlbumLibrary.newlyAdded:
-        returnList = _newlyAdded();
+        futureAlbums = _newlyAdded();
         break;
       case AlbumLibrary.recent:
-        returnList = _playedOfType('recent');
+        futureAlbums = _playedOfType('recent');
         break;
       case AlbumLibrary.frequent:
-        returnList = _playedOfType('frequent');
-        break;
+				futureAlbums = _playedOfType('frequent');
+				break;
       case AlbumLibrary.byAlphabet:
-        returnList = _byAlphabet();
-        break;
+				futureAlbums = _byAlphabet();
+				break;
       case AlbumLibrary.byGenre:
-        returnList = _byGenre(argument);
-        break;
+				futureAlbums = _byGenre(argument);
+				break;
       case AlbumLibrary.byDecade:
-        returnList = _byDecade(argument);
-        break;
-      case AlbumLibrary.search:
-        returnList = _search(argument);
-        break;
-      case AlbumLibrary.byArtist:
-        returnList = _byArtist(argument);
-        break;
-      default:
-        throw UnimplementedError('$type');
-    }
+				futureAlbums = _byDecade(argument);
+				break;
+			case AlbumLibrary.search:
+				futureAlbums = _search(argument);
+				break;
+			case AlbumLibrary.byArtist:
+				futureAlbums = _byArtist(argument);
+				break;
+			default:
+				throw UnimplementedError('$type');
+		}
 
-    if (returnList == null) {
-      return AlbumResponse(error: 'Failed to find any albums.');
-    } else {
-      return _checkIfOnline(AlbumResponse(
-        hasData: true,
-        albums: await returnList,
-      ));
-    }
+		final returnAlbums = await futureAlbums;
+		if (returnAlbums == null || returnAlbums.isEmpty) {
+			return AlbumResponse(error: 'Failed to find any albums.');
+		} else {
+			return _checkIfOnline(AlbumResponse(
+				hasData: true,
+				albums: returnAlbums,
+			));
+		}
   }
 
+  /// Deletes the entire library in favour of downloading a new database
   Future<AlbumResponse> updateLibrary() async {
     await delete(albums).go();
     return _download();
@@ -102,8 +104,31 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
     if (album == null) {
       return AlbumResponse(error: 'Failed to find id: $id.');
     } else {
-      return AlbumResponse(hasData: true, album: album);
+      return _checkIfOnline(AlbumResponse(hasData: true, albums: [album]));
     }
+  }
+
+  /// Returns albums that are starred by querying ids from the starred provider
+  /// Updates this library if return album length is not equal to the id list length
+  /// provided by the starred provider
+  Future<AlbumResponse> starred() async {
+    final response = await Repository().starred.query('album');
+    if (response.hasNoData) return AlbumResponse(passOn: response);
+    List<Album> albums = await _byIdList(response.idList);
+    // Make sure empty album lists aren't passed through
+    if (albums.length != response.idList.length) {
+      if (Repository().settings.isOnline) {
+        final serverResponse = await _download();
+        // If new data has been parsed, then try to update return list
+        if (serverResponse.hasData) albums = await _byIdList(response.idList);
+      }
+      // If albums is empty (despite the update above) only then return error
+      if (albums.isEmpty) {
+        return AlbumResponse(error: 'Failed to find starred album ids.');
+      }
+    }
+
+    return _checkIfOnline(AlbumResponse(hasData: true, albums: albums));
   }
 
   /// Returns a list of genres as a list of string
@@ -130,28 +155,38 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
         return OrderingTerm(expression: a.year, mode: OrderingMode.desc);
       }
     ]);
-    // Round year down to decade
-    final decades = (await query.get()).map((e) => e.year ~/ 10 * 10);
-    final condensed = LinkedHashSet<int>.from(decades);
-    if (condensed.isEmpty) {
-      return AlbumResponse(error: 'Failed to find any albums with years.');
-    } else {
-      return AlbumResponse(hasData: true, decades: condensed.toList());
-    }
-  }
+		// Round year down to decade
+		final decades = (await query.get()).map((e) => e.year ~/ 10 * 10);
+		final condensed = LinkedHashSet<int>.from(decades);
+		if (condensed.isEmpty) {
+			return AlbumResponse(error: 'Failed to find any albums with years.');
+		} else {
+			return AlbumResponse(hasData: true, decades: condensed.toList());
+		}
+	}
 
-  /// Returns albums based on artistId
-  Future<List<Album>> _byArtist(int artistId) async {
-    final query = select(albums);
-    query.where((tbl) => tbl.artistId.equals(artistId));
-    return query.get();
-  }
+	/// Returns an album list given a list of album ids
+	Future<List<Album>> _byIdList(List<int> idList) async {
+		final albums = <Album>[];
+		for (var id in idList) {
+			final response = await byId(id);
+			if (response.hasData) albums.add(response.album);
+		}
+		return albums;
+	}
 
-  /// Get an album based on a title request
-  Future<List<Album>> _search(String request) async {
-    final query = select(albums);
-    query.where((a) => a.title.like(request));
-    return query.get();
+	/// Returns albums based on artistId
+	Future<List<Album>> _byArtist(int artistId) async {
+		final query = select(albums);
+		query.where((tbl) => tbl.artistId.equals(artistId));
+		return query.get();
+	}
+
+	/// Get an album based on a title request
+	Future<List<Album>> _search(String request) async {
+		final query = select(albums);
+		query.where((a) => a.title.like('%$request%'));
+		return query.get();
   }
 
   /// Gets an album played type (frequent or recent) as dictated by the server

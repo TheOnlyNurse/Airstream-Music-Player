@@ -29,7 +29,7 @@ class PlaylistsLibraryBloc
         if (response.hasData) {
           yield PlaylistsLibrarySuccess(response.playlists);
         } else {
-					yield PlaylistsLibraryFailure(response.message);
+          yield PlaylistsLibraryFailure(response.error);
         }
     }
   }

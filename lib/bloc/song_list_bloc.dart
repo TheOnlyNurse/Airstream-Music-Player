@@ -3,11 +3,24 @@ import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/events/song_list_event.dart';
 import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/models/response/song_response.dart';
+import 'package:airstream/models/song_list_delegate.dart';
 import 'package:airstream/states/song_list_state.dart';
 
+// Barrelling
+export 'package:airstream/events/song_list_event.dart';
+export 'package:airstream/states/song_list_state.dart';
+
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
+  final _repository = Repository();
   Playlist playlist;
-  Function(bool hasSelection) songsSelected;
+
+  SongListState _successOrFailure(SongResponse response) {
+    if (response.hasData) {
+      return SongListSuccess(songList: response.songs);
+    } else {
+      return SongListFailure(response.error);
+    }
+  }
 
   @override
   SongListState get initialState => SongListInitial();
@@ -17,39 +30,21 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
     final currentState = state;
 
     if (event is SongListFetch) {
-			SongResponse response;
-      songsSelected = event.callback;
+      final delegate = event.delegate;
 
-      switch (event.type) {
-        case SongListType.playlist:
-          assert(event.typeValue is Playlist);
-          playlist = event.typeValue;
-          response = await Repository().song.fromPlaylist(event.typeValue);
-          break;
-        case SongListType.album:
-					assert(event.typeValue is Album);
-          response = await Repository().song.fromAlbum(event.typeValue);
-          break;
-        case SongListType.starred:
-					assert(event.typeValue is List<Song>);
-					response = SongResponse(hasData: true, songList: event.typeValue);
-					break;
-				case SongListType.search:
-					assert(event.typeValue is List<Song>);
-					response = SongResponse(hasData: true, songList: event.typeValue);
-					break;
-				case SongListType.musicQueue:
-					assert(event.typeValue is List<Song>);
-					response = SongResponse(hasData: true, songList: event.typeValue);
-					break;
-				default:
-					throw UnimplementedError();
-			}
+      if (delegate is PlaylistSongList) {
+        playlist = delegate.playlist;
+        final response = await _repository.song.fromPlaylist(delegate.playlist);
+        yield _successOrFailure(response);
+      }
 
-			if (response.hasData) {
-				yield SongListSuccess(songList: response.songList);
-			} else {
-        yield SongListFailure(response.message);
+      if (delegate is AlbumSongList) {
+        final response = await _repository.song.fromAlbum(delegate.album);
+        yield _successOrFailure(response);
+      }
+
+      if (delegate is SimpleSongList) {
+				yield SongListSuccess(songList: delegate.initialSongs);
       }
     }
 
@@ -61,34 +56,11 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
           currentState.selected.add(event.index);
         }
 
-        if (songsSelected != null) {
-          if (currentState.selected.isEmpty) {
-            songsSelected(false);
-          } else {
-            songsSelected(true);
-          }
-        }
-
         yield currentState.copyWith(selected: currentState.selected);
       }
 
       if (event is SongListClearSelection) {
-        if (songsSelected != null) {
-          songsSelected(false);
-        }
-
         yield currentState.copyWith(selected: []);
-      }
-
-      if (event is SongListStarSelection) {
-        final starredSongs = <Song>[];
-
-        for (int index in currentState.selected) {
-          starredSongs.add(currentState.songList[index]);
-        }
-
-        Repository().song.star(songList: starredSongs, toStar: true);
-        this.add(SongListClearSelection());
       }
 
       if (event is SongListPlaylistSelection) {
@@ -114,11 +86,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
 
         if (playlist != null) {
           Repository().playlist.removeSongs(playlist, currentState.selected);
-        } else {
-					Repository()
-							.song
-							.star(songList: removeMap.values.toList(), toStar: false);
-				}
+        }
 
         yield currentState.copyWith(
           songList: songList,
@@ -129,5 +97,3 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
     }
   }
 }
-
-enum SongListType { album, playlist, starred, search, musicQueue }

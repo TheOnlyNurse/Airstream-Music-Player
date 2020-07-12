@@ -21,12 +21,14 @@ class ArtistResponse extends ProviderResponse {
         assert(
             !hasData ? passOn == null ? error != null : passOn != null : true);
 
+  Artist get artist => artists.first;
+
   @override
-	String get messageString => _passOn?.messageString ?? _error;
+  String get errorString => _passOn?.errorString ?? _error;
 
-	@override
-	String get source => _passOn?.source ?? 'Artists';
+  @override
+  String get source => _passOn?.source ?? 'Artists';
 
-	@override
-	bool get hasData => _passOn?.hasData ?? _hasData;
+  @override
+  bool get hasData => _passOn?.hasData ?? _hasData;
 }

@@ -1,10 +1,9 @@
 import 'package:airstream/bloc/search_bloc.dart';
-import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/widgets/artist_circle.dart';
-import 'package:airstream/widgets/album_card.dart';
-import 'package:airstream/widgets/songlist/song_list.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/widgets/horizontal_album_grid.dart';
+import 'package:airstream/widgets/horizontal_artist_grid.dart';
+import 'package:airstream/widgets/song_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,149 +18,73 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  static final textController = TextEditingController();
-  bool hiddenSearchBar = false;
+	final textController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    Widget _title(String title) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Text(title, style: Theme.of(context).textTheme.headline4),
-      );
-    }
-
-    void _onTap(String route, dynamic argument) {
-      final navState = widget.navKey.currentState;
-      if (navState.canPop()) {
-        navState.popUntil((route) => route.isFirst);
-      }
-      Navigator.pop(context);
-      textController.clear();
-      navState.pushNamed(route, arguments: argument);
-    }
-
-    List<Widget> _leadingSlivers(SearchSuccess state) {
-      final slivers = <Widget>[];
-
-			if (state.artists.isNotEmpty) {
-        slivers.add(
-          _ArtistCircles(
-            title: _title('Artists'),
-            artistList: state.artists,
-            onTap: (artist) => _onTap('library/singleArtist', artist),
-          ),
-        );
-      }
-
-      if (state.albums.isNotEmpty) {
-				slivers.add(_AlbumCards(
-					title: _title('Albums'),
-					albumList: state.albums,
-					onTap: (album) => _onTap('library/singleAlbum', album),
-				));
+	@override
+	Widget build(BuildContext context) {
+		void _onTap(String route, dynamic argument) {
+			final navState = widget.navKey.currentState;
+			if (navState.canPop()) {
+				navState.popUntil((route) => route.isFirst);
 			}
+			Navigator.pop(context);
+			textController.clear();
+			navState.pushNamed(route, arguments: argument);
+		}
 
-      return slivers;
-    }
-
-    return BlocProvider(
-      create: (context) => SearchBloc(),
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              if (!hiddenSearchBar) _SearchBar(textController: textController),
-              Expanded(
-                child: BlocBuilder<SearchBloc, SearchState>(
-                  builder: (context, state) {
-                    if (state is SearchSuccess) {
-                      return SongList(
-												type: SongListType.search,
-												typeValue: state.songs,
-												leading: _leadingSlivers(state),
-												title:
-												state.songs.isNotEmpty ? _title('Songs') : null,
-												onSelection: (hasSelection) {
-													print('hasSelection: $hasSelection');
-													if (hasSelection != hiddenSearchBar) {
-														setState(() {
-															hiddenSearchBar = hasSelection;
-														});
-													}
-												},
-                      );
-                    }
-
-                    if (state is SearchInitial) {
-                      return Center(
-                        child: SingleChildScrollView(
-                          child: Text('Here to serve'),
-                        ),
-                      );
-                    }
-
-                    if (state is SearchLoading) {
-                      return Center(
-                        child: SingleChildScrollView(
-                          child: SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: Center(child: CircularProgressIndicator()),
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (state is SearchFailure) {
-                      return Center(
-                        child: SingleChildScrollView(
-                          child: Text('Found no results'),
-                        ),
-                      );
-                    }
-
-                    return Center(
-                      child: SingleChildScrollView(
-                        child: Text('Could not read state'),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+		return BlocProvider(
+			create: (context) => SearchBloc(),
+			child: Scaffold(
+				body: SafeArea(
+					child: Column(
+						children: <Widget>[
+							_SearchBar(textController: textController),
+							Expanded(
+								child: BlocBuilder<SearchBloc, SearchState>(
+									builder: (context, state) {
+										if (state is SearchSuccess) {
+											return _OnSearchSuccess(state: state, onTap: _onTap);
+										} else {
+											return _OtherSearchStates(state: state);
+										}
+									},
+								),
+							),
+						],
+					),
+				),
+			),
+		);
+	}
 }
 
 class _SearchBar extends StatelessWidget {
-  final TextEditingController textController;
-  final bool isHidden;
+	final TextEditingController textController;
+	final bool isHidden;
 
-  const _SearchBar({this.textController, this.isHidden});
+	const _SearchBar({this.textController, this.isHidden});
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8, top: 10),
-      child: Container(
-        height: 55,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: Theme.of(context).cardColor,
-        ),
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.search),
-            SizedBox(width: 35),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: TextField(
+	@override
+	Widget build(BuildContext context) {
+		return Padding(
+			padding: const EdgeInsets.only(left: 8, right: 8, top: 10),
+			child: Container(
+				height: 55,
+				padding: const EdgeInsets.symmetric(horizontal: 16),
+				decoration: BoxDecoration(
+					borderRadius: BorderRadius.circular(30),
+					color: Theme
+							.of(context)
+							.cardColor,
+				),
+				child: Row(
+					children: <Widget>[
+						Icon(Icons.search),
+						SizedBox(width: 35),
+						Expanded(
+							child: Padding(
+								padding: const EdgeInsets.symmetric(vertical: 8),
+								child: TextField(
 									controller: textController,
 									inputFormatters: <TextInputFormatter>[
 										WhitelistingTextInputFormatter(RegExp("[a-zA-z ]"))
@@ -176,101 +99,152 @@ class _SearchBar extends StatelessWidget {
 										border: InputBorder.none,
 										hintText: 'Search',
 									),
-                ),
-              ),
-            ),
-            RawMaterialButton(
-              child: Icon(Icons.clear, color: Colors.white),
-              shape: CircleBorder(),
-              constraints: BoxConstraints.tightFor(width: 35, height: 35),
-              onPressed: () {
-                if (textController.value.text.length == 0) {
-                  Navigator.pop(context);
-                } else {
-                  textController.clear();
-                  context.bloc<SearchBloc>().add(SearchQuery(''));
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+								),
+							),
+						),
+						RawMaterialButton(
+							child: Icon(Icons.clear, color: Colors.white),
+							shape: CircleBorder(),
+							constraints: BoxConstraints.tightFor(width: 35, height: 35),
+							onPressed: () {
+								if (textController.value.text.length == 0) {
+									Navigator.pop(context);
+								} else {
+									textController.clear();
+									context.bloc<SearchBloc>().add(SearchQuery(''));
+								}
+							},
+						),
+					],
+				),
+			),
+		);
+	}
 }
 
-class _AlbumCards extends StatelessWidget {
-	final Widget title;
-	final List<Album> albumList;
-	final Function(Album) onTap;
+class _OnSearchSuccess extends StatelessWidget {
+	final SearchSuccess state;
+	final Function(String route, dynamic argument) onTap;
 
-	const _AlbumCards({Key key, this.title, this.albumList, this.onTap})
-			: super(key: key);
+	const _OnSearchSuccess({Key key, @required this.state, this.onTap})
+			: assert(state != null),
+				super(key: key);
 
 	@override
 	Widget build(BuildContext context) {
-		return SliverToBoxAdapter(
-			child: Column(
-				crossAxisAlignment: CrossAxisAlignment.start,
-				children: <Widget>[
-          title,
-					SizedBox(
-						height: 180,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: albumList.length,
-              itemBuilder: (context, index) {
-                return AspectRatio(
-                  aspectRatio: 1 / 1.25,
-                  child: AlbumCard(album: albumList[index], onTap: onTap),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+		Widget _title(String title) {
+			return SliverToBoxAdapter(
+				child: Padding(
+					padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+					child: Text(title, style: Theme
+							.of(context)
+							.textTheme
+							.headline4),
+				),
+			);
+		}
+
+		List<Widget> _slivers() {
+			final slivers = <Widget>[];
+
+			if (state.artists.isNotEmpty) {
+				slivers.addAll([
+					_title('Artists'),
+					SliverToBoxAdapter(
+						child: HorizontalArtistGrid(
+							artists: state.artists,
+							onTap: (artist) {
+								if (onTap != null) onTap('library/singleArtist', artist);
+							},
+						),
+					),
+				]);
+			}
+
+			if (state.albums.isNotEmpty) {
+				slivers.addAll([
+					_title('Albums'),
+					SliverToBoxAdapter(
+						child: HorizontalAlbumGrid(
+							albums: state.albums,
+							onTap: (album) {
+								if (onTap != null) onTap('library/singleAlbum', album);
+							},
+						),
+					),
+				]);
+			}
+
+			if (state.songs.isNotEmpty) {
+				slivers.addAll([
+					_title('Songs'),
+					_SongTiles(
+						songs: state.songs,
+						onTap: (song) async {
+							final response = await Repository().album.byId(song.albumId);
+							if (response.hasData && onTap != null) {
+								onTap('library/singleAlbum', response.album);
+							}
+						},
+					),
+				]);
+			}
+
+			return slivers;
+		}
+
+		return CustomScrollView(
+			physics: BouncingScrollPhysics(),
+			slivers: _slivers(),
+		);
+	}
 }
 
-class _ArtistCircles extends StatelessWidget {
-  final Widget title;
-  final List<Artist> artistList;
-  final Function(Artist) onTap;
+class _OtherSearchStates extends StatelessWidget {
+	final SearchState state;
 
-  const _ArtistCircles({Key key, this.title, this.artistList, this.onTap})
-      : super(key: key);
+	const _OtherSearchStates({Key key, @required this.state})
+			: assert(state != null),
+				super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          title,
-          SizedBox(
-            height: 180,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              itemCount: artistList.length,
-              itemBuilder: (context, index) {
-                final artist = artistList[index];
-                return AspectRatio(
-                  aspectRatio: 0.8 / 1,
-                  child: ArtistCircle(
-                    artist: artist,
-                    onTap: () => onTap(artist),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+	Widget _getStateText() {
+		final currentState = state;
+		if (currentState is SearchInitial) return Text('Here to serve!');
+		if (currentState is SearchLoading) {
+			return SizedBox(
+				height: 60,
+				width: 60,
+				child: Center(child: CircularProgressIndicator()),
+			);
+		}
+		if (currentState is SearchFailure) return Text('Found no results.');
+		// If no state could be found
+		return Text('Could not read state.');
+	}
+
+	@override
+	Widget build(BuildContext context) {
+		return Center(
+			child: SingleChildScrollView(
+				child: _getStateText(),
+			),
+		);
+	}
+}
+
+class _SongTiles extends StatelessWidget {
+	final List<Song> songs;
+	final Function(Song) onTap;
+
+	const _SongTiles({Key key, this.songs, this.onTap}) : super(key: key);
+
+	@override
+	Widget build(BuildContext context) {
+		return SliverList(delegate: SliverChildBuilderDelegate((context, index) {
+			return SongTile(
+				song: songs[index],
+				onTap: () => onTap != null ? onTap(songs[index]) : null,
+			);
+		}, childCount: songs.length,));
+	}
 }

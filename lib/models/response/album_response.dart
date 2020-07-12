@@ -6,7 +6,6 @@ class AlbumResponse extends ProviderResponse {
   final String _error;
   final ProviderResponse _passOn;
   final List<Album> albums;
-  final Album album;
   final List<String> genres;
   final List<int> decades;
 
@@ -15,7 +14,6 @@ class AlbumResponse extends ProviderResponse {
     String error,
     ProviderResponse passOn,
     this.albums,
-    this.album,
     this.genres,
     this.decades,
   })
@@ -27,12 +25,14 @@ class AlbumResponse extends ProviderResponse {
         assert(
             !hasData ? passOn == null ? error != null : passOn != null : true);
 
+  Album get album => albums.first;
+
   @override
-	String get messageString => _passOn?.messageString ?? _error;
+  String get errorString => _passOn?.errorString ?? _error;
 
-	@override
-	String get source => _passOn?.source ?? 'Albums';
+  @override
+  String get source => _passOn?.source ?? 'Albums';
 
-	@override
-	bool get hasData => _passOn?.hasData ?? _hasData;
+  @override
+  bool get hasData => _passOn?.hasData ?? _hasData;
 }

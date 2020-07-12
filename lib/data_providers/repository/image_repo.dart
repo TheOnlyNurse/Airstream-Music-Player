@@ -3,28 +3,45 @@ part of repository_library;
 class _ImageFilesRepository {
   final ImageFilesDao dao;
 
-  const _ImageFilesRepository({@required this.dao}) : assert(dao != null);
+  _ImageFilesRepository({@required this.dao}) : assert(dao != null);
+
+  int grabCount = 0;
 
   Future<Null> deleteAll() => dao.deleteAll();
 
-  Future<File> lowDef(String artId) => dao.byType(artId, ImageType.lowDef);
+  Future<File> thumbnail(String artId) {
+    grabCount++;
+    return dao.byType(ImageType.thumbnail, artId: artId);
+  }
 
-  Future<File> highDef(String artId) => dao.byType(artId, ImageType.hiDef);
+  Future<File> original(String artId) async {
+    final response = await dao.byType(ImageType.original, artId: artId);
+    return response != null ? response : thumbnail(artId);
+  }
 
-  Future<File> fromSongId(int songId, {bool isHiDef = false}) async {
+  Future<File> fromSong(int songId, {bool isThumbnail = false}) async {
     final response = await Repository().song.byId(songId);
     if (response.hasNoData) return null;
-    final art = response.songList.first.art;
-    return isHiDef ? highDef(art) : lowDef(art);
+    final art = response.song.art;
+    return isThumbnail ? thumbnail(art) : original(art);
+  }
+
+  Future<File> fromArtist(Artist artist) async {
+    final response = await dao.byType(
+      ImageType.artist,
+      artId: artist.art,
+      name: artist.name,
+    );
+    return response != null ? response : original(artist.art);
   }
 
   Future<List<File>> collage(List<int> songIds) async {
-    final imageList = <File>[];
+    final images = <File>[];
     for (var id in songIds) {
-      final response = await fromSongId(id);
-      if (response != null) imageList.add(response);
+      final response = await fromSong(id, isThumbnail: true);
+      if (response != null) images.add(response);
     }
-    if (imageList.isEmpty) return null;
-    return imageList;
+    if (images.isEmpty) return null;
+    return images;
   }
 }

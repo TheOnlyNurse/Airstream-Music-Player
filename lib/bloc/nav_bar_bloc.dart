@@ -10,27 +10,24 @@ export 'package:airstream/events/nav_bar_event.dart';
 export 'package:airstream/states/nav_bar_state.dart';
 
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
-  final PageController pageController;
   final GlobalKey<NavigatorState> navigatorKey;
   final _repository = Repository();
   StreamSubscription _buttonState;
   StreamSubscription _offlineState;
 
   NavigationBarBloc({
-    @required MinimisedPlayerBloc playerBloc,
-    @required this.pageController,
+    @required MiniPlayerBloc playerBloc,
     @required this.navigatorKey,
   }) {
     assert(playerBloc != null);
-    assert(pageController != null);
     assert(navigatorKey != null);
 
     _buttonState = playerBloc.listen((state) {
-      if (state is ButtonNoAudio) {
-        this.add(NavigationBarNotch(false));
-      } else {
-        this.add(NavigationBarNotch(true));
-      }
+			if (state is MiniPlayerInitial) {
+				this.add(NavigationBarNotch(false));
+			} else {
+				this.add(NavigationBarNotch(true));
+			}
     });
     _offlineState = _repository.settings.onChange.listen((hasChanged) {
       this.add(NavigationBarNetworkChange());
@@ -45,20 +42,6 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
     final currentState = state;
 
     if (currentState is NavigationBarSuccess) {
-      if (event is NavigationBarNavigate) {
-        if (navigatorKey.currentState.canPop()) {
-          navigatorKey.currentState.popUntil((route) => route.isFirst);
-        } else {
-          pageController.animateToPage(
-            event.index,
-            duration: Duration(seconds: 1),
-            curve: Curves.easeOutQuart,
-          );
-        }
-      }
-      if (event is NavigationBarUpdate) {
-        yield currentState.copyWith(index: event.index);
-      }
       if (event is NavigationBarNotch) {
         yield currentState.copyWith(isNotched: event.isNotched);
       }

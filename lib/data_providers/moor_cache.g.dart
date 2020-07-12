@@ -334,13 +334,11 @@ class AudioFile extends DataClass implements Insertable<AudioFile> {
   final int songId;
   final int albumId;
   final int size;
-
   AudioFile(
       {@required this.path,
       @required this.songId,
       @required this.albumId,
       @required this.size});
-
   factory AudioFile.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -355,7 +353,6 @@ class AudioFile extends DataClass implements Insertable<AudioFile> {
       size: intType.mapFromDatabaseResponse(data['${effectivePrefix}size']),
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -396,7 +393,6 @@ class AudioFile extends DataClass implements Insertable<AudioFile> {
       size: serializer.fromJson<int>(json['size']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -415,7 +411,6 @@ class AudioFile extends DataClass implements Insertable<AudioFile> {
         albumId: albumId ?? this.albumId,
         size: size ?? this.size,
       );
-
   @override
   String toString() {
     return (StringBuffer('AudioFile(')
@@ -430,7 +425,6 @@ class AudioFile extends DataClass implements Insertable<AudioFile> {
   @override
   int get hashCode => $mrjf($mrjc(path.hashCode,
       $mrjc(songId.hashCode, $mrjc(albumId.hashCode, size.hashCode))));
-
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -446,14 +440,12 @@ class AudioFilesCompanion extends UpdateCompanion<AudioFile> {
   final Value<int> songId;
   final Value<int> albumId;
   final Value<int> size;
-
   const AudioFilesCompanion({
     this.path = const Value.absent(),
     this.songId = const Value.absent(),
     this.albumId = const Value.absent(),
     this.size = const Value.absent(),
   });
-
   AudioFilesCompanion.insert({
     @required String path,
     this.songId = const Value.absent(),
@@ -462,7 +454,6 @@ class AudioFilesCompanion extends UpdateCompanion<AudioFile> {
   })  : path = Value(path),
         albumId = Value(albumId),
         size = Value(size);
-
   static Insertable<AudioFile> custom({
     Expression<String> path,
     Expression<int> songId,
@@ -524,15 +515,11 @@ class $AudioFilesTable extends AudioFiles
     with TableInfo<$AudioFilesTable, AudioFile> {
   final GeneratedDatabase _db;
   final String _alias;
-
   $AudioFilesTable(this._db, [this._alias]);
-
   final VerificationMeta _pathMeta = const VerificationMeta('path');
   GeneratedTextColumn _path;
-
   @override
   GeneratedTextColumn get path => _path ??= _constructPath();
-
   GeneratedTextColumn _constructPath() {
     return GeneratedTextColumn(
       'path',
@@ -543,10 +530,8 @@ class $AudioFilesTable extends AudioFiles
 
   final VerificationMeta _songIdMeta = const VerificationMeta('songId');
   GeneratedIntColumn _songId;
-
   @override
   GeneratedIntColumn get songId => _songId ??= _constructSongId();
-
   GeneratedIntColumn _constructSongId() {
     return GeneratedIntColumn(
       'song_id',
@@ -557,10 +542,8 @@ class $AudioFilesTable extends AudioFiles
 
   final VerificationMeta _albumIdMeta = const VerificationMeta('albumId');
   GeneratedIntColumn _albumId;
-
   @override
   GeneratedIntColumn get albumId => _albumId ??= _constructAlbumId();
-
   GeneratedIntColumn _constructAlbumId() {
     return GeneratedIntColumn(
       'album_id',
@@ -571,10 +554,8 @@ class $AudioFilesTable extends AudioFiles
 
   final VerificationMeta _sizeMeta = const VerificationMeta('size');
   GeneratedIntColumn _size;
-
   @override
   GeneratedIntColumn get size => _size ??= _constructSize();
-
   GeneratedIntColumn _constructSize() {
     return GeneratedIntColumn(
       'size',
@@ -585,15 +566,12 @@ class $AudioFilesTable extends AudioFiles
 
   @override
   List<GeneratedColumn> get $columns => [path, songId, albumId, size];
-
   @override
   $AudioFilesTable get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'audio_files';
   @override
   final String actualTableName = 'audio_files';
-
   @override
   VerificationContext validateIntegrity(Insertable<AudioFile> instance,
       {bool isInserting = false}) {
@@ -626,7 +604,6 @@ class $AudioFilesTable extends AudioFiles
 
   @override
   Set<GeneratedColumn> get $primaryKey => {songId};
-
   @override
   AudioFile map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -641,26 +618,19 @@ class $AudioFilesTable extends AudioFiles
 
 abstract class _$MoorCache extends GeneratedDatabase {
   _$MoorCache(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-
   _$MoorCache.connect(DatabaseConnection c) : super.connect(c);
   $ImageFilesTable _imageFiles;
-
   $ImageFilesTable get imageFiles => _imageFiles ??= $ImageFilesTable(this);
   $AudioFilesTable _audioFiles;
-
   $AudioFilesTable get audioFiles => _audioFiles ??= $AudioFilesTable(this);
   ImageFilesDao _imageFilesDao;
-
   ImageFilesDao get imageFilesDao =>
       _imageFilesDao ??= ImageFilesDao(this as MoorCache);
   AudioFilesDao _audioFilesDao;
-
   AudioFilesDao get audioFilesDao =>
       _audioFilesDao ??= AudioFilesDao(this as MoorCache);
-
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
-
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [imageFiles, audioFiles];
 }

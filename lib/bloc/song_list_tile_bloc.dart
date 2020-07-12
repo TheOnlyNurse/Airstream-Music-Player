@@ -5,77 +5,67 @@ import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:flutter/foundation.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
-	final Song tileSong;
-	final _repository = Repository();
-	Song currentSong;
-	StreamSubscription onDownload;
-	StreamSubscription onDownloadFinished;
-	StreamSubscription onPlaying;
+  final Song tileSong;
+  final _repository = Repository();
+  Song currentSong;
+  StreamSubscription onDownload;
+  StreamSubscription onDownloadFinished;
+  StreamSubscription onPlaying;
 
-	SongListTileBloc({@required this.tileSong}) {
-		assert(tileSong != null);
+  SongListTileBloc({@required this.tileSong}) {
+    assert(tileSong != null);
 
-		onDownload = _repository.download.percentageStream.listen((event) {
-			if (tileSong.id == event.songId && event.hasData) {
-				this.add(SongListTileDownload(event.percentage));
-			} else {
-				this.add(SongListTileEmpty());
-			}
-		});
-		onDownloadFinished = _repository.download.newPlayableSong.listen((event) {
-			if (tileSong.id == event.id) this.add(SongListTileFinished());
-		});
-		onPlaying = _repository.audio.playerState.listen((state) {
-			currentSong = _repository.audio.current;
+    onDownload = _repository.download.percentageStream.listen((event) {
+      if (tileSong.id == event.songId && event.hasData) {
+        this.add(SongListTileDownload(event.percentage));
+      }
+    });
+    onDownloadFinished = _repository.download.newPlayableSong.listen((event) {
+      if (tileSong.id == event.id) this.add(SongListTileFinished());
+    });
+    onPlaying = _repository.audio.playerState.listen((state) {
+      currentSong = _repository.audio.current;
+      if (currentSong.id == tileSong.id && state == AudioPlayerState.playing) {
+        this.add(SongListTilePlaying(true));
+      } else {
+        this.add(SongListTilePlaying(false));
+      }
+    });
+  }
 
-			if (currentSong.id == tileSong.id) {
-				if (state == AudioPlayerState.playing) {
-					this.add(SongListTilePlaying(true));
-				}
+  @override
+  SongListTileState get initialState => SongListTileInitial();
 
-				if (state == AudioPlayerState.paused) {
-					this.add(SongListTilePlaying(false));
-				}
+  @override
+  Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
+    final currentState = state;
+    if (event is SongListTileFetch) {
+      final response = await _repository.audioCache.pathOf(tileSong);
+      if (response.hasData) {
+        yield SongListTileSuccess(cachePercent: 100);
+      } else {
+        yield SongListTileSuccess(cachePercent: 0);
+      }
+    }
 
-				if (state == AudioPlayerState.stopped) {
-					this.add(SongListTileEmpty());
-				}
-			} else {
-				this.add(SongListTileEmpty());
-			}
-		});
-	}
+    if (currentState is SongListTileSuccess) {
+      if (event is SongListTileDownload) {
+        yield currentState.copyWith(cachePercent: event.percentage);
+      }
+      if (event is SongListTileFinished) {
+        yield currentState.copyWith(cachePercent: 100);
+      }
+      if (event is SongListTilePlaying) {
+        yield currentState.copyWith(isPlaying: event.isPlaying);
+      }
+    }
+  }
 
-	@override
-	SongListTileState get initialState => SongListTileIsEmpty();
-
-	@override
-	Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
-		if (event is SongListTileEmpty) {
-			yield SongListTileIsEmpty();
-		}
-		if (event is SongListTileDownload) {
-			yield SongListTileIsDownloading(event.percentage);
-		}
-		if (event is SongListTileFinished) {
-			yield SongListTileIsFinished();
-			await Future.delayed(Duration(seconds: 2));
-			yield SongListTileIsEmpty();
-		}
-		if (event is SongListTilePlaying) {
-			if (event.isPlaying) {
-				yield SongListTileIsPlaying();
-			} else {
-				yield SongListTileIsPaused();
-			}
-		}
-	}
-
-	@override
-	Future<void> close() {
-		onPlaying.cancel();
-		onDownload.cancel();
-		onDownloadFinished.cancel();
-		return super.close();
-	}
+  @override
+  Future<void> close() {
+    onPlaying.cancel();
+    onDownload.cancel();
+    onDownloadFinished.cancel();
+    return super.close();
+  }
 }

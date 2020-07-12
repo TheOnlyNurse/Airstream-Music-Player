@@ -25,7 +25,7 @@ class _AlbumRepository {
 
   Future<AlbumResponse> allGenres() => dao.genres();
 
-  Future<AlbumResponse> genre(String genre) async {
+  Future<AlbumResponse> genre(String genre) {
     return dao.library(AlbumLibrary.byGenre, argument: genre);
   }
 
@@ -37,5 +37,9 @@ class _AlbumRepository {
 
   Future<AlbumResponse> frequent() => dao.library(AlbumLibrary.frequent);
 
-  Future<AlbumResponse> recent() async => dao.library(AlbumLibrary.recent);
+  Future<AlbumResponse> recent() => dao.library(AlbumLibrary.recent);
+
+  Future<AlbumResponse> byId(int id) => dao.byId(id);
+
+  Future<AlbumResponse> starred() => dao.starred();
 }

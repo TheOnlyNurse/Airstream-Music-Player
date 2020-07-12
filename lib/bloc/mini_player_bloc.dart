@@ -2,68 +2,58 @@ import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/events/mini_player_event.dart';
 import 'package:airstream/states/mini_player_state.dart';
 
-class MinimisedPlayerBloc
-    extends Bloc<MinimisedPlayerEvent, MinimisedPlayerState> {
+// Ease of use barrel
+export 'package:airstream/events/mini_player_event.dart';
+export 'package:airstream/states/mini_player_state.dart';
+
+class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   final _repository = Repository();
   StreamSubscription _audioEvents;
-  StreamSubscription _percentageSS;
 
-  MinimisedPlayerBloc() {
-    _percentageSS = _repository.download.percentageStream.listen((event) {
-      if (event.songId == Repository().audio.current.id) {
-        this.add(ButtonDownload(event));
-      }
-    });
-
+  MiniPlayerBloc() {
     _audioEvents = _repository.audio.playerState.listen((state) {
-      if (state == AudioPlayerState.playing) this.add(ButtonAudioPlaying());
-      if (state == AudioPlayerState.paused) this.add(ButtonAudioPaused());
-      if (state == AudioPlayerState.stopped) this.add(ButtonAudioStopped());
+      switch (state) {
+        case AudioPlayerState.playing:
+          this.add(MiniPlayerPlaying());
+          break;
+        case AudioPlayerState.paused:
+          this.add(MiniPlayerPaused());
+          break;
+        case AudioPlayerState.stopped:
+          this.add(MiniPlayerStopped());
+          break;
+      }
     });
   }
 
   @override
-  MinimisedPlayerState get initialState => ButtonNoAudio();
+  MiniPlayerState get initialState => MiniPlayerInitial();
 
-	@override
-	Stream<MinimisedPlayerState> mapEventToState(
-			MinimisedPlayerEvent event) async* {
-		if (event is ButtonPlayPause) {
-			if (state is ButtonAudioIsPaused) {
-				_repository.audio.play();
-			}
-			if (state is ButtonAudioIsPlaying) {
-				_repository.audio.pause();
-			}
-		}
+  @override
+  Stream<MiniPlayerState> mapEventToState(MiniPlayerEvent event) async* {
+    final currentState = state;
+    if (event is MiniPlayerPlayPause && currentState is MiniPlayerSuccess) {
+      if (currentState.isPlaying) {
+        _repository.audio.pause();
+      } else {
+        _repository.audio.play();
+      }
+    }
 
-		// React to Audio service event calls
-		if (event is ButtonDownload) {
-			if (event.percentModel.hasData) {
-				yield ButtonIsDownloading(percentage: event.percentModel.percentage);
-			} else {
-				yield ButtonFailure();
-				Future.delayed(
-					Duration(seconds: 2),
-							() => this.add(ButtonAudioStopped()),
-				);
-			}
-		}
-		if (event is ButtonAudioStopped) {
-      yield ButtonNoAudio();
+    if (event is MiniPlayerStopped) {
+      yield MiniPlayerInitial();
     }
-    if (event is ButtonAudioPaused) {
-			yield ButtonAudioIsPaused();
+    if (event is MiniPlayerPlaying) {
+      yield MiniPlayerSuccess(true);
     }
-    if (event is ButtonAudioPlaying) {
-      yield ButtonAudioIsPlaying();
+    if (event is MiniPlayerPaused) {
+      yield MiniPlayerSuccess(false);
     }
   }
 
   @override
   Future<void> close() {
     _audioEvents.cancel();
-    _percentageSS.cancel();
     return super.close();
   }
 }

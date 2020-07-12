@@ -36,11 +36,34 @@ class AudioProvider {
   /// Global Functions
   void createQueueAndPlay(List<Song> playlist, int index) {
     if (playlist != _songQueue) {
-      this._songQueue.clear();
-      this._songQueue.addAll(playlist);
+      _songQueue.clear();
+      _songQueue.addAll(playlist);
     }
-    this._currentIndex = index;
-    this._playCurrent();
+    playFromQueue(index);
+  }
+
+  void reorderQueue(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      // removing the item at oldIndex will shorten the list by 1.
+      newIndex--;
+    }
+    // Adjust the current index to properly align with new list order
+    if (oldIndex == _currentIndex) {
+      _currentIndex = newIndex;
+    } else if (oldIndex < _currentIndex && newIndex >= _currentIndex) {
+      print('Reducing by 1');
+      _currentIndex--;
+    } else if (newIndex <= _currentIndex && oldIndex > _currentIndex) {
+      print('Adding by 1');
+      _currentIndex++;
+    }
+    final element = _songQueue.removeAt(oldIndex);
+    _songQueue.insert(newIndex, element);
+  }
+
+  void playFromQueue(int index) {
+    _currentIndex = index;
+    _playCurrent();
   }
 
   void changePlayerState(ChangePlayerState state) {
@@ -92,16 +115,16 @@ class AudioProvider {
 
   /// Open the given path and song with the audio player
   void _play(String songPath, Song song) async {
-    final audio = assets.Audio.file(songPath, metas: toMetas(song));
-    final notificationSettings = assets.NotificationSettings(
-      customPrevAction: (player) {
-        this.changePlayerState(ChangePlayerState.previous);
-      },
-      customNextAction: (player) =>
-          this.changePlayerState(ChangePlayerState.next),
-      customStopAction: (player) =>
-          this.changePlayerState(ChangePlayerState.stop),
-    );
+		final audio = assets.Audio.file(songPath, metas: _toMetas(song));
+		final notificationSettings = assets.NotificationSettings(
+			customPrevAction: (player) {
+				this.changePlayerState(ChangePlayerState.previous);
+			},
+			customNextAction: (player) =>
+					this.changePlayerState(ChangePlayerState.next),
+			customStopAction: (player) =>
+					this.changePlayerState(ChangePlayerState.stop),
+		);
 
     try {
       await _audioPlayer.open(
@@ -110,7 +133,7 @@ class AudioProvider {
         notificationSettings: notificationSettings,
       );
       // Update the art, once the song has started playing
-      final art = await Repository().image.lowDef(song.art);
+      final art = await Repository().image.thumbnail(song.art);
       if (art != null) {
         audio.updateMetas(
           image: assets.MetasImage.file(art.path),
@@ -126,13 +149,13 @@ class AudioProvider {
   }
 
   /// Converts song details into assets' metas file
-  assets.Metas toMetas(Song song) {
-    return assets.Metas(
-      title: song.title,
-      artist: song.artist,
-      album: song.album,
-    );
-  }
+	assets.Metas _toMetas(Song song) {
+		return assets.Metas(
+			title: song.title,
+			artist: song.artist,
+			album: song.album,
+		);
+	}
 
   /// Prepare the current song to be played
   void _playCurrent() async {

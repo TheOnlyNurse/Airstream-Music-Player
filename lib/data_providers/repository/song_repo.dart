@@ -5,23 +5,9 @@ class _SongRepository {
 
   final SongsDao dao;
 
-  /// Stream controller when songs database changes state
-  final StreamController<SongChange> _onChange = StreamController.broadcast();
-
-  /// Listenable stream of database state
-  Stream<SongChange> get changed => _onChange.stream;
-
   /// Returns a song list (with on item) by id
   Future<SongResponse> byId(int id) {
     return dao.search(SongSearch.byId, argument: id);
-  }
-
-  /// Get starred songs
-  Future<SongResponse> starred() => dao.search(SongSearch.byStarred);
-
-  /// Forcefully updates starred songs
-  Future<SongResponse> updateStarred() {
-    return dao.updateStarred();
   }
 
   /// Get songs in a given album
@@ -40,17 +26,21 @@ class _SongRepository {
         lastError = query;
         continue;
       }
-      songList.add(query.songList.first);
+      songList.add(query.songs.first);
     }
 
     if (songList.isNotEmpty) {
-      return SongResponse(hasData: true, songList: songList);
+      return SongResponse(hasData: true, songs: songList);
     } else if (lastError != null) {
       return SongResponse(passOn: lastError);
     } else {
       return SongResponse(error: 'No songs found in playlist');
     }
   }
+
+  Future<SongResponse> starred() => dao.starred();
+
+  Future<SongResponse> topSongsOf(Artist artist) => dao.topSongsOf(artist);
 
   /// Searches both song titles and artist names
   /// Searches artist names
@@ -59,39 +49,28 @@ class _SongRepository {
   Future<SongResponse> search({String query}) async {
     final titleQuery = await dao.search(SongSearch.byTitle, argument: query);
     if (titleQuery.hasData) {
-      if (titleQuery.songList.length < 5) {
-        return _onNotEnoughResults(titleQuery);
+      if (titleQuery.songs.length < 5) {
+        return _onNotEnoughResults(titleQuery, query);
       } else {
-        return titleQuery;
-      }
-    } else {
-      return dao.search(SongSearch.byArtistName, argument: query);
-    }
-  }
+				return titleQuery;
+			}
+		} else {
+			return dao.search(SongSearch.byArtistName, argument: query);
+		}
+	}
 
-  /// Searches artist name and combines the first query and the new query
-  Future<SongResponse> _onNotEnoughResults(SongResponse firstQuery) async {
-    final artistQuery = await dao.search(
-      SongSearch.byArtistName,
-      argument: search,
-    );
-    if (artistQuery.hasNoData) return firstQuery;
-    firstQuery.songList.addAll(artistQuery.songList);
-    // Remove any duplicate data points & keep list order
-    final combinedData = LinkedHashSet<Song>.from(firstQuery.songList).toList();
-    return SongResponse(hasData: true, songList: combinedData);
-  }
-
-  /// Change a list of song stars
-  void star({@required List<Song> songList, bool toStar = false}) async {
-    for (var song in songList) {
-      await dao.changeStar(song.id, toStar);
-    }
-
-    if (toStar) {
-      _onChange.add(SongChange.starred);
-    } else {
-      _onChange.add(SongChange.unstarred);
-    }
-  }
+	/// Searches artist name and combines the first query and the new query
+	/// Complements the search function above and shouldn't be used alone
+	Future<SongResponse> _onNotEnoughResults(SongResponse firstQuery,
+			String query,) async {
+		final artistQuery = await dao.search(
+			SongSearch.byArtistName,
+			argument: query,
+		);
+		if (artistQuery.hasNoData) return firstQuery;
+		firstQuery.songs.addAll(artistQuery.songs);
+		// Remove any duplicate data points & keep list order
+		final combinedData = LinkedHashSet<Song>.from(firstQuery.songs).toList();
+		return SongResponse(hasData: true, songs: combinedData);
+	}
 }

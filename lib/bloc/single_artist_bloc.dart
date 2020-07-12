@@ -1,44 +1,40 @@
 import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:flutter/material.dart';
+import 'package:airstream/events/single_artist_event.dart';
+import 'package:airstream/states/single_artist_state.dart';
+
+// Barrelling
+export 'package:airstream/states/single_artist_state.dart';
+export 'package:airstream/events/single_artist_event.dart';
 
 class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
+  final _repo = Repository();
+
   @override
   SingleArtistState get initialState => SingleArtistInitial();
 
   @override
   Stream<SingleArtistState> mapEventToState(SingleArtistEvent event) async* {
-    if (event is SingleArtistFetch) {
-      final response = await Repository().album.fromArtist(event.artist);
+    final currentState = state;
+
+    if (event is SingleArtistAlbums) {
+      final response = await _repo.album.fromArtist(event.artist);
       if (response.hasData) {
-        yield SingleArtistSuccess(albums: response.albums);
+        yield SingleArtistSuccess(event.artist, albums: response.albums);
+        this.add(SingleArtistInfo());
       } else {
-        yield SingleArtistFailure(response.message);
+        yield SingleArtistFailure(response.error);
       }
     }
+
+    if (event is SingleArtistInfo && currentState is SingleArtistSuccess) {
+      final topSongs = await _repo.song.topSongsOf(currentState.artist);
+      final similar = await _repo.artist.similar(currentState.artist);
+      final image = await _repo.image.fromArtist(currentState.artist);
+      yield currentState.copyWith(
+        songs: topSongs.songs,
+        similarArtists: similar.artists,
+        image: image,
+      );
+    }
   }
-}
-
-abstract class SingleArtistEvent {}
-
-class SingleArtistFetch extends SingleArtistEvent {
-  final Artist artist;
-
-  SingleArtistFetch({this.artist});
-}
-
-abstract class SingleArtistState {}
-
-class SingleArtistInitial extends SingleArtistState {}
-
-class SingleArtistSuccess extends SingleArtistState {
-  final List<Album> albums;
-
-  SingleArtistSuccess({this.albums});
-}
-
-class SingleArtistFailure extends SingleArtistState {
-	final Widget error;
-
-	SingleArtistFailure(this.error);
 }

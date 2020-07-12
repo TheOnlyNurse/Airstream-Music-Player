@@ -24,9 +24,9 @@ class PlaylistResponse extends ProviderResponse {
             !hasData ? passOn == null ? error != null : passOn != null : true);
 
   @override
-	String get messageString => _passOn?.messageString ?? _error;
+  String get errorString => _passOn?.errorString ?? _error;
 
-	@override
+  @override
 	String get source => _passOn?.source ?? 'Playlists';
 
 	@override

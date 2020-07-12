@@ -21,7 +21,7 @@ class PlaylistDialogBloc
       if (response.hasData) {
         yield PlaylistDialogSuccess(response.playlists);
       } else {
-        yield PlaylistDialogFailure(response.message);
+        yield PlaylistDialogFailure(response.error);
       }
     }
 
@@ -43,7 +43,7 @@ class PlaylistDialogBloc
       if (newPlaylist.hasData) {
         this.add(PlaylistDialogChosen(newPlaylist.playlist));
       } else {
-				yield PlaylistDialogFailure(newPlaylist.message);
+        yield PlaylistDialogFailure(newPlaylist.error);
       }
     }
   }

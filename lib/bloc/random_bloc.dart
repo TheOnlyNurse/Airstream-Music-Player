@@ -23,7 +23,7 @@ class RandomBloc extends Bloc<RandomEvent, RandomState> {
         list = response.albums;
         this.add(RandomNext());
       } else {
-        yield RandomFailure(message: response.message);
+        yield RandomFailure(message: response.error);
       }
     }
     if (event is RandomNext) {

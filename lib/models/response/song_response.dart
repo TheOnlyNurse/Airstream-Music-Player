@@ -6,15 +6,13 @@ class SongResponse extends ProviderResponse {
   final bool _hasData;
   final String _error;
   final ProviderResponse _passOn;
-  final List<Song> songList;
-  final Song song;
+  final List<Song> songs;
 
   const SongResponse({
     bool hasData = false,
     ProviderResponse passOn,
     String error,
-    this.songList,
-    this.song,
+    this.songs,
   })
 
   /// If hasData defaults to false then passOn or error cannot equal both be null
@@ -24,12 +22,14 @@ class SongResponse extends ProviderResponse {
         assert(
             !hasData ? passOn == null ? error != null : passOn != null : true);
 
+  Song get song => songs.first;
+
   @override
-	String get messageString => _passOn?.messageString ?? _error;
+  String get errorString => _passOn?.errorString ?? _error;
 
-	@override
-	String get source => _passOn?.source ?? 'Song Details';
+  @override
+  String get source => _passOn?.source ?? 'Song Details';
 
-	@override
-	bool get hasData => _passOn?.hasData ?? _hasData;
+  @override
+  bool get hasData => _passOn?.hasData ?? _hasData;
 }

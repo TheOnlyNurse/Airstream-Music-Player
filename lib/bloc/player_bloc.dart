@@ -41,7 +41,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     }
 
     if (event is PlayerFetchArt) {
-      final response = await _repository.image.highDef(event.artId);
+      final response = await _repository.image.original(event.artId);
       if (response != null && currentState is PlayerSuccess) {
         yield currentState.copyWith(image: response);
       }

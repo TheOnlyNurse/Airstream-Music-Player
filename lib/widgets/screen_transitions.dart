@@ -40,3 +40,26 @@ class SizeScreenTransition<T> extends MaterialPageRoute<T> {
     );
   }
 }
+
+PageRouteBuilder fadeInSlideRoute(Widget page) {
+  assert(page != null);
+
+  return PageRouteBuilder(
+    opaque: false,
+    pageBuilder: (BuildContext context, _, __) {
+      return page;
+    },
+    transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
+      return FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      );
+    },
+  );
+}

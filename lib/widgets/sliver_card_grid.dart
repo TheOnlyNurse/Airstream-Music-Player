@@ -3,7 +3,7 @@ import 'package:airstream/widgets/album_card.dart';
 import 'package:flutter/material.dart';
 
 class SliverAlbumGrid extends StatelessWidget {
-	const SliverAlbumGrid({@required this.albumList});
+  const SliverAlbumGrid({@required this.albumList});
 
   final List<Album> albumList;
 
@@ -20,7 +20,14 @@ class SliverAlbumGrid extends StatelessWidget {
         ),
         delegate: SliverChildBuilderDelegate(
           (context, int index) {
-            return AlbumCard(album: albumList[index]);
+            return AlbumCard(
+              album: albumList[index],
+              onTap: (album) => Navigator.pushNamed(
+                context,
+                'library/singleAlbum',
+                arguments: album,
+              ),
+            );
           },
           childCount: albumList.length,
         ),

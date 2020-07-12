@@ -1,17 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:equatable/equatable.dart';
 
-abstract class MinimisedPlayerState {}
+abstract class MiniPlayerState extends Equatable {
+  const MiniPlayerState();
 
-class ButtonNoAudio extends MinimisedPlayerState {}
+  @override
+  List<Object> get props => [];
+}
 
-class ButtonFailure extends MinimisedPlayerState {}
+class MiniPlayerInitial extends MiniPlayerState {}
 
-class ButtonAudioIsPlaying extends MinimisedPlayerState {}
+class MiniPlayerSuccess extends MiniPlayerState {
+	final bool isPlaying;
 
-class ButtonAudioIsPaused extends MinimisedPlayerState {}
+	const MiniPlayerSuccess(this.isPlaying);
 
-class ButtonIsDownloading extends MinimisedPlayerState {
-  final int percentage;
-
-  ButtonIsDownloading({@required this.percentage});
+	@override
+	List<Object> get props => [isPlaying];
 }

@@ -23,7 +23,7 @@ class AlbumListScreen extends StatelessWidget {
                 return Column(
                   children: <Widget>[
                     _CloseButton(),
-                    Expanded(child: Center(child: response.message)),
+                    Expanded(child: Center(child: response.error)),
                   ],
                 );
               }

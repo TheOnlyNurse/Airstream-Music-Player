@@ -28,9 +28,9 @@ class ServerResponse extends ProviderResponse {
         );
 
   @override
-	String get messageString => _passOn?.messageString ?? _error;
+  String get errorString => _passOn?.errorString ?? _error;
 
-	@override
+  @override
 	String get source => _passOn?.source ?? 'Network';
 
 	@override

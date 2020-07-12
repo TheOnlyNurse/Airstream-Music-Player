@@ -22,7 +22,7 @@ class LibraryArtistsBloc extends Bloc<AlbumListEvent, AlbumListState> {
       if (response.hasData) {
         yield AlbumListSuccess(artists: response.artists);
       } else {
-        yield AlbumListFailure(response.message);
+        yield AlbumListFailure(response.error);
       }
     }
   }

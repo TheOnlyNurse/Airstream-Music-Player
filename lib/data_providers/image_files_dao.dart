@@ -43,12 +43,13 @@ class ImageFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Returns an image type of a given art id
-  Future<File> byType(String artId, ImageType type) async {
+  Future<File> byType(ImageType type, {String artId, String name}) async {
     final art = await _getImage(artId, type);
     if (art == null) {
-      return _download(artId, type);
+      return _download(type, artId: artId, name: name);
     } else {
-      return File(art.path);
+      // Artist type might return null paths, make sure there is a file to return here
+      return art.path != null ? File(art.path) : null;
     }
   }
 
@@ -63,6 +64,7 @@ class ImageFilesDao extends DatabaseAccessor<MoorCache>
         await _deleteOldestFile();
         checkSize();
       }
+      return;
     });
   }
 
@@ -88,29 +90,35 @@ class ImageFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Downloads an image of either "high" or "low" definition, from the server
-  Future<File> _download(String artId, ImageType type) async {
-    final response = await _serverRequest(artId, type);
-    if (response.hasNoData) return null;
+  Future<File> _download(ImageType type, {String artId, String name}) async {
+    final response = await _serverRequest(type, artId: artId, name: name);
+    if (response.hasNoData) {
+      // Insert a null path to ensure that unnecessary multiple attempts are made
+      if (type == ImageType.artist) _addImage(artId, type);
+      return null;
+    }
     final file = await _bytesToFile('$artId-$type', response.bytes);
-    await _addImage(ImageFilesCompanion(
-      artId: Value(artId),
-      type: Value(type.toString()),
-      path: Value(file.path),
-      size: Value(file.statSync().size),
-    ));
+    _addImage(artId, type, file: file);
     checkSize();
     return file;
   }
 
   /// Returns a specific server request given an image type
-  Future<ServerResponse> _serverRequest(String artId, ImageType type) {
+  Future<ServerResponse> _serverRequest(
+    ImageType type, {
+    String artId,
+    String name,
+  }) {
+    final provider = ServerProvider();
     switch (type) {
-      case ImageType.hiDef:
-        return ServerProvider().fetchImage('getCoverArt?id=$artId&size=512');
+      case ImageType.original:
+        return provider.fetchImage('getCoverArt?id=$artId&size=512');
         break;
-      case ImageType.lowDef:
-        return ServerProvider().fetchImage('getCoverArt?id=$artId&size=256');
+      case ImageType.thumbnail:
+        return provider.fetchImage('getCoverArt?id=$artId&size=256');
         break;
+      case ImageType.artist:
+        return provider.fetchArtistImage(name);
       default:
         throw UnimplementedError(type.toString());
     }
@@ -133,9 +141,18 @@ class ImageFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Adds companion to database
-  Future<int> _addImage(ImageFilesCompanion entry) async {
-    return into(imageFiles).insert(entry);
+  Future<int> _addImage(String artId, ImageType type, {File file}) async {
+    return into(imageFiles).insert(
+      ImageFilesCompanion.insert(
+        artId: artId,
+        type: type.toString(),
+        path: file != null ? Value(file.path) : Value(null),
+        size: file != null ? file
+            .statSync()
+            .size : 0,
+      ),
+    );
   }
 }
 
-enum ImageType { hiDef, lowDef, artist }
+enum ImageType { original, thumbnail, artist }

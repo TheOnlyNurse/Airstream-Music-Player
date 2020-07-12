@@ -32,4 +32,10 @@ class _AudioRepository {
 
   void seek(double seconds) =>
       _provider.seekPosition(Duration(seconds: seconds.floor()));
+
+  void reorder(int oldIndex, int newIndex) {
+    return _provider.reorderQueue(oldIndex, newIndex);
+  }
+
+  void playIndex(int index) => _provider.playFromQueue(index);
 }

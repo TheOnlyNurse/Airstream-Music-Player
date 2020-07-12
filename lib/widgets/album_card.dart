@@ -12,51 +12,63 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: () {
-          if (onTap != null) {
-            onTap(album);
-          } else {
-            Navigator.of(context).pushNamed(
-              'library/singleAlbum',
-              arguments: album,
-            );
-          }
-        },
-        child: LayoutBuilder(builder: (context, constraints) {
-          return Column(
-            children: <Widget>[
-              AirstreamImage(
-                height: constraints.maxHeight - 50,
-                width: constraints.maxWidth,
-                coverArt: album.art,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        album.title,
-                        overflow: TextOverflow.fade,
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                      Text(
-                        album.artist,
-                        overflow: TextOverflow.fade,
-                        style: Theme.of(context).textTheme.caption,
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                    ],
-                  ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        return SizedBox(
+          child: Stack(children: <Widget>[
+            Column(
+              children: <Widget>[
+                AirstreamImage(
+                  height: constraints.maxHeight - 50,
+                  width: constraints.maxWidth,
+                  coverArt: album.art,
+                  isThumbnail: true,
                 ),
+                Expanded(
+                  child: _Titles(title: album.title, artist: album.artist),
+                ),
+              ],
+            ),
+            Material(
+              color: Colors.transparent,
+              elevation: 0.0,
+              child: Ink(
+                child: InkWell(onTap: () => onTap(album) ?? null),
               ),
-            ],
-          );
-        }),
+            ),
+          ]),
+        );
+      }),
+    );
+  }
+}
+
+class _Titles extends StatelessWidget {
+  final String title;
+  final String artist;
+
+  const _Titles({Key key, this.title, this.artist}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            title,
+            overflow: TextOverflow.fade,
+            maxLines: 1,
+            softWrap: false,
+          ),
+          Text(
+            artist,
+            overflow: TextOverflow.fade,
+            style: Theme.of(context).textTheme.caption,
+            maxLines: 1,
+            softWrap: false,
+          ),
+        ],
       ),
     );
   }

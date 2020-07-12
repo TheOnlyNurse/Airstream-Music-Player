@@ -23,40 +23,54 @@ class PlaylistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed(
-        'library/singlePlaylist',
-        arguments: playlist,
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        color: Colors.transparent,
-        // The container only expands when it has at least this property
-        child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: SizedBox(
+        height: 100,
+        child: Stack(
           children: <Widget>[
-            Container(
-              height: 100,
-              width: 100,
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-              ),
-              child: _getImage(playlist.songIds),
-            ),
-            SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: <Widget>[
-                Text(
-                  playlist.name,
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-                if (playlist.comment != null)
-                  Text(
-                    playlist.comment,
-                    style: Theme.of(context).textTheme.caption,
+                Container(
+                  height: 100,
+                  width: 100,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
                   ),
+                  child: _getImage(playlist.songIds),
+                ),
+                SizedBox(width: 16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(height: 12),
+                    Text(
+                      playlist.name,
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                    if (playlist.comment != null)
+                      Text(
+                        playlist.comment,
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                  ],
+                ),
               ],
+            ),
+            Material(
+              elevation: 0,
+              color: Colors.transparent,
+              child: Ink(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () => Navigator.of(context).pushNamed(
+                    'library/singlePlaylist',
+                    arguments: playlist,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

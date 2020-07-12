@@ -39,54 +39,76 @@ class Collections extends StatelessWidget {
       _CollectionDetails('By Decade', 'clock.jpg', page: DecadeScreen()),
       _CollectionDetails('By Genre', 'symphony-hall.jpg', page: GenreScreen()),
       _CollectionDetails('By Artist', 'brushes.jpg', page: ArtistsScreen()),
-      _CollectionDetails('Alphabetical', 'typewriter.jpg', page: AlphabetScreen()),
+      _CollectionDetails('Alphabetical', 'typewriter.jpg',
+          page: AlphabetScreen()),
     ];
 
     return SizedBox(
-      height: 300,
+      height: 280,
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
         physics: BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          mainAxisSpacing: 16,
+          mainAxisSpacing: 12,
           childAspectRatio: 1 / 1.2,
-          crossAxisSpacing: 8,
         ),
         itemCount: collections.length,
         itemBuilder: (context, int index) {
-          return GestureDetector(
-            onTap: () {
-              if (collections[index].page != null)
-                Navigator.push(context, collections[index].route());
-            },
-            child: Column(
-              children: <Widget>[
-                Container(
-                  width: 180,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                      image: AssetImage(
-                        'lib/graphics/collections/${collections[index].asset}',
-                      ),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  collections[index].title,
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-              ],
-            ),
-          );
+          return _CollectionCard(details: collections[index]);
         },
       ),
+    );
+  }
+}
+
+class _CollectionCard extends StatelessWidget {
+  final _CollectionDetails details;
+
+  const _CollectionCard({Key key, @required this.details})
+      : assert(details != null),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        SizedBox(
+          height: 100,
+          width: 180,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image:
+                        AssetImage('lib/graphics/collections/${details.asset}'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                elevation: 0.0,
+                child: Ink(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      if (details.page != null)
+                        Navigator.push(context, details.route());
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(details.title, style: Theme.of(context).textTheme.subtitle1),
+      ],
     );
   }
 }
@@ -104,7 +126,8 @@ class _CollectionDetails {
       pageBuilder: (BuildContext context, _, __) {
         return page ?? Container();
       },
-      transitionsBuilder: (___, Animation<double> animation, ____, Widget child) {
+      transitionsBuilder:
+          (___, Animation<double> animation, ____, Widget child) {
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(

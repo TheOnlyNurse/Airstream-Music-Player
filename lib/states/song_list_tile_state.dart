@@ -7,19 +7,21 @@ abstract class SongListTileState extends Equatable {
   List<Object> get props => [];
 }
 
-class SongListTileIsEmpty extends SongListTileState {}
+class SongListTileInitial extends SongListTileState {}
 
-class SongListTileIsDownloading extends SongListTileState {
-  final int percentage;
+class SongListTileSuccess extends SongListTileState {
+  final int cachePercent;
+  final bool isPlaying;
 
-  const SongListTileIsDownloading(this.percentage);
+  const SongListTileSuccess({this.cachePercent = 0, this.isPlaying = false});
+
+  SongListTileSuccess copyWith({int cachePercent, bool isPlaying}) {
+    return SongListTileSuccess(
+      cachePercent: cachePercent ?? this.cachePercent,
+      isPlaying: isPlaying ?? this.isPlaying,
+    );
+  }
 
   @override
-  List<Object> get props => [percentage];
+  List<Object> get props => [cachePercent, isPlaying];
 }
-
-class SongListTileIsFinished extends SongListTileState {}
-
-class SongListTileIsPlaying extends SongListTileState {}
-
-class SongListTileIsPaused extends SongListTileState {}

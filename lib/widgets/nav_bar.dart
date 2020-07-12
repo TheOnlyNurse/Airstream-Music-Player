@@ -1,76 +1,27 @@
 import 'package:airstream/bloc/nav_bar_bloc.dart';
-import 'package:airstream/events/nav_bar_event.dart';
-import 'package:airstream/states/nav_bar_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NavigationBar extends StatelessWidget {
-  static const buttonList = [
-    _IconButton(iconData: Icons.home, title: 'Home'),
-    _IconButton(iconData: Icons.star, title: 'Starred'),
-  ];
+  final int index;
+  final Function(int) onTap;
+
+  const NavigationBar({Key key, this.onTap, this.index = 0}) : super(key: key);
+
+  NotchedShape _getShape(NavigationBarState state) {
+    if (state is NavigationBarSuccess && state.isNotched) {
+      return CircularNotchedRectangle();
+    } else {
+      return null;
+    }
+  }
+
+  double _spacerWidth(NavigationBarState state) {
+    return state is NavigationBarSuccess && state.isNotched ? 100 : 0;
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _generateButtons(
-        BuildContext context, NavigationBarState state) {
-      void bloc(NavigationBarEvent event) {
-        context.bloc<NavigationBarBloc>().add(event);
-      }
-
-      final widgetList = <Widget>[];
-      final selectedIndex = state is NavigationBarSuccess ? state.index : 0;
-      for (int index = 0; index < buttonList.length; index++) {
-        final isSelected = index == selectedIndex;
-        final color = isSelected
-            ? Theme.of(context).accentColor
-            : Theme.of(context).disabledColor;
-        final onTap = () => bloc(NavigationBarNavigate(index));
-
-        widgetList.add(buttonList[index].build(color, onTap));
-      }
-      if (state is NavigationBarSuccess && state.isNotched) {
-        widgetList.insert(buttonList.length >> 1, Spacer());
-      }
-      return widgetList;
-    }
-
-    NotchedShape _getShape(NavigationBarState state) {
-      if (state is NavigationBarSuccess && state.isNotched) {
-        return CircularNotchedRectangle();
-      } else {
-        return null;
-      }
-    }
-
-    Widget _getOfflineBanner(NavigationBarState state) {
-      if (state is NavigationBarSuccess && state.isOffline) {
-        final theme = Theme.of(context);
-
-        return Container(
-          height: 20,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.transparent,
-                theme.cardColor,
-                Colors.transparent,
-              ],
-            ),
-          ),
-          child: Center(
-            child: Text(
-              'Offline mode',
-              style: theme.textTheme.subtitle2,
-            ),
-          ),
-        );
-      } else {
-        return Container();
-      }
-    }
-
     return BlocBuilder<NavigationBarBloc, NavigationBarState>(
       builder: (context, state) {
         return BottomAppBar(
@@ -80,42 +31,103 @@ class NavigationBar extends StatelessWidget {
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: _generateButtons(context, state),
+                children: <Widget>[
+                  _IconButton(
+                    iconData: Icons.home,
+                    caption: 'Home',
+                    assignedIndex: 0,
+                    currentIndex: index,
+                    onTap: onTap,
+                  ),
+                  AnimatedContainer(
+                    duration: Duration(seconds: 1),
+                    curve: Curves.bounceOut,
+                    width: _spacerWidth(state),
+                  ),
+                  _IconButton(
+                    iconData: Icons.star,
+                    caption: 'Starred',
+                    assignedIndex: 1,
+                    currentIndex: index,
+                    onTap: onTap,
+                  ),
+                ],
               ),
-              _getOfflineBanner(state),
+              if (state is NavigationBarSuccess && state.isOffline)
+                _OfflineBanner(),
             ],
-          ),
-        );
-      },
-    );
-  }
+					),
+				);
+			},
+		);
+	}
 }
 
-class _IconButton {
-	const _IconButton({
-		@required this.iconData,
-		@required this.title,
-		this.height = 60.0,
-	}) : assert(iconData != null && title != null);
-
+class _IconButton extends StatelessWidget {
 	final IconData iconData;
-	final String title;
+	final String caption;
+	final int assignedIndex;
+	final int currentIndex;
+	final Function(int) onTap;
 	final double height;
 
-	Widget build(Color color, Function onTap) {
+	const _IconButton({
+		Key key,
+		this.iconData,
+		this.caption,
+		this.height = 60,
+		this.assignedIndex = 0,
+		this.currentIndex = 1,
+		this.onTap,
+	})
+			: assert(iconData != null),
+				assert(caption != null),
+				super(key: key);
+
+	Color _color(BuildContext context) {
+		if (assignedIndex == currentIndex) {
+			return Theme
+					.of(context)
+					.accentColor;
+		} else {
+			return Theme
+					.of(context)
+					.disabledColor;
+		}
+	}
+
+	Widget build(BuildContext context) {
 		return Expanded(
 			child: SizedBox(
 				height: height,
 				child: InkWell(
-					onTap: onTap,
+					onTap: () => onTap != null ? onTap(assignedIndex) : null,
 					child: Column(
 						mainAxisAlignment: MainAxisAlignment.center,
 						children: <Widget>[
-							Icon(iconData, color: color),
-							Text(title, style: TextStyle(color: color)),
+							Icon(iconData, color: _color(context)),
+							Text(caption, style: TextStyle(color: _color(context))),
 						],
 					),
 				),
+			),
+		);
+	}
+}
+
+class _OfflineBanner extends StatelessWidget {
+	@override
+	Widget build(BuildContext context) {
+		final theme = Theme.of(context);
+
+		return SizedBox(
+			height: 20,
+			width: MediaQuery
+					.of(context)
+					.size
+					.width,
+			child: Center(
+				child: Text('OFFLINE MODE', style: theme.textTheme.subtitle2),
 			),
 		);
 	}

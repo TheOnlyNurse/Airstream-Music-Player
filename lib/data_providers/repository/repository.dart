@@ -16,6 +16,7 @@ import 'package:airstream/data_providers/playlist_provider.dart';
 import 'package:airstream/data_providers/scheduler.dart';
 import 'package:airstream/data_providers/settings_provider.dart';
 import 'package:airstream/data_providers/songs_dao.dart';
+import 'package:airstream/data_providers/starred_provider.dart';
 
 // Models
 import 'package:airstream/models/playlist_model.dart';
@@ -27,6 +28,7 @@ import 'package:airstream/models/response/provider_response.dart';
 import 'package:airstream/models/response/song_response.dart';
 import 'package:airstream/barrel/communication.dart';
 import 'package:airstream/models/percentage_model.dart';
+import 'package:airstream/models/response/starred_response.dart';
 import 'package:flutter/cupertino.dart';
 
 // Flutter/Dart core
@@ -62,6 +64,8 @@ part 'moor_isolate.dart';
 
 part 'audio_cache_repo.dart';
 
+part 'starred_repo.dart';
+
 /// The Repository collects data from providers and formats it easy access and use
 /// in UI and Bloc generation. This is the class used by the rest of the UI and bloc logic,
 /// however there is little logic here. See the relevant sub-division for that.
@@ -85,18 +89,20 @@ class Repository {
 
   _PlaylistRepository get playlist => _libInstances['playlist'];
 
-  _AlbumRepository get album => _libInstances['album'];
+	_AlbumRepository get album => _libInstances['album'];
 
-  _ArtistRepository get artist => _libInstances['artist'];
+	_ArtistRepository get artist => _libInstances['artist'];
 
-  _SettingsRepository get settings => _libInstances['settings'];
+	_SettingsRepository get settings => _libInstances['settings'];
 
-  _ImageFilesRepository get image => _libInstances['image'];
+	_ImageFilesRepository get image => _libInstances['image'];
 
-  _DownloadRepository get download => _libInstances['download'];
+	_DownloadRepository get download => _libInstances['download'];
 
-  /// Initialise the boxes required
-  Future<Null> init() async {
+	_StarredRepository get starred => _libInstances['starred'];
+
+	/// Initialise the boxes required
+	Future<Null> init() async {
 		// Database directory path
 		final dbDirectory = await getApplicationDocumentsDirectory();
 		// Moor database, requires db path
@@ -105,26 +111,30 @@ class Repository {
 		// Moor cache, placed in temporary location automatically
 		final cacheIsolate = await _createMoorCache();
 		_cache = MoorCache.connect(await cacheIsolate.connect());
-		// Hive database location
-		Hive.init(dbDirectory.path);
-		// Register hive type adapters
-		Hive.registerAdapter(PlaylistAdapter());
-		// Open required boxes
-		await Hive.openBox('albums');
-		await Hive.openBox<Playlist>('playlists');
-		await Hive.openBox('settings');
-		await Hive.openBox<String>('scheduler');
-		// Create instances of library parts
-		_libInstances = {
-			'audioCache': _AudioCacheRepository(dao: _cache.audioFilesDao),
-			'song': _SongRepository(dao: _database.songsDao),
-			'album': _AlbumRepository(dao: _database.albumsDao),
-			'artist': _ArtistRepository(dao: _database.artistsDao),
-			'image': _ImageFilesRepository(dao: _cache.imageFilesDao),
-			'audio': _AudioRepository(),
-			'playlist': _PlaylistRepository(),
-			'settings': _SettingsRepository(),
-			'download': _DownloadRepository(),
+    // Hive database location
+    Hive.init(dbDirectory.path);
+    // Register hive type adapters
+    Hive.registerAdapter(PlaylistAdapter());
+    // Open required boxes
+    await Hive.openBox('albums');
+    await Hive.openBox('starred');
+    await Hive.openBox<Playlist>('playlists');
+    await Hive.openBox('settings');
+    await Hive.openBox<String>('scheduler');
+    await Hive.openBox('topSongs');
+    await Hive.openBox('similarArtists');
+    // Create instances of library parts
+    _libInstances = {
+      'audioCache': _AudioCacheRepository(dao: _cache.audioFilesDao),
+      'song': _SongRepository(dao: _database.songsDao),
+      'album': _AlbumRepository(dao: _database.albumsDao),
+      'artist': _ArtistRepository(dao: _database.artistsDao),
+      'image': _ImageFilesRepository(dao: _cache.imageFilesDao),
+      'audio': _AudioRepository(),
+      'playlist': _PlaylistRepository(),
+      'settings': _SettingsRepository(),
+      'download': _DownloadRepository(),
+			'starred': _StarredRepository(),
 		};
 		return;
 	}

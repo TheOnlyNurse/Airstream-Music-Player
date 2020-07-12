@@ -34,15 +34,15 @@ class _DecadeScreenState extends State<DecadeScreen> {
                             decade: decadesAvailable[index],
                             index: index,
                           );
-												},
-												childCount: decadesAvailable.length,
-											),
-										),
-									],
-								);
-							}
+                        },
+                        childCount: decadesAvailable.length,
+                      ),
+                    ),
+                  ],
+                );
+              }
 
-							return Center(child: response.message);
+              return Center(child: response.error);
             }
 
             return Center(child: CircularProgressIndicator());
@@ -72,20 +72,17 @@ class _DecadeCard extends StatelessWidget {
     final style = Theme.of(context).textTheme.headline4;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed(
-          'library/albumList',
-          arguments: () => Repository().album.decade(decade),
-        ),
-        child: Container(
-          height: 250,
-          decoration: BoxDecoration(
-            color: _iterateThroughColors(),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Center(
-            child: Text('$decade\'s', style: style),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 250,
+        child: Card(
+          color: _iterateThroughColors(),
+          child: InkWell(
+            onTap: () => Navigator.of(context).pushNamed(
+              'library/albumList',
+              arguments: () => Repository().album.decade(decade),
+            ),
+            child: Center(child: Text('$decade\'s', style: style)),
           ),
         ),
       ),

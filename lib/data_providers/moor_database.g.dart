@@ -820,23 +820,18 @@ class Song extends DataClass implements Insertable<Song> {
   final String artist;
   final String art;
   final int albumId;
-  final bool isStarred;
-
   Song(
       {@required this.id,
       @required this.title,
       @required this.album,
       @required this.artist,
       @required this.art,
-      @required this.albumId,
-      this.isStarred});
-
+      @required this.albumId});
   factory Song.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
-    final boolType = db.typeSystem.forDartType<bool>();
     return Song(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
@@ -848,11 +843,8 @@ class Song extends DataClass implements Insertable<Song> {
       art: stringType.mapFromDatabaseResponse(data['${effectivePrefix}art']),
       albumId:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}album_id']),
-      isStarred: boolType
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_starred']),
     );
   }
-
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -874,9 +866,6 @@ class Song extends DataClass implements Insertable<Song> {
     if (!nullToAbsent || albumId != null) {
       map['album_id'] = Variable<int>(albumId);
     }
-    if (!nullToAbsent || isStarred != null) {
-      map['is_starred'] = Variable<bool>(isStarred);
-    }
     return map;
   }
 
@@ -893,9 +882,6 @@ class Song extends DataClass implements Insertable<Song> {
       albumId: albumId == null && nullToAbsent
           ? const Value.absent()
           : Value(albumId),
-      isStarred: isStarred == null && nullToAbsent
-          ? const Value.absent()
-          : Value(isStarred),
     );
   }
 
@@ -909,10 +895,8 @@ class Song extends DataClass implements Insertable<Song> {
       artist: serializer.fromJson<String>(json['artist']),
       art: serializer.fromJson<String>(json['art']),
       albumId: serializer.fromJson<int>(json['albumId']),
-      isStarred: serializer.fromJson<bool>(json['isStarred']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer serializer}) {
     serializer ??= moorRuntimeOptions.defaultSerializer;
@@ -923,65 +907,54 @@ class Song extends DataClass implements Insertable<Song> {
       'artist': serializer.toJson<String>(artist),
       'art': serializer.toJson<String>(art),
       'albumId': serializer.toJson<int>(albumId),
-      'isStarred': serializer.toJson<bool>(isStarred),
     };
   }
 
-  Song copyWith(
-          {int id,
-          String title,
-          String album,
-          String artist,
-          String art,
-          int albumId,
-          bool isStarred}) =>
-      Song(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        album: album ?? this.album,
-        artist: artist ?? this.artist,
-        art: art ?? this.art,
-        albumId: albumId ?? this.albumId,
-        isStarred: isStarred ?? this.isStarred,
-      );
+	Song copyWith({int id,
+		String title,
+		String album,
+		String artist,
+		String art,
+		int albumId}) =>
+			Song(
+				id: id ?? this.id,
+				title: title ?? this.title,
+				album: album ?? this.album,
+				artist: artist ?? this.artist,
+				art: art ?? this.art,
+				albumId: albumId ?? this.albumId,
+			);
 
-  @override
-  String toString() {
+	@override
+	String toString() {
     return (StringBuffer('Song(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('album: $album, ')
-          ..write('artist: $artist, ')
-          ..write('art: $art, ')
-          ..write('albumId: $albumId, ')
-          ..write('isStarred: $isStarred')
-          ..write(')'))
+          ..write('artist: $artist, ')..write('art: $art, ')..write(
+					'albumId: $albumId')..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          title.hashCode,
-          $mrjc(
-              album.hashCode,
-              $mrjc(
-                  artist.hashCode,
-                  $mrjc(art.hashCode,
-                      $mrjc(albumId.hashCode, isStarred.hashCode)))))));
-
+  int get hashCode =>
+			$mrjf($mrjc(
+					id.hashCode,
+					$mrjc(
+							title.hashCode,
+							$mrjc(album.hashCode,
+									$mrjc(artist.hashCode,
+											$mrjc(art.hashCode, albumId.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
-      identical(this, other) ||
-      (other is Song &&
-          other.id == this.id &&
-          other.title == this.title &&
-          other.album == this.album &&
-          other.artist == this.artist &&
-          other.art == this.art &&
-          other.albumId == this.albumId &&
-          other.isStarred == this.isStarred);
+			identical(this, other) ||
+					(other is Song &&
+							other.id == this.id &&
+							other.title == this.title &&
+							other.album == this.album &&
+							other.artist == this.artist &&
+							other.art == this.art &&
+							other.albumId == this.albumId);
 }
 
 class SongsCompanion extends UpdateCompanion<Song> {
@@ -991,8 +964,6 @@ class SongsCompanion extends UpdateCompanion<Song> {
   final Value<String> artist;
   final Value<String> art;
   final Value<int> albumId;
-  final Value<bool> isStarred;
-
   const SongsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -1000,9 +971,7 @@ class SongsCompanion extends UpdateCompanion<Song> {
     this.artist = const Value.absent(),
     this.art = const Value.absent(),
     this.albumId = const Value.absent(),
-    this.isStarred = const Value.absent(),
   });
-
   SongsCompanion.insert({
     this.id = const Value.absent(),
     @required String title,
@@ -1010,13 +979,11 @@ class SongsCompanion extends UpdateCompanion<Song> {
     @required String artist,
     @required String art,
     @required int albumId,
-    this.isStarred = const Value.absent(),
   })  : title = Value(title),
         album = Value(album),
         artist = Value(artist),
         art = Value(art),
         albumId = Value(albumId);
-
   static Insertable<Song> custom({
     Expression<int> id,
     Expression<String> title,
@@ -1024,7 +991,6 @@ class SongsCompanion extends UpdateCompanion<Song> {
     Expression<String> artist,
     Expression<String> art,
     Expression<int> albumId,
-    Expression<bool> isStarred,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1033,28 +999,24 @@ class SongsCompanion extends UpdateCompanion<Song> {
       if (artist != null) 'artist': artist,
       if (art != null) 'art': art,
       if (albumId != null) 'album_id': albumId,
-      if (isStarred != null) 'is_starred': isStarred,
     });
   }
 
-  SongsCompanion copyWith(
-      {Value<int> id,
-      Value<String> title,
-      Value<String> album,
-      Value<String> artist,
-      Value<String> art,
-      Value<int> albumId,
-      Value<bool> isStarred}) {
-    return SongsCompanion(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      album: album ?? this.album,
-      artist: artist ?? this.artist,
-      art: art ?? this.art,
-      albumId: albumId ?? this.albumId,
-      isStarred: isStarred ?? this.isStarred,
-    );
-  }
+	SongsCompanion copyWith({Value<int> id,
+		Value<String> title,
+		Value<String> album,
+		Value<String> artist,
+		Value<String> art,
+		Value<int> albumId}) {
+		return SongsCompanion(
+			id: id ?? this.id,
+			title: title ?? this.title,
+			album: album ?? this.album,
+			artist: artist ?? this.artist,
+			art: art ?? this.art,
+			albumId: albumId ?? this.albumId,
+		);
+	}
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1077,9 +1039,6 @@ class SongsCompanion extends UpdateCompanion<Song> {
     if (albumId.present) {
       map['album_id'] = Variable<int>(albumId.value);
     }
-    if (isStarred.present) {
-      map['is_starred'] = Variable<bool>(isStarred.value);
-    }
     return map;
   }
 
@@ -1089,11 +1048,8 @@ class SongsCompanion extends UpdateCompanion<Song> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('album: $album, ')
-          ..write('artist: $artist, ')
-          ..write('art: $art, ')
-          ..write('albumId: $albumId, ')
-          ..write('isStarred: $isStarred')
-          ..write(')'))
+          ..write('artist: $artist, ')..write('art: $art, ')..write(
+					'albumId: $albumId')..write(')'))
         .toString();
   }
 }
@@ -1101,15 +1057,11 @@ class SongsCompanion extends UpdateCompanion<Song> {
 class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
   final GeneratedDatabase _db;
   final String _alias;
-
   $SongsTable(this._db, [this._alias]);
-
   final VerificationMeta _idMeta = const VerificationMeta('id');
   GeneratedIntColumn _id;
-
   @override
   GeneratedIntColumn get id => _id ??= _constructId();
-
   GeneratedIntColumn _constructId() {
     return GeneratedIntColumn(
       'id',
@@ -1120,10 +1072,8 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   final VerificationMeta _titleMeta = const VerificationMeta('title');
   GeneratedTextColumn _title;
-
   @override
   GeneratedTextColumn get title => _title ??= _constructTitle();
-
   GeneratedTextColumn _constructTitle() {
     return GeneratedTextColumn(
       'title',
@@ -1134,10 +1084,8 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   final VerificationMeta _albumMeta = const VerificationMeta('album');
   GeneratedTextColumn _album;
-
   @override
   GeneratedTextColumn get album => _album ??= _constructAlbum();
-
   GeneratedTextColumn _constructAlbum() {
     return GeneratedTextColumn(
       'album',
@@ -1148,10 +1096,8 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   final VerificationMeta _artistMeta = const VerificationMeta('artist');
   GeneratedTextColumn _artist;
-
   @override
   GeneratedTextColumn get artist => _artist ??= _constructArtist();
-
   GeneratedTextColumn _constructArtist() {
     return GeneratedTextColumn(
       'artist',
@@ -1162,10 +1108,8 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   final VerificationMeta _artMeta = const VerificationMeta('art');
   GeneratedTextColumn _art;
-
   @override
   GeneratedTextColumn get art => _art ??= _constructArt();
-
   GeneratedTextColumn _constructArt() {
     return GeneratedTextColumn(
       'art',
@@ -1176,10 +1120,8 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   final VerificationMeta _albumIdMeta = const VerificationMeta('albumId');
   GeneratedIntColumn _albumId;
-
   @override
   GeneratedIntColumn get albumId => _albumId ??= _constructAlbumId();
-
   GeneratedIntColumn _constructAlbumId() {
     return GeneratedIntColumn(
       'album_id',
@@ -1188,32 +1130,15 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
     );
   }
 
-  final VerificationMeta _isStarredMeta = const VerificationMeta('isStarred');
-  GeneratedBoolColumn _isStarred;
-
-  @override
-  GeneratedBoolColumn get isStarred => _isStarred ??= _constructIsStarred();
-
-  GeneratedBoolColumn _constructIsStarred() {
-    return GeneratedBoolColumn(
-      'is_starred',
-      $tableName,
-      true,
-    );
-  }
-
   @override
   List<GeneratedColumn> get $columns =>
-      [id, title, album, artist, art, albumId, isStarred];
-
+			[id, title, album, artist, art, albumId];
   @override
   $SongsTable get asDslTable => this;
-
   @override
   String get $tableName => _alias ?? 'songs';
   @override
   final String actualTableName = 'songs';
-
   @override
   VerificationContext validateIntegrity(Insertable<Song> instance,
       {bool isInserting = false}) {
@@ -1252,16 +1177,11 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
     } else if (isInserting) {
       context.missing(_albumIdMeta);
     }
-    if (data.containsKey('is_starred')) {
-      context.handle(_isStarredMeta,
-          isStarred.isAcceptableOrUnknown(data['is_starred'], _isStarredMeta));
-    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-
   @override
   Song map(Map<String, dynamic> data, {String tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
@@ -1276,30 +1196,21 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
 abstract class _$MoorDatabase extends GeneratedDatabase {
   _$MoorDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
-
   _$MoorDatabase.connect(DatabaseConnection c) : super.connect(c);
   $AlbumsTable _albums;
-
   $AlbumsTable get albums => _albums ??= $AlbumsTable(this);
   $ArtistsTable _artists;
-
   $ArtistsTable get artists => _artists ??= $ArtistsTable(this);
   $SongsTable _songs;
-
   $SongsTable get songs => _songs ??= $SongsTable(this);
   AlbumsDao _albumsDao;
-
   AlbumsDao get albumsDao => _albumsDao ??= AlbumsDao(this as MoorDatabase);
   ArtistsDao _artistsDao;
-
   ArtistsDao get artistsDao => _artistsDao ??= ArtistsDao(this as MoorDatabase);
   SongsDao _songsDao;
-
   SongsDao get songsDao => _songsDao ??= SongsDao(this as MoorDatabase);
-
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
-
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [albums, artists, songs];
 }

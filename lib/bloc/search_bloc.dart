@@ -34,15 +34,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           final noResults = !songResults.hasData &&
               !artistResults.hasData &&
               !albumResults.hasData;
+          print(artistResults.errorString);
           if (noResults) {
-            yield SearchFailure(songResults.message);
+            yield SearchFailure(songResults.error);
           } else {
             yield SearchSuccess(
-              songs: songResults.songList ?? [],
+              songs: songResults.songs ?? [],
               artists: artistResults.artists ?? [],
               albums: albumResults.albums ?? [],
             );
-					}
+          }
         } else {
           yield SearchInitial();
         }

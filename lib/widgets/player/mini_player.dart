@@ -1,55 +1,36 @@
 import 'package:airstream/bloc/mini_player_bloc.dart';
 import 'package:airstream/bloc/player_target_bloc.dart';
-import 'package:airstream/events/mini_player_event.dart';
-import 'package:airstream/states/mini_player_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PlayerActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MinimisedPlayerBloc, MinimisedPlayerState>(
+    return BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
         builder: (context, state) {
-      if (state is ButtonNoAudio) {
+      if (state is MiniPlayerInitial) {
         return SizedBox();
       }
-      if (state is ButtonAudioIsPlaying || state is ButtonAudioIsPaused) {
+      if (state is MiniPlayerSuccess) {
         return Draggable(
-          child: _CustomButton(
-            icon: state is ButtonAudioIsPlaying ? Icons.pause : Icons.play_arrow,
-            onPressed: () => context.bloc<MinimisedPlayerBloc>().add(ButtonPlayPause()),
-          ),
-          axis: Axis.vertical,
-          childWhenDragging: _CustomButton(fillColor: Colors.transparent),
-          feedback: _CustomButton(icon: Icons.arrow_upward),
-          onDragStarted: () =>
-              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragStart),
-          onDraggableCanceled: (vel, off) =>
-              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragEnd),
-          onDragCompleted: () =>
-              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragEnd),
-        );
-      }
-      if (state is ButtonIsDownloading) {
-        return Container(
-          height: 65.0,
-          width: 65.0,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.transparent,
-          ),
-          child: Align(
-            alignment: Alignment.center,
-            child: Container(
-              height: 65.0 * state.percentage / 100,
-              width: 65.0 * state.percentage / 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).accentColor,
-              ),
+            child: _CustomButton(
+              icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
+              onPressed: () {
+                context.bloc<MiniPlayerBloc>().add(MiniPlayerPlayPause());
+              },
             ),
-          ),
-        );
+            axis: Axis.vertical,
+            childWhenDragging: _CustomButton(fillColor: Colors.transparent),
+            feedback: _CustomButton(icon: Icons.arrow_upward),
+            onDragStarted: () {
+              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragStart);
+            },
+            onDraggableCanceled: (_, __) {
+              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragEnd);
+            },
+            onDragCompleted: () {
+              context.bloc<PlayerTargetBloc>().add(PlayerTargetEvent.dragEnd);
+            });
       }
       return _CustomButton(
         icon: Icons.error,
@@ -85,8 +66,9 @@ class PlayerButtonTarget extends StatelessWidget {
                   },
                   onWillAccept: (data) => true,
                   onAccept: (data) {
-                    Navigator.of(context, rootNavigator: true).pushNamed('/musicPlayer');
-                  }),
+										Navigator.of(context, rootNavigator: true)
+												.pushNamed('/musicPlayer');
+									}),
             ]);
             break;
           default:
@@ -111,7 +93,7 @@ class _CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawMaterialButton(
+		return RawMaterialButton(
 			elevation: 2.0,
 			shape: CircleBorder(),
 			fillColor: fillColor != null ? fillColor : Theme

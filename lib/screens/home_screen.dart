@@ -5,19 +5,11 @@ import 'package:airstream/widgets/home/refresh_button.dart';
 import 'package:airstream/widgets/home/search_bar.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key key}) : super(key: key);
 
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    final headlineStyle =
-        Theme.of(context).textTheme.headline4.copyWith(fontWeight: FontWeight.bold);
-    super.build(context);
-
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: CustomScrollView(
@@ -26,37 +18,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           SliverToBoxAdapter(
             child: SearchBarLink(),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('Collections', style: headlineStyle),
-                  RefreshButton(
-                    onPressed: () async {
-                      await Repository().album.update();
-                      await Repository().artist.update();
-                    },
-                  )
-                ],
-              ),
-            ),
+          _SliverTitle(
+            title: 'Collections',
+            onRefresh: () async {
+              await Repository().album.update();
+              await Repository().artist.update();
+            },
           ),
           SliverToBoxAdapter(child: Collections()),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('Playlists', style: headlineStyle),
-                  RefreshButton(
-                    onPressed: () => Repository().playlist.library(force: true),
-                  )
-                ],
-              ),
-            ),
+          _SliverTitle(
+            title: 'Playlist',
+            onRefresh: () async {
+              await Repository().playlist.library(force: true);
+            },
           ),
           Playlists(),
           SliverToBoxAdapter(child: SizedBox(height: 30)),
@@ -64,7 +38,27 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       ),
     );
   }
+}
+
+class _SliverTitle extends StatelessWidget {
+  final String title;
+  final Future<Null> Function() onRefresh;
+
+  const _SliverTitle({Key key, this.title, this.onRefresh}) : super(key: key);
 
   @override
-  bool get wantKeepAlive => true;
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(title, style: Theme.of(context).textTheme.headline4),
+            RefreshButton(onPressed: () async => await onRefresh())
+          ],
+        ),
+      ),
+    );
+  }
 }
