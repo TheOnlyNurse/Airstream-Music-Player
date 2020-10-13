@@ -1,13 +1,12 @@
 import 'package:airstream/data_providers/audio_files_dao.dart';
-import 'package:airstream/data_providers/image_files_dao.dart';
-import 'package:moor_ffi/moor_ffi.dart';
+import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 
 part 'moor_cache.g.dart';
 
 @UseMoor(
-  tables: [ImageFiles, AudioFiles],
-  daos: [ImageFilesDao, AudioFilesDao],
+  tables: [AudioFiles],
+  daos: [AudioFilesDao],
 )
 class MoorCache extends _$MoorCache {
   /// Load into memory if not opened in isolate

@@ -34,7 +34,7 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
 		}
   }
 
-  PlayerControlsBloc() {
+  PlayerControlsBloc() : super(PlayerControlsState.noControls) {
 		// Load initial layout (primer)
 		_originalLayout = _getControlEvent();
 		this.add(_originalLayout);
@@ -58,9 +58,6 @@ class PlayerControlsBloc extends Bloc<PlayerControlsEvent, PlayerControlsState> 
 			}
 		});
   }
-
-  @override
-  PlayerControlsState get initialState => PlayerControlsState.noControls;
 
   @override
   Stream<PlayerControlsState> mapEventToState(PlayerControlsEvent event) async* {

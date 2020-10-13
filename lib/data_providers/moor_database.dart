@@ -1,7 +1,7 @@
 import 'package:airstream/data_providers/albums_dao.dart';
 import 'package:airstream/data_providers/artists_dao.dart';
 import 'package:airstream/data_providers/songs_dao.dart';
-import 'package:moor_ffi/moor_ffi.dart';
+import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 
 part 'moor_database.g.dart';

@@ -1,6 +1,8 @@
 import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/barrel/provider_basics.dart';
 import 'package:airstream/models/percentage_model.dart';
+import 'package:airstream/repository/image_repository.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 import 'dart:math' as Math;
 import 'package:path_provider/path_provider.dart';
@@ -78,7 +80,7 @@ class DownloadProvider {
       final song = initialQueue[index];
       final songPath = await Repository().audioCache.pathOf(song);
       if (songPath.hasNoData) await downloadSong(song);
-      await Repository().image.thumbnail(song.art);
+      await GetIt.I.get<ImageRepository>().highDefinition(song.art);
     }
   }
 

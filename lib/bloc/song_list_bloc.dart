@@ -11,6 +11,9 @@ export 'package:airstream/events/song_list_event.dart';
 export 'package:airstream/states/song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
+
+  SongListBloc() : super(SongListInitial());
+
   final _repository = Repository();
   Playlist playlist;
 
@@ -21,9 +24,6 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
       return SongListFailure(response.error);
     }
   }
-
-  @override
-  SongListState get initialState => SongListInitial();
 
   @override
   Stream<SongListState> mapEventToState(SongListEvent event) async* {

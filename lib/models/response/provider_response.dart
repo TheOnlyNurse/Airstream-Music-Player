@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 abstract class ProviderResponse {
@@ -11,9 +12,10 @@ abstract class ProviderResponse {
 
   String get source;
 
-	Widget get error {
+  Widget get error {
     return SizedBox(
       height: 100,
+      width: 300,
       child: Column(
         children: <Widget>[
           Text(
@@ -22,10 +24,13 @@ abstract class ProviderResponse {
           ),
           SizedBox(height: 8),
           Text('Source: ${source ?? 'Unknown'}'),
-          Text('Issue: ${errorString ?? 'Unknown'}'),
+          Text(
+            'Issue: ${errorString ?? 'Unknown'}',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
   }
-
 }

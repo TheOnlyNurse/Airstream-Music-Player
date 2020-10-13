@@ -20,6 +20,7 @@ class HorizontalAlbumGrid extends StatelessWidget {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           childAspectRatio: 1.25 / 1,
+          mainAxisSpacing: 10,
         ),
         itemCount: albums.length,
         itemBuilder: (context, index) {

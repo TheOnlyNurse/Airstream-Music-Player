@@ -1,98 +1,128 @@
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:hive/hive.dart';
+import 'dart:math' as Math;
 
 class AlphabeticalGridView extends StatelessWidget {
   const AlphabeticalGridView({
     @required this.headerStrings,
     @required this.builder,
+    @required this.cacheKey,
+    @required this.controller,
     this.leading,
-    this.controller,
-  })  : assert(headerStrings != null),
+  })  : assert(controller != null),
+        assert(headerStrings != null),
+        assert(cacheKey != null),
         assert(builder != null);
 
   final List<String> headerStrings;
-  final Widget Function(int startIndex, int endIndex) builder;
-  final List<Widget> leading;
+  final Widget builder;
+  final String cacheKey;
   final ScrollController controller;
+  final List<Widget> leading;
 
-  Map<String, Map<String, int>> _getHeaderIndexes() {
-    final Map<String, Map<String, int>> headerIndexes = {};
-    String currHeader;
+  Future<Map<int, String>> _computeHeaders() async {
+    final _hiveBox = Hive.box('cache');
+    var cachedHeaders = _hiveBox.get(cacheKey);
 
-    for (var index = 0; index < headerStrings.length; index++) {
-      String _firstLetter = headerStrings[index][0].toUpperCase();
-
-      if (currHeader != _firstLetter) {
-        // Ensure headers can be updated to have an end index
-        if (headerIndexes.containsKey(currHeader)) {
-          headerIndexes[currHeader]['endIndex'] = index;
-        }
-        // Create new key for new header
-        headerIndexes[_firstLetter] = {
-          'startIndex': index,
-          'endIndex': headerStrings.length,
-        };
-        currHeader = _firstLetter;
-      }
+    if (cachedHeaders == null) {
+      cachedHeaders = await compute(getHeaders, headerStrings);
+      _hiveBox.put(cacheKey, cachedHeaders);
+    } else {
+      cachedHeaders = Map<int, String>.from(cachedHeaders);
     }
 
-    return headerIndexes;
+    return cachedHeaders;
   }
 
-  List<Widget> _createMultipleGrids(Map<String, Map<String, int>> headerIndexes) {
-    List<Widget> sliverList = leading != null ? leading : [];
-    // Build the grid with a header
-    headerIndexes.forEach((letter, range) {
-      sliverList.add(
-        _CustomStickyHeader(
-					title: letter,
-					sliver: builder(range['startIndex'], range['endIndex']),
+  Widget _offsetToLabel(
+      double offset, Map<int, String> headings, TextStyle style) {
+    final card = 240;
+    final current = Math.max(2, 2 + (offset ~/ card) * 2);
+    final key = headings.keys.lastWhere((element) => current > element,
+        orElse: () => headings.keys.last);
+    return Text(headings[key], style: style);
+  }
+
+  Widget _customThumb(
+      Color backgroundColor,
+      Animation<double> thumbAnimation,
+      Animation<double> labelAnimation,
+      double height, {
+        BoxConstraints labelConstraints,
+        Text labelText,
+      }) {
+    return FadeTransition(
+      opacity: thumbAnimation,
+      child: SizedBox(
+        height: height,
+        width: 70,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (labelText != null)
+              Container(
+                constraints: labelConstraints,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(child: labelText),
+              ),
+            if (labelText != null) SizedBox(width: 20),
+            Container(
+              height: height,
+              width: 10,
+              color: backgroundColor,
+            ),
+          ],
         ),
-      );
-    });
-    return sliverList;
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: BouncingScrollPhysics(),
-      controller: controller,
-      slivers: _createMultipleGrids(_getHeaderIndexes()),
+    return FutureBuilder(
+      future: _computeHeaders(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return DraggableScrollbar(
+            labelTextBuilder: (offset) => _offsetToLabel(
+              offset,
+              snapshot.data,
+              Theme.of(context).textTheme.headline6,
+            ),
+            controller: controller,
+            backgroundColor: Theme.of(context).accentColor,
+            heightScrollThumb: 50,
+            labelConstraints: BoxConstraints.tightFor(width: 40),
+            child: builder,
+            scrollThumbBuilder: _customThumb,
+          );
+        }
+
+        return Center(child: CircularProgressIndicator());
+      },
     );
   }
 }
 
-class _CustomStickyHeader extends StatelessWidget {
-  final String title;
-  final Widget sliver;
+Map<int, String> getHeaders(List<String> allTitles) {
+  final headings = <int, String>{};
+  String currentHeading;
 
-  _CustomStickyHeader({this.title, this.sliver});
+  for (int index = 0; index < allTitles.length; index++) {
+    final _firstLetter = allTitles[index][0].toUpperCase();
 
-  @override
-  Widget build(BuildContext context) {
-    return SliverStickyHeader(
-      header: Container(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: 50.0,
-              height: 50.0,
-              child: Card(
-                color: Theme.of(context).primaryColor,
-                elevation: 9.0,
-                child: Center(
-                  child: Text(title, textScaleFactor: 2.0),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      sliver: sliver,
-    );
+    if (currentHeading != _firstLetter) {
+      currentHeading = _firstLetter;
+      // Create new key for new header
+      headings[index] = currentHeading;
+    }
   }
+
+  print(headings);
+  return headings;
 }

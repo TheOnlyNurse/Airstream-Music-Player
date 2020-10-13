@@ -8,13 +8,13 @@ part of 'playlist_model.dart';
 
 class PlaylistAdapter extends TypeAdapter<Playlist> {
   @override
-  final typeId = 4;
+  final int typeId = 1;
 
   @override
   Playlist read(BinaryReader reader) {
-    var numOfFields = reader.readByte();
-    var fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Playlist(
       id: fields[0] as int,

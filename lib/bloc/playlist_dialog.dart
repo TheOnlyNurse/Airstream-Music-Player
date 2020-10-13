@@ -8,8 +8,8 @@ export 'package:airstream/states/playlist_dialog_state.dart';
 
 class PlaylistDialogBloc
     extends Bloc<PlaylistDialogEvent, PlaylistDialogState> {
-  @override
-  PlaylistDialogState get initialState => PlaylistDialogInitial();
+
+  PlaylistDialogBloc() : super(PlaylistDialogInitial());
 
   @override
   Stream<PlaylistDialogState> mapEventToState(

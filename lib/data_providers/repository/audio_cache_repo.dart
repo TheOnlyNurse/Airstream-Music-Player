@@ -16,5 +16,5 @@ class _AudioCacheRepository {
     return dao.cache(audioFile, song);
   }
 
-  Future<Null> deleteAll() => dao.deleteAll();
+  Future<int> deleteAll() => dao.deleteAll();
 }

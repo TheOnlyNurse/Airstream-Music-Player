@@ -18,7 +18,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   NavigationBarBloc({
     @required MiniPlayerBloc playerBloc,
     @required this.navigatorKey,
-  }) {
+  }) : super(NavigationBarSuccess()) {
     assert(playerBloc != null);
     assert(navigatorKey != null);
 
@@ -33,9 +33,6 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
       this.add(NavigationBarNetworkChange());
     });
   }
-
-  @override
-  NavigationBarState get initialState => NavigationBarSuccess();
 
   @override
   Stream<NavigationBarState> mapEventToState(NavigationBarEvent event) async* {

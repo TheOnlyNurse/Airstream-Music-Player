@@ -17,22 +17,27 @@ class Album extends DataClass implements Insertable<Album> {
   final DateTime created;
   final String genre;
   final int year;
+  final bool isCached;
+  final bool isStarred;
   Album(
       {@required this.id,
       @required this.title,
       @required this.artist,
       @required this.artistId,
       @required this.songCount,
-      @required this.art,
+      this.art,
       @required this.created,
       this.genre,
-      this.year});
+      this.year,
+      @required this.isCached,
+      @required this.isStarred});
   factory Album.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return Album(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       title:
@@ -49,6 +54,10 @@ class Album extends DataClass implements Insertable<Album> {
       genre:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}genre']),
       year: intType.mapFromDatabaseResponse(data['${effectivePrefix}year']),
+      isCached:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_cached']),
+      isStarred: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}is_starred']),
     );
   }
   @override
@@ -81,6 +90,12 @@ class Album extends DataClass implements Insertable<Album> {
     if (!nullToAbsent || year != null) {
       map['year'] = Variable<int>(year);
     }
+    if (!nullToAbsent || isCached != null) {
+      map['is_cached'] = Variable<bool>(isCached);
+    }
+    if (!nullToAbsent || isStarred != null) {
+      map['is_starred'] = Variable<bool>(isStarred);
+    }
     return map;
   }
 
@@ -104,6 +119,12 @@ class Album extends DataClass implements Insertable<Album> {
       genre:
           genre == null && nullToAbsent ? const Value.absent() : Value(genre),
       year: year == null && nullToAbsent ? const Value.absent() : Value(year),
+      isCached: isCached == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isCached),
+      isStarred: isStarred == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isStarred),
     );
   }
 
@@ -120,6 +141,8 @@ class Album extends DataClass implements Insertable<Album> {
       created: serializer.fromJson<DateTime>(json['created']),
       genre: serializer.fromJson<String>(json['genre']),
       year: serializer.fromJson<int>(json['year']),
+      isCached: serializer.fromJson<bool>(json['isCached']),
+      isStarred: serializer.fromJson<bool>(json['isStarred']),
     );
   }
   @override
@@ -135,6 +158,8 @@ class Album extends DataClass implements Insertable<Album> {
       'created': serializer.toJson<DateTime>(created),
       'genre': serializer.toJson<String>(genre),
       'year': serializer.toJson<int>(year),
+      'isCached': serializer.toJson<bool>(isCached),
+      'isStarred': serializer.toJson<bool>(isStarred),
     };
   }
 
@@ -147,7 +172,9 @@ class Album extends DataClass implements Insertable<Album> {
           String art,
           DateTime created,
           String genre,
-          int year}) =>
+          int year,
+          bool isCached,
+          bool isStarred}) =>
       Album(
         id: id ?? this.id,
         title: title ?? this.title,
@@ -158,6 +185,8 @@ class Album extends DataClass implements Insertable<Album> {
         created: created ?? this.created,
         genre: genre ?? this.genre,
         year: year ?? this.year,
+        isCached: isCached ?? this.isCached,
+        isStarred: isStarred ?? this.isStarred,
       );
   @override
   String toString() {
@@ -170,7 +199,9 @@ class Album extends DataClass implements Insertable<Album> {
           ..write('art: $art, ')
           ..write('created: $created, ')
           ..write('genre: $genre, ')
-          ..write('year: $year')
+          ..write('year: $year, ')
+          ..write('isCached: $isCached, ')
+          ..write('isStarred: $isStarred')
           ..write(')'))
         .toString();
   }
@@ -188,8 +219,14 @@ class Album extends DataClass implements Insertable<Album> {
                       songCount.hashCode,
                       $mrjc(
                           art.hashCode,
-                          $mrjc(created.hashCode,
-                              $mrjc(genre.hashCode, year.hashCode)))))))));
+                          $mrjc(
+                              created.hashCode,
+                              $mrjc(
+                                  genre.hashCode,
+                                  $mrjc(
+                                      year.hashCode,
+                                      $mrjc(isCached.hashCode,
+                                          isStarred.hashCode)))))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -202,7 +239,9 @@ class Album extends DataClass implements Insertable<Album> {
           other.art == this.art &&
           other.created == this.created &&
           other.genre == this.genre &&
-          other.year == this.year);
+          other.year == this.year &&
+          other.isCached == this.isCached &&
+          other.isStarred == this.isStarred);
 }
 
 class AlbumsCompanion extends UpdateCompanion<Album> {
@@ -215,6 +254,8 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
   final Value<DateTime> created;
   final Value<String> genre;
   final Value<int> year;
+  final Value<bool> isCached;
+  final Value<bool> isStarred;
   const AlbumsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -225,6 +266,8 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
     this.created = const Value.absent(),
     this.genre = const Value.absent(),
     this.year = const Value.absent(),
+    this.isCached = const Value.absent(),
+    this.isStarred = const Value.absent(),
   });
   AlbumsCompanion.insert({
     this.id = const Value.absent(),
@@ -232,15 +275,16 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
     @required String artist,
     @required int artistId,
     @required int songCount,
-    @required String art,
+    this.art = const Value.absent(),
     @required DateTime created,
     this.genre = const Value.absent(),
     this.year = const Value.absent(),
+    this.isCached = const Value.absent(),
+    this.isStarred = const Value.absent(),
   })  : title = Value(title),
         artist = Value(artist),
         artistId = Value(artistId),
         songCount = Value(songCount),
-        art = Value(art),
         created = Value(created);
   static Insertable<Album> custom({
     Expression<int> id,
@@ -252,6 +296,8 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
     Expression<DateTime> created,
     Expression<String> genre,
     Expression<int> year,
+    Expression<bool> isCached,
+    Expression<bool> isStarred,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -263,6 +309,8 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
       if (created != null) 'created': created,
       if (genre != null) 'genre': genre,
       if (year != null) 'year': year,
+      if (isCached != null) 'is_cached': isCached,
+      if (isStarred != null) 'is_starred': isStarred,
     });
   }
 
@@ -275,7 +323,9 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
       Value<String> art,
       Value<DateTime> created,
       Value<String> genre,
-      Value<int> year}) {
+      Value<int> year,
+      Value<bool> isCached,
+      Value<bool> isStarred}) {
     return AlbumsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -286,6 +336,8 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
       created: created ?? this.created,
       genre: genre ?? this.genre,
       year: year ?? this.year,
+      isCached: isCached ?? this.isCached,
+      isStarred: isStarred ?? this.isStarred,
     );
   }
 
@@ -319,6 +371,12 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
     if (year.present) {
       map['year'] = Variable<int>(year.value);
     }
+    if (isCached.present) {
+      map['is_cached'] = Variable<bool>(isCached.value);
+    }
+    if (isStarred.present) {
+      map['is_starred'] = Variable<bool>(isStarred.value);
+    }
     return map;
   }
 
@@ -333,7 +391,9 @@ class AlbumsCompanion extends UpdateCompanion<Album> {
           ..write('art: $art, ')
           ..write('created: $created, ')
           ..write('genre: $genre, ')
-          ..write('year: $year')
+          ..write('year: $year, ')
+          ..write('isCached: $isCached, ')
+          ..write('isStarred: $isStarred')
           ..write(')'))
         .toString();
   }
@@ -411,7 +471,7 @@ class $AlbumsTable extends Albums with TableInfo<$AlbumsTable, Album> {
     return GeneratedTextColumn(
       'art',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -451,9 +511,38 @@ class $AlbumsTable extends Albums with TableInfo<$AlbumsTable, Album> {
     );
   }
 
+  final VerificationMeta _isCachedMeta = const VerificationMeta('isCached');
+  GeneratedBoolColumn _isCached;
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, title, artist, artistId, songCount, art, created, genre, year];
+  GeneratedBoolColumn get isCached => _isCached ??= _constructIsCached();
+  GeneratedBoolColumn _constructIsCached() {
+    return GeneratedBoolColumn('is_cached', $tableName, false,
+        defaultValue: const Constant(false));
+  }
+
+  final VerificationMeta _isStarredMeta = const VerificationMeta('isStarred');
+  GeneratedBoolColumn _isStarred;
+  @override
+  GeneratedBoolColumn get isStarred => _isStarred ??= _constructIsStarred();
+  GeneratedBoolColumn _constructIsStarred() {
+    return GeneratedBoolColumn('is_starred', $tableName, false,
+        defaultValue: const Constant(false));
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        artist,
+        artistId,
+        songCount,
+        art,
+        created,
+        genre,
+        year,
+        isCached,
+        isStarred
+      ];
   @override
   $AlbumsTable get asDslTable => this;
   @override
@@ -495,8 +584,6 @@ class $AlbumsTable extends Albums with TableInfo<$AlbumsTable, Album> {
     if (data.containsKey('art')) {
       context.handle(
           _artMeta, art.isAcceptableOrUnknown(data['art'], _artMeta));
-    } else if (isInserting) {
-      context.missing(_artMeta);
     }
     if (data.containsKey('created')) {
       context.handle(_createdMeta,
@@ -511,6 +598,14 @@ class $AlbumsTable extends Albums with TableInfo<$AlbumsTable, Album> {
     if (data.containsKey('year')) {
       context.handle(
           _yearMeta, year.isAcceptableOrUnknown(data['year'], _yearMeta));
+    }
+    if (data.containsKey('is_cached')) {
+      context.handle(_isCachedMeta,
+          isCached.isAcceptableOrUnknown(data['is_cached'], _isCachedMeta));
+    }
+    if (data.containsKey('is_starred')) {
+      context.handle(_isStarredMeta,
+          isStarred.isAcceptableOrUnknown(data['is_starred'], _isStarredMeta));
     }
     return context;
   }
@@ -534,22 +629,32 @@ class Artist extends DataClass implements Insertable<Artist> {
   final String name;
   final int albumCount;
   final String art;
+  final Uint8List similar;
+  final bool isCached;
   Artist(
       {@required this.id,
       @required this.name,
       @required this.albumCount,
-      @required this.art});
+      this.art,
+      this.similar,
+      @required this.isCached});
   factory Artist.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final uint8ListType = db.typeSystem.forDartType<Uint8List>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return Artist(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       name: stringType.mapFromDatabaseResponse(data['${effectivePrefix}name']),
       albumCount: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}album_count']),
       art: stringType.mapFromDatabaseResponse(data['${effectivePrefix}art']),
+      similar: uint8ListType
+          .mapFromDatabaseResponse(data['${effectivePrefix}similar']),
+      isCached:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}is_cached']),
     );
   }
   @override
@@ -567,6 +672,12 @@ class Artist extends DataClass implements Insertable<Artist> {
     if (!nullToAbsent || art != null) {
       map['art'] = Variable<String>(art);
     }
+    if (!nullToAbsent || similar != null) {
+      map['similar'] = Variable<Uint8List>(similar);
+    }
+    if (!nullToAbsent || isCached != null) {
+      map['is_cached'] = Variable<bool>(isCached);
+    }
     return map;
   }
 
@@ -578,6 +689,12 @@ class Artist extends DataClass implements Insertable<Artist> {
           ? const Value.absent()
           : Value(albumCount),
       art: art == null && nullToAbsent ? const Value.absent() : Value(art),
+      similar: similar == null && nullToAbsent
+          ? const Value.absent()
+          : Value(similar),
+      isCached: isCached == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isCached),
     );
   }
 
@@ -589,6 +706,8 @@ class Artist extends DataClass implements Insertable<Artist> {
       name: serializer.fromJson<String>(json['name']),
       albumCount: serializer.fromJson<int>(json['albumCount']),
       art: serializer.fromJson<String>(json['art']),
+      similar: serializer.fromJson<Uint8List>(json['similar']),
+      isCached: serializer.fromJson<bool>(json['isCached']),
     );
   }
   @override
@@ -599,14 +718,25 @@ class Artist extends DataClass implements Insertable<Artist> {
       'name': serializer.toJson<String>(name),
       'albumCount': serializer.toJson<int>(albumCount),
       'art': serializer.toJson<String>(art),
+      'similar': serializer.toJson<Uint8List>(similar),
+      'isCached': serializer.toJson<bool>(isCached),
     };
   }
 
-  Artist copyWith({int id, String name, int albumCount, String art}) => Artist(
+  Artist copyWith(
+          {int id,
+          String name,
+          int albumCount,
+          String art,
+          Uint8List similar,
+          bool isCached}) =>
+      Artist(
         id: id ?? this.id,
         name: name ?? this.name,
         albumCount: albumCount ?? this.albumCount,
         art: art ?? this.art,
+        similar: similar ?? this.similar,
+        isCached: isCached ?? this.isCached,
       );
   @override
   String toString() {
@@ -614,14 +744,22 @@ class Artist extends DataClass implements Insertable<Artist> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('albumCount: $albumCount, ')
-          ..write('art: $art')
+          ..write('art: $art, ')
+          ..write('similar: $similar, ')
+          ..write('isCached: $isCached')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(name.hashCode, $mrjc(albumCount.hashCode, art.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          name.hashCode,
+          $mrjc(
+              albumCount.hashCode,
+              $mrjc(
+                  art.hashCode, $mrjc(similar.hashCode, isCached.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -629,7 +767,9 @@ class Artist extends DataClass implements Insertable<Artist> {
           other.id == this.id &&
           other.name == this.name &&
           other.albumCount == this.albumCount &&
-          other.art == this.art);
+          other.art == this.art &&
+          other.similar == this.similar &&
+          other.isCached == this.isCached);
 }
 
 class ArtistsCompanion extends UpdateCompanion<Artist> {
@@ -637,31 +777,40 @@ class ArtistsCompanion extends UpdateCompanion<Artist> {
   final Value<String> name;
   final Value<int> albumCount;
   final Value<String> art;
+  final Value<Uint8List> similar;
+  final Value<bool> isCached;
   const ArtistsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.albumCount = const Value.absent(),
     this.art = const Value.absent(),
+    this.similar = const Value.absent(),
+    this.isCached = const Value.absent(),
   });
   ArtistsCompanion.insert({
     this.id = const Value.absent(),
     @required String name,
     @required int albumCount,
-    @required String art,
+    this.art = const Value.absent(),
+    this.similar = const Value.absent(),
+    this.isCached = const Value.absent(),
   })  : name = Value(name),
-        albumCount = Value(albumCount),
-        art = Value(art);
+        albumCount = Value(albumCount);
   static Insertable<Artist> custom({
     Expression<int> id,
     Expression<String> name,
     Expression<int> albumCount,
     Expression<String> art,
+    Expression<Uint8List> similar,
+    Expression<bool> isCached,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (albumCount != null) 'album_count': albumCount,
       if (art != null) 'art': art,
+      if (similar != null) 'similar': similar,
+      if (isCached != null) 'is_cached': isCached,
     });
   }
 
@@ -669,12 +818,16 @@ class ArtistsCompanion extends UpdateCompanion<Artist> {
       {Value<int> id,
       Value<String> name,
       Value<int> albumCount,
-      Value<String> art}) {
+      Value<String> art,
+      Value<Uint8List> similar,
+      Value<bool> isCached}) {
     return ArtistsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       albumCount: albumCount ?? this.albumCount,
       art: art ?? this.art,
+      similar: similar ?? this.similar,
+      isCached: isCached ?? this.isCached,
     );
   }
 
@@ -693,6 +846,12 @@ class ArtistsCompanion extends UpdateCompanion<Artist> {
     if (art.present) {
       map['art'] = Variable<String>(art.value);
     }
+    if (similar.present) {
+      map['similar'] = Variable<Uint8List>(similar.value);
+    }
+    if (isCached.present) {
+      map['is_cached'] = Variable<bool>(isCached.value);
+    }
     return map;
   }
 
@@ -702,7 +861,9 @@ class ArtistsCompanion extends UpdateCompanion<Artist> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('albumCount: $albumCount, ')
-          ..write('art: $art')
+          ..write('art: $art, ')
+          ..write('similar: $similar, ')
+          ..write('isCached: $isCached')
           ..write(')'))
         .toString();
   }
@@ -756,12 +917,34 @@ class $ArtistsTable extends Artists with TableInfo<$ArtistsTable, Artist> {
     return GeneratedTextColumn(
       'art',
       $tableName,
-      false,
+      true,
     );
   }
 
+  final VerificationMeta _similarMeta = const VerificationMeta('similar');
+  GeneratedBlobColumn _similar;
   @override
-  List<GeneratedColumn> get $columns => [id, name, albumCount, art];
+  GeneratedBlobColumn get similar => _similar ??= _constructSimilar();
+  GeneratedBlobColumn _constructSimilar() {
+    return GeneratedBlobColumn(
+      'similar',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _isCachedMeta = const VerificationMeta('isCached');
+  GeneratedBoolColumn _isCached;
+  @override
+  GeneratedBoolColumn get isCached => _isCached ??= _constructIsCached();
+  GeneratedBoolColumn _constructIsCached() {
+    return GeneratedBoolColumn('is_cached', $tableName, false,
+        defaultValue: const Constant(false));
+  }
+
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, albumCount, art, similar, isCached];
   @override
   $ArtistsTable get asDslTable => this;
   @override
@@ -793,8 +976,14 @@ class $ArtistsTable extends Artists with TableInfo<$ArtistsTable, Artist> {
     if (data.containsKey('art')) {
       context.handle(
           _artMeta, art.isAcceptableOrUnknown(data['art'], _artMeta));
-    } else if (isInserting) {
-      context.missing(_artMeta);
+    }
+    if (data.containsKey('similar')) {
+      context.handle(_similarMeta,
+          similar.isAcceptableOrUnknown(data['similar'], _similarMeta));
+    }
+    if (data.containsKey('is_cached')) {
+      context.handle(_isCachedMeta,
+          isCached.isAcceptableOrUnknown(data['is_cached'], _isCachedMeta));
     }
     return context;
   }
@@ -825,7 +1014,7 @@ class Song extends DataClass implements Insertable<Song> {
       @required this.title,
       @required this.album,
       @required this.artist,
-      @required this.art,
+      this.art,
       @required this.albumId});
   factory Song.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
@@ -910,51 +1099,51 @@ class Song extends DataClass implements Insertable<Song> {
     };
   }
 
-	Song copyWith({int id,
-		String title,
-		String album,
-		String artist,
-		String art,
-		int albumId}) =>
-			Song(
-				id: id ?? this.id,
-				title: title ?? this.title,
-				album: album ?? this.album,
-				artist: artist ?? this.artist,
-				art: art ?? this.art,
-				albumId: albumId ?? this.albumId,
-			);
-
-	@override
-	String toString() {
+  Song copyWith(
+          {int id,
+          String title,
+          String album,
+          String artist,
+          String art,
+          int albumId}) =>
+      Song(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        album: album ?? this.album,
+        artist: artist ?? this.artist,
+        art: art ?? this.art,
+        albumId: albumId ?? this.albumId,
+      );
+  @override
+  String toString() {
     return (StringBuffer('Song(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('album: $album, ')
-          ..write('artist: $artist, ')..write('art: $art, ')..write(
-					'albumId: $albumId')..write(')'))
+          ..write('artist: $artist, ')
+          ..write('art: $art, ')
+          ..write('albumId: $albumId')
+          ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-			$mrjf($mrjc(
-					id.hashCode,
-					$mrjc(
-							title.hashCode,
-							$mrjc(album.hashCode,
-									$mrjc(artist.hashCode,
-											$mrjc(art.hashCode, albumId.hashCode))))));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          title.hashCode,
+          $mrjc(album.hashCode,
+              $mrjc(artist.hashCode, $mrjc(art.hashCode, albumId.hashCode))))));
   @override
   bool operator ==(dynamic other) =>
-			identical(this, other) ||
-					(other is Song &&
-							other.id == this.id &&
-							other.title == this.title &&
-							other.album == this.album &&
-							other.artist == this.artist &&
-							other.art == this.art &&
-							other.albumId == this.albumId);
+      identical(this, other) ||
+      (other is Song &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.album == this.album &&
+          other.artist == this.artist &&
+          other.art == this.art &&
+          other.albumId == this.albumId);
 }
 
 class SongsCompanion extends UpdateCompanion<Song> {
@@ -977,12 +1166,11 @@ class SongsCompanion extends UpdateCompanion<Song> {
     @required String title,
     @required String album,
     @required String artist,
-    @required String art,
+    this.art = const Value.absent(),
     @required int albumId,
   })  : title = Value(title),
         album = Value(album),
         artist = Value(artist),
-        art = Value(art),
         albumId = Value(albumId);
   static Insertable<Song> custom({
     Expression<int> id,
@@ -1002,21 +1190,22 @@ class SongsCompanion extends UpdateCompanion<Song> {
     });
   }
 
-	SongsCompanion copyWith({Value<int> id,
-		Value<String> title,
-		Value<String> album,
-		Value<String> artist,
-		Value<String> art,
-		Value<int> albumId}) {
-		return SongsCompanion(
-			id: id ?? this.id,
-			title: title ?? this.title,
-			album: album ?? this.album,
-			artist: artist ?? this.artist,
-			art: art ?? this.art,
-			albumId: albumId ?? this.albumId,
-		);
-	}
+  SongsCompanion copyWith(
+      {Value<int> id,
+      Value<String> title,
+      Value<String> album,
+      Value<String> artist,
+      Value<String> art,
+      Value<int> albumId}) {
+    return SongsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      album: album ?? this.album,
+      artist: artist ?? this.artist,
+      art: art ?? this.art,
+      albumId: albumId ?? this.albumId,
+    );
+  }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1048,8 +1237,10 @@ class SongsCompanion extends UpdateCompanion<Song> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('album: $album, ')
-          ..write('artist: $artist, ')..write('art: $art, ')..write(
-					'albumId: $albumId')..write(')'))
+          ..write('artist: $artist, ')
+          ..write('art: $art, ')
+          ..write('albumId: $albumId')
+          ..write(')'))
         .toString();
   }
 }
@@ -1114,7 +1305,7 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
     return GeneratedTextColumn(
       'art',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -1132,7 +1323,7 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
 
   @override
   List<GeneratedColumn> get $columns =>
-			[id, title, album, artist, art, albumId];
+      [id, title, album, artist, art, albumId];
   @override
   $SongsTable get asDslTable => this;
   @override
@@ -1168,8 +1359,6 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
     if (data.containsKey('art')) {
       context.handle(
           _artMeta, art.isAcceptableOrUnknown(data['art'], _artMeta));
-    } else if (isInserting) {
-      context.missing(_artMeta);
     }
     if (data.containsKey('album_id')) {
       context.handle(_albumIdMeta,

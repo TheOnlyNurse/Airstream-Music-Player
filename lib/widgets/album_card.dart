@@ -1,4 +1,5 @@
 import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/models/image_adapter.dart';
 import 'package:airstream/widgets/airstream_image.dart';
 import 'package:flutter/material.dart';
 
@@ -8,67 +9,72 @@ class AlbumCard extends StatelessWidget {
 
   AlbumCard({@required this.album, this.onTap});
 
+  void _defaultOnTap(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      'library/singleAlbum',
+      arguments: album,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
       clipBehavior: Clip.hardEdge,
-      child: LayoutBuilder(builder: (context, constraints) {
-        return SizedBox(
-          child: Stack(children: <Widget>[
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: Theme.of(context).cardColor),
+        child: Stack(
+          fit: StackFit.expand,
+          clipBehavior: Clip.hardEdge,
+          children: <Widget>[
             Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                AirstreamImage(
-                  height: constraints.maxHeight - 50,
-                  width: constraints.maxWidth,
-                  coverArt: album.art,
-                  isThumbnail: true,
-                ),
                 Expanded(
-                  child: _Titles(title: album.title, artist: album.artist),
+                  child: AirstreamImage(adapter: ImageAdapter(album: album)),
                 ),
+                SizedBox(height: 8),
+                _Titles(title: album.title, isSubtitle: false),
+                _Titles(title: album.artist, isSubtitle: true),
+                SizedBox(height: 8),
               ],
             ),
             Material(
               color: Colors.transparent,
               elevation: 0.0,
               child: Ink(
-                child: InkWell(onTap: () => onTap(album) ?? null),
+                child: InkWell(onTap: () {
+                  onTap == null ? _defaultOnTap(context) : onTap(album);
+                }),
               ),
             ),
-          ]),
-        );
-      }),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class _Titles extends StatelessWidget {
   final String title;
-  final String artist;
+  final bool isSubtitle;
 
-  const _Titles({Key key, this.title, this.artist}) : super(key: key);
+  const _Titles({Key key, this.title, this.isSubtitle}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final _theme = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            title,
-            overflow: TextOverflow.fade,
-            maxLines: 1,
-            softWrap: false,
-          ),
-          Text(
-            artist,
-            overflow: TextOverflow.fade,
-            style: Theme.of(context).textTheme.caption,
-            maxLines: 1,
-            softWrap: false,
-          ),
-        ],
+      child: Text(
+        title,
+        overflow: TextOverflow.fade,
+        maxLines: 1,
+        softWrap: false,
+        style: isSubtitle ? _theme.caption : _theme.bodyText1,
+        textAlign: TextAlign.center,
       ),
     );
   }

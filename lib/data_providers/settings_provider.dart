@@ -3,9 +3,8 @@ import 'package:airstream/barrel/provider_basics.dart';
 import 'package:connectivity/connectivity.dart';
 
 class SettingsProvider {
-  Box get _hiveBox => Hive.box('settings');
+  final _hiveBox = Hive.box('settings');
 
-  /// Global
   /// Listenable stream of changed settings
   Stream<SettingType> get onSettingsChange => _settingChanged.stream;
 
@@ -13,35 +12,25 @@ class SettingsProvider {
   final _settingChanged = StreamController<SettingType>.broadcast();
 
   /// Query a setting in box or return default
-  dynamic query(SettingType type) {
-    final response = _hiveBox.get(type.toString());
-    if (response == null) return _defaults[type];
-    return response;
+  T query<T>(SettingType type) {
+    final response = _hiveBox.get(type.index);
+    return response == null ? _defaults[type] : response;
   }
 
   /// Validate a given value before setting it as the new value
-  void change(SettingType type, dynamic newValue) async {
-    final isValid = _validate(type, newValue);
-    if (isValid) {
-      _hiveBox.put(type.toString(), newValue);
-      _settingChanged.add(type);
+  void change<T>(SettingType type, T newValue) async {
+    assert(newValue.runtimeType == query(type).runtimeType);
+    if (_range.containsKey(type)) {
+      final int number = newValue as int;
+      assert(number > _range[type][0] - 1);
+      assert(number < _range[type][1] + 1);
     }
+
+      _hiveBox.put(type.index, newValue);
+      _settingChanged.add(type);
   }
 
   List<int> range(SettingType type) => _range[type];
-
-  /// Private
-  bool _validate(SettingType type, dynamic newValue) {
-    // Within applicable ranges
-    if (_range.containsKey(type)) {
-      if (newValue < _range[type][0] - 1) return false;
-      if (newValue > _range[type][1] + 1) return false;
-    }
-    // Same type
-    if (newValue.runtimeType != query(type).runtimeType) return false;
-    // Passed all tests
-    return true;
-  }
 
   /// Defaults
   final _range = <SettingType, dynamic>{
@@ -65,17 +54,17 @@ class SettingsProvider {
   /// Change to offline mode when in aeroplane or similar mode
   void _onConnectivityChange(ConnectivityResult result) async {
     void onWifi() {
-      final mobileOffline = query(SettingType.mobileOffline);
+      final mobileOffline = query<bool>(SettingType.mobileOffline);
       if (mobileOffline) change(SettingType.isOffline, false);
     }
 
     void onMobile() {
-      final mobileOffline = query(SettingType.mobileOffline);
+      final mobileOffline = query<bool>(SettingType.mobileOffline);
       if (mobileOffline) change(SettingType.isOffline, true);
     }
 
     void onOffline() {
-      final isOffline = query(SettingType.isOffline);
+      final isOffline = query<bool>(SettingType.isOffline);
       if (!isOffline) change(SettingType.isOffline, true);
     }
 

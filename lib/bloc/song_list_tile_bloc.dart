@@ -12,7 +12,7 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   StreamSubscription onDownloadFinished;
   StreamSubscription onPlaying;
 
-  SongListTileBloc({@required this.tileSong}) {
+  SongListTileBloc({@required this.tileSong}) : super(SongListTileInitial()) {
     assert(tileSong != null);
 
     onDownload = _repository.download.percentageStream.listen((event) {
@@ -32,9 +32,6 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
       }
     });
   }
-
-  @override
-  SongListTileState get initialState => SongListTileInitial();
 
   @override
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {

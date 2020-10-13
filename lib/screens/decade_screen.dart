@@ -1,48 +1,40 @@
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/response/album_response.dart';
+import 'package:airstream/models/repository_response.dart';
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/widgets/error_widgets.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
-class DecadeScreen extends StatefulWidget {
-  const DecadeScreen();
+class DecadeScreen extends StatelessWidget {
+  const DecadeScreen({Key key, @required this.albumRepository})
+      : assert(albumRepository != null),
+        super(key: key);
 
-  @override
-  _DecadeScreenState createState() => _DecadeScreenState();
-}
+  final AlbumRepository albumRepository;
 
-class _DecadeScreenState extends State<DecadeScreen> {
+  void openDecade(BuildContext context, int decade) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder(
-          future: Repository().album.decades(),
+          future: albumRepository.decades(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final AlbumResponse response = snapshot.data;
+            if (snapshot.connectionState == ConnectionState.done) {
+              final ListResponse<int> response = snapshot.data;
 
               if (response.hasData) {
-                final List<int> decadesAvailable = response.decades;
-                return CustomScrollView(
-                  physics: BouncingScrollPhysics(),
-                  slivers: <Widget>[
-                    SliverCloseBar(),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return _DecadeCard(
-                            decade: decadesAvailable[index],
-                            index: index,
-                          );
-                        },
-                        childCount: decadesAvailable.length,
-                      ),
-                    ),
-                  ],
+                return _DecadesGridScreen(
+                  decades: response.data,
+                  albumRepository: albumRepository,
                 );
               }
 
-              return Center(child: response.error);
+              if (response.hasError) {
+                return ErrorScreen(response: response);
+              }
+
+              return ErrorText(error: snapshot.error.toString());
             }
 
             return Center(child: CircularProgressIndicator());
@@ -53,11 +45,54 @@ class _DecadeScreenState extends State<DecadeScreen> {
   }
 }
 
+class _DecadesGridScreen extends StatelessWidget {
+  const _DecadesGridScreen({
+    Key key,
+    @required this.decades,
+    @required this.albumRepository,
+  })  : assert(decades != null),
+        assert(albumRepository != null),
+        super(key: key);
+
+  final List<int> decades;
+  final AlbumRepository albumRepository;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: BouncingScrollPhysics(),
+      slivers: <Widget>[
+        SliverCloseBar(),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              return _DecadeCard(
+                decade: decades[index],
+                index: index,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    'library/albumList',
+                    arguments: () => albumRepository.decade(decades[index]),
+                  );
+                },
+              );
+            },
+            childCount: decades.length,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _DecadeCard extends StatelessWidget {
-  const _DecadeCard({Key key, this.decade, this.index}) : super(key: key);
+  const _DecadeCard({Key key, this.decade, this.index, this.onTap})
+      : super(key: key);
 
   final int decade;
   final int index;
+  final Function onTap;
 
   Color _iterateThroughColors() {
     final colors = Colors.primaries;
@@ -78,10 +113,7 @@ class _DecadeCard extends StatelessWidget {
         child: Card(
           color: _iterateThroughColors(),
           child: InkWell(
-            onTap: () => Navigator.of(context).pushNamed(
-              'library/albumList',
-              arguments: () => Repository().album.decade(decade),
-            ),
+            onTap: onTap,
             child: Center(child: Text('$decade\'s', style: style)),
           ),
         ),

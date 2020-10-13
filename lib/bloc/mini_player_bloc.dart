@@ -10,7 +10,7 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   final _repository = Repository();
   StreamSubscription _audioEvents;
 
-  MiniPlayerBloc() {
+  MiniPlayerBloc() :super(MiniPlayerInitial()) {
     _audioEvents = _repository.audio.playerState.listen((state) {
       switch (state) {
         case AudioPlayerState.playing:
@@ -25,9 +25,6 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
       }
     });
   }
-
-  @override
-  MiniPlayerState get initialState => MiniPlayerInitial();
 
   @override
   Stream<MiniPlayerState> mapEventToState(MiniPlayerEvent event) async* {

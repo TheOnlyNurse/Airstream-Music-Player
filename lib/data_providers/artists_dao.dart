@@ -1,9 +1,7 @@
 import 'package:airstream/barrel/provider_basics.dart';
 import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/response/artist_response.dart';
 import 'package:moor/moor.dart';
-import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart';
 
 part 'artists_dao.g.dart';
 
@@ -14,7 +12,11 @@ class Artists extends Table {
 
   IntColumn get albumCount => integer()();
 
-  TextColumn get art => text()();
+  TextColumn get art => text().nullable()();
+
+  BlobColumn get similar => blob().nullable()();
+
+  BoolColumn get isCached => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -25,128 +27,72 @@ class ArtistsDao extends DatabaseAccessor<MoorDatabase> with _$ArtistsDaoMixin {
   /// So that the main database can create an instance of this dao
   ArtistsDao(MoorDatabase db) : super(db);
 
+  /// ========== QUERYING ==========
+
   /// Returns artists by alphabetically name
-  Future<ArtistResponse> byAlphabet() async {
+  Future<List<Artist>> byAlphabet() {
     final query = select(artists);
     query.orderBy([(a) => OrderingTerm(expression: a.name)]);
-    final list = await query.get();
-    if (list.isEmpty) {
-      return ArtistResponse(error: 'Failed to find any artists.');
-    } else {
-      return _checkIfOnline(ArtistResponse(hasData: true, artists: list));
-    }
+    return query.get();
   }
 
   /// Search for artist by name
-  Future<ArtistResponse> search(String name) async {
+  Future<List<Artist>> search(String name) {
     final query = select(artists);
     query.where((tbl) => tbl.name.like('%$name%'));
-    final list = await query.get();
-    if (list.isEmpty) {
-      return ArtistResponse(error: 'Failed to find query: $name.');
-    } else {
-      return _checkIfOnline(ArtistResponse(hasData: true, artists: list));
-    }
+    return query.get();
   }
 
-  Future<ArtistResponse> similar(Artist artist) async {
-    final _hiveBox = Hive.box('similarArtists');
-    List<int> cachedIdList = _hiveBox.get(artist.id);
-    if (cachedIdList == null) {
-      final response = await ServerProvider().fetchXml(
-        'getArtistInfo2?id=${artist.id}&count=10',
-      );
-      if (response.hasData) {
-        final elements = response.document.findAllElements('similarArtist');
-        cachedIdList = elements.map((e) {
-          return int.parse(e.getAttribute('id'));
-        }).toList();
-        _hiveBox.put(artist.id, cachedIdList);
-      } else {
-        cachedIdList = [];
-      }
-    }
-
-    final artists = await _byIdList(cachedIdList);
-    if (artists.isEmpty) {
-      return ArtistResponse(error: 'Failed to find similar artists.');
-    } else {
-      return ArtistResponse(hasData: true, artists: artists);
-    }
-  }
-
-  Future<ArtistResponse> byId(int id) async {
+  /// Returns a list of artist ids which are similar to the given artist id.
+  Future<List<int>> similarIds(int id) async {
     final query = select(artists);
     query.where((tbl) => tbl.id.equals(id));
-    final result = await query.getSingle();
-    if (result == null) {
-      return ArtistResponse(error: 'Failed to find artist by id: $id.');
-    } else {
-      return _checkIfOnline(ArtistResponse(hasData: true, artists: [result]));
-    }
+    return (await query.getSingle()).similar?.toList();
   }
 
-  /// Deletes the current library and downloads the server version
-  /// Returns an empty response on completion
-  Future<ArtistResponse> updateLibrary() async {
-    await delete(artists).go();
-    return _download();
+  /// Returns an artist by their id.
+  Future<Artist> byId(int id) {
+    final query = select(artists);
+    query.where((tbl) => tbl.id.equals(id));
+    return query.getSingle();
   }
 
-  Future<List<Artist>> _byIdList(List<int> idList) async {
-    final artists = <Artist>[];
-    for (var id in idList) {
-      final response = await byId(id);
-      if (response.hasData) artists.add(response.artist);
-    }
-    return artists;
+  /// Returns a list of artists given a list of corresponding ids.
+  Future<List<Artist>> byIdList(List<int> idList) {
+    final query = select(artists);
+    query.where((tbl) => tbl.id.isIn(idList));
+    return query.get();
   }
 
-  /// If in offline mode, returns only artists that have cached songs
-  Future<ArtistResponse> _checkIfOnline(ArtistResponse input) async {
-    if (Repository().settings.isOffline) {
-      if (input.hasNoData) return input;
-      final cachedList = <Artist>[];
-      final response = await Repository().album.byAlphabet();
-      if (response.hasNoData) return ArtistResponse(passOn: response);
+  /// ========== DATABASE MANAGEMENT ==========
 
-      final idList = response.albums.map((item) => item.artistId).toList();
-      for (var artist in input.artists) {
-        if (idList.contains(artist.id)) cachedList.add(artist);
-      }
+  /// Deletes the current library.
+  Future<void> clear() => delete(artists).go();
 
-      if (cachedList.isEmpty) {
-        return ArtistResponse(error: 'No cached artists.');
-      } else {
-        return ArtistResponse(hasData: true, artists: cachedList);
-      }
-    } else {
-      return input;
-    }
+  /// Inserts a list of xml elements into the database.
+  Future<void> insertElements(List<XmlElement> elements) {
+    return batch((batch) {
+      final companions = elements.map((e) => _elementToCompanion(e)).toList();
+      batch.insertAll(artists, companions);
+    });
   }
 
-  /// Downloads the server artists, returns an empty response on completion
-  Future<ArtistResponse> _download() async {
-    final response = await ServerProvider().fetchXml('getArtists?');
-    if (response.hasNoData) return ArtistResponse(passOn: response);
-    final companions = _documentToCompanions(response.document);
-    await batch((batch) => batch.insertAll(artists, companions));
-    return ArtistResponse(hasData: true);
+  /// Updates an artist id with a list of ids similar to them.
+  Future<void> updateSimilar(int id, List<int> similarIds) async {
+    final query = update(artists);
+    query.where((tbl) => tbl.id.equals(id));
+    query.write(
+      ArtistsCompanion(similar: Value(Uint8List.fromList(similarIds))),
+    );
   }
 
-  /// Converts an xml documents to artist companions for easy insertion
-  List<ArtistsCompanion> _documentToCompanions(xml.XmlDocument document) {
-    final elements = document.findAllElements('artist');
-    return elements.map((e) => _elementToCompanion(e)).toList();
-  }
-
-  /// Converts an xml element to a companion
-  ArtistsCompanion _elementToCompanion(xml.XmlElement element) {
+  /// Converts an xml element to a companion.
+  ArtistsCompanion _elementToCompanion(XmlElement element) {
     return ArtistsCompanion.insert(
       id: Value(int.parse(element.getAttribute('id'))),
       name: element.getAttribute('name'),
       albumCount: int.parse(element.getAttribute('albumCount')),
-      art: element.getAttribute('coverArt'),
+      art: Value(element.getAttribute('coverArt')),
     );
   }
 }

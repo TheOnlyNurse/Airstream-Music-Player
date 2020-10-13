@@ -16,7 +16,7 @@ class Songs extends Table {
 
   TextColumn get artist => text()();
 
-  TextColumn get art => text()();
+  TextColumn get art => text().nullable()();
 
   IntColumn get albumId => integer()();
 
@@ -121,20 +121,20 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   /// Returns a cached version of songs if device is in offline mode
   Future<SongResponse> _checkIfOnline(SongResponse input) async {
     if (Repository().settings.isOffline) {
-      if (input.hasNoData) return input;
+			if (input.hasNoData) return input;
       final cachedList = <Song>[];
       final offlineList = await Repository().audioCache.cachedSongs();
 
       if (offlineList.hasNoData) return SongResponse(passOn: offlineList);
 
-			for (var song in input.songs) {
-				if (offlineList.idList.contains(song.id)) cachedList.add(song);
-			}
+      for (var song in input.songs) {
+        if (offlineList.idList.contains(song.id)) cachedList.add(song);
+      }
 
       if (cachedList.isEmpty) {
         return SongResponse(error: 'No songs match cache');
       } else {
-				return SongResponse(hasData: true, songs: cachedList);
+        return SongResponse(hasData: true, songs: cachedList);
       }
     } else {
       return input;
@@ -145,6 +145,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   Future<List<Song>> _byAlbum(int albumId) {
     final query = select(songs);
     query.where((tbl) => tbl.albumId.equals(albumId));
+    query.orderBy([(t) => OrderingTerm(expression: t.title)]);
     return query.get();
   }
 
@@ -172,8 +173,11 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     }
     await _insertCompanions(companions);
     final songs = await _companionsToSongs(companions);
-
-		return SongResponse(hasData: true, songs: songs);
+    // Sort if search type is albums
+    if (byType == SongSearch.byAlbum) {
+      songs.sort((a, b) => a.title.compareTo(b.title));
+    }
+    return SongResponse(hasData: true, songs: songs);
   }
 
   /// Returns requests to the server split by type
@@ -228,39 +232,36 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   }
 
   /// Parses an xml document in relevant song elements
-  List<SongsCompanion> _documentToCompanions(
-    xml.XmlDocument document, {
-    bool isStarred = false,
-  }) {
-    final elements = document.findAllElements('song');
-    final songs = <SongsCompanion>[];
-    for (var element in elements) {
-      songs.add(_elementToCompanion(element));
-    }
-    return songs;
-  }
+	List<SongsCompanion> _documentToCompanions(xml.XmlDocument document) {
+		final elements = document.findAllElements('song');
+		final songs = <SongsCompanion>[];
+		for (var element in elements) {
+			songs.add(_elementToCompanion(element));
+		}
+		return songs;
+	}
 
-  /// Parses an xml element into a companion for database insertion
+	/// Parses an xml element into a companion for database insertion
 	SongsCompanion _elementToCompanion(xml.XmlElement element) {
 		return SongsCompanion.insert(
 			id: Value(_parseAsInt(element.getAttribute('id'))),
 			title: element.getAttribute('title'),
 			artist: element.getAttribute('artist'),
 			album: element.getAttribute('album'),
-			art: element.getAttribute('coverArt'),
+			art: Value(element.getAttribute('coverArt')),
 			albumId: _parseAsInt(element.getAttribute('albumId')),
 		);
 	}
 
-  /// Either parses a string or returns null if the object is null
-  int _parseAsInt(String attribute) {
-    return attribute == null ? null : int.parse(attribute);
-  }
+	/// Either parses a string or returns null if the object is null
+	int _parseAsInt(String attribute) {
+		return attribute == null ? null : int.parse(attribute);
+	}
 
-  /// Request to get songs by searching a query
-  Future<ServerResponse> _downloadSearch(String query) {
-    return ServerProvider().fetchXml('search3?query=$query'
-        '&songCount=10'
+	/// Request to get songs by searching a query
+	Future<ServerResponse> _downloadSearch(String query) {
+		return ServerProvider().fetchXml('search3?query=$query'
+				'&songCount=10'
         '&artistCount=0'
         '&albumCount=0');
   }

@@ -21,6 +21,7 @@ class HorizontalArtistGrid extends StatelessWidget {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,
           childAspectRatio: 1 / 0.8,
+          mainAxisSpacing: 12,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         physics: BouncingScrollPhysics(),

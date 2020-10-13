@@ -1,22 +1,25 @@
 import 'package:airstream/bloc/starred_bloc.dart';
 import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/models/song_list_delegate.dart';
+import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/screens/album_list_screen.dart';
 import 'package:airstream/widgets/horizontal_album_grid.dart';
-import 'package:airstream/widgets/home/refresh_button.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/refresh_button.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:airstream/widgets/song_list/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 class StarredScreen extends StatelessWidget {
   const StarredScreen({Key key}) : super(key: key);
 
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => StarredBloc()..add(StarredFetch()),
+      create: (context) =>
+          StarredBloc(GetIt.I.get<AlbumRepository>())..add(StarredFetch()),
       child: BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
         if (state is StarredSuccess) {
           if (state.songs.isEmpty) {
@@ -68,13 +71,21 @@ class _OnSongsAvailable extends StatelessWidget {
         if (albums != null)
           SliverToBoxAdapter(child: HorizontalAlbumGrid(albums: albums)),
         if (albums != null)
-          SliverToBoxAdapter(child: _MoreAlbumsButton()),
+          SliverToBoxAdapter(
+              child: _MoreAlbumsButton(
+                  albumRepository: GetIt.I.get<AlbumRepository>())),
       ],
     );
   }
 }
 
 class _MoreAlbumsButton extends StatelessWidget {
+  const _MoreAlbumsButton({Key key, @required this.albumRepository})
+      : assert(albumRepository != null),
+        super(key: key);
+
+  final AlbumRepository albumRepository;
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -89,7 +100,10 @@ class _MoreAlbumsButton extends StatelessWidget {
               Text('Albums'),
               Padding(
                 padding: const EdgeInsets.only(top: 1),
-                child: Icon(Icons.arrow_forward_ios, size: 18,),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 18,
+                ),
               ),
             ],
           ),
@@ -100,7 +114,7 @@ class _MoreAlbumsButton extends StatelessWidget {
             fadeInSlideRoute(
               AlbumListScreen(
                 title: 'Starred Albums',
-                future: () => Repository().album.starred(),
+                future: () => albumRepository.starred(),
               ),
             ),
           );
@@ -120,15 +134,13 @@ class _Heading extends StatelessWidget {
         children: <Widget>[
           Text(
             'Starred',
-            style: Theme
-                .of(context)
-                .textTheme
-                .headline4,
+            style: Theme.of(context).textTheme.headline4,
           ),
           RefreshButton(
             onPressed: () async {
-							await Repository().starred.update();
-							context.bloc<StarredBloc>().add(StarredFetch());
+              await GetIt.I.get<AlbumRepository>().updateStarred();
+              await Repository().starred.update();
+              context.bloc<StarredBloc>().add(StarredFetch());
             },
           ),
         ],

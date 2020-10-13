@@ -1,6 +1,8 @@
 import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/barrel/provider_basics.dart';
+import 'package:airstream/repository/image_repository.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 import 'moor_database.dart';
 
@@ -133,7 +135,7 @@ class AudioProvider {
         notificationSettings: notificationSettings,
       );
       // Update the art, once the song has started playing
-      final art = await Repository().image.thumbnail(song.art);
+      final art = await GetIt.I.get<ImageRepository>().highDefinition(song.art);
       if (art != null) {
         audio.updateMetas(
           image: assets.MetasImage.file(art.path),

@@ -1,4 +1,3 @@
-import 'package:airstream/data_providers/moor_database.dart';
 import 'provider_response.dart';
 
 class StarredResponse extends ProviderResponse {

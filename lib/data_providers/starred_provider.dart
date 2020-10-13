@@ -4,15 +4,16 @@ import 'package:airstream/models/response/starred_response.dart';
 import 'package:hive/hive.dart';
 import 'package:xml/xml.dart' as xml;
 
-import 'moor_database.dart';
-
 class StarredProvider {
   /// Holds starred song, album and artist ids
-  Box get _hiveBox => Hive.box('starred');
+  final _hiveBox = Hive.box('cache');
 
   Future<StarredResponse> query(String key) async {
-    if (_hiveBox.isEmpty) await _download();
-    final List<int> result = _hiveBox.get(key);
+    List<int> result = _hiveBox.get(_uniqueKey(key));
+    if (result == null) {
+      await _download();
+      result = _hiveBox.get(_uniqueKey(key));
+    }
     if (result.isEmpty) {
       return StarredResponse(error: 'Failed to find any starred of key: $key.');
     } else {
@@ -26,26 +27,25 @@ class StarredProvider {
     return StarredResponse(hasData: true);
   }
 
+  String _uniqueKey(String key) => 'st@r-$key';
+
   /// Attempts to populate the hive box by downloading server starred
-  Future<Null> _download() async {
+  Future<void> _download() async {
     final response = await ServerProvider().fetchXml('getStarred2?');
     if (response.hasNoData) return;
-    _parseDocument(response.document, 'album');
     _parseDocument(response.document, 'song');
     return;
   }
 
   /// Takes elements of a given string (key) in an xml document and places
   /// them into the hive box
-  Null _parseDocument(xml.XmlDocument document, String key) {
+  Future<void> _parseDocument(xml.XmlDocument document, String key) async {
     final elements = document.findAllElements(key);
     final idList = <int>[];
     for (var element in elements) {
       idList.add(int.parse(element.getAttribute('id')));
     }
-    _hiveBox.put(key, idList);
+    _hiveBox.put(_uniqueKey(key), idList);
     return;
   }
 }
-
-enum StarredType { albums, songs }

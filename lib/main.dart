@@ -1,20 +1,21 @@
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/navigators/library.dart';
+import 'package:airstream/screens/library_foundation.dart';
 import 'package:airstream/screens/player_screen.dart';
 import 'package:airstream/screens/search_screen.dart';
 import 'package:airstream/screens/settings_screen.dart';
-import 'package:flare_splash_screen/flare_splash_screen.dart';
+import 'package:airstream/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(App());
-}
+void main() => runApp(_Foundation(libraryNavigator: GlobalKey()));
 
-class App extends StatelessWidget {
-  final GlobalKey<NavigatorState> libraryNavKey = GlobalKey();
+class _Foundation extends StatelessWidget {
+  const _Foundation({Key key, @required this.libraryNavigator})
+      : super(key: key);
+
+  final GlobalKey<NavigatorState> libraryNavigator;
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Airstream Music Player',
       theme: ThemeData.dark().copyWith(
@@ -37,30 +38,12 @@ class App extends StatelessWidget {
         ),
       ),
       routes: <String, WidgetBuilder>{
-        '/musicPlayer': (context) => PlayerScreen(navKey: libraryNavKey),
+        '/musicPlayer': (context) => PlayerScreen(navKey: libraryNavigator),
         '/settings': (context) => SettingsScreen(),
-        '/search': (context) => SearchScreen(navKey: libraryNavKey),
+        '/search': (context) => SearchScreen(navKey: libraryNavigator),
+        '/library': (context) => LibraryFoundation(navKey: libraryNavigator),
       },
-      home: SplashScreen.navigate(
-        name: 'lib/graphics/splash-screen.flr',
-        next: (context) => LibraryNavigator(navKey: libraryNavKey),
-        transitionsBuilder: (_, animation, __, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, -1),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          );
-        },
-        until: () => Repository().init(),
-        backgroundColor: const Color(0xFF32407b),
-        alignment: Alignment.center,
-        height: 300,
-        width: 300,
-        loopAnimation: 'loading',
-        endAnimation: 'done',
-      ),
+      home: SplashScreen(),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:airstream/bloc/mini_player_bloc.dart';
@@ -16,18 +18,18 @@ import 'package:airstream/screens/single_playlist_screen.dart';
 import 'package:airstream/screens/starred_screen.dart';
 import 'package:airstream/screens/single_artist_screen.dart';
 import 'package:airstream/screens/single_album_screen.dart';
-import 'package:simple_animations/simple_animations.dart';
+import 'package:get_it/get_it.dart';
 
-class LibraryNavigator extends StatefulWidget {
+class LibraryFoundation extends StatefulWidget {
   final GlobalKey<NavigatorState> navKey;
 
-  const LibraryNavigator({Key key, this.navKey}) : super(key: key);
+  const LibraryFoundation({Key key, this.navKey}) : super(key: key);
 
   _LibraryState createState() => _LibraryState();
 }
 
-class _LibraryState extends State<LibraryNavigator> {
-	int index = 0;
+class _LibraryState extends State<LibraryFoundation> {
+  int index = 0;
 
   MaterialPageRoute _generateRoute(RouteSettings settings) {
     {
@@ -71,41 +73,41 @@ class _LibraryState extends State<LibraryNavigator> {
       ],
       child: WillPopScope(
         onWillPop: () async {
-					if (widget.navKey.currentState.canPop()) {
-						widget.navKey.currentState.pop();
-						return false;
-					} else {
-						return true;
-					}
-				},
+          if (widget.navKey.currentState.canPop()) {
+            widget.navKey.currentState.pop();
+            return false;
+          } else {
+            return true;
+          }
+        },
         child: Scaffold(
           body: SafeArea(
             child: Stack(
               children: <Widget>[
                 Navigator(
                   key: this.widget.navKey,
-									initialRoute: 'library/',
-									onGenerateRoute: _generateRoute,
-								),
-								PlayerButtonTarget(),
-							],
-						),
-					),
-					floatingActionButton: PlayerActionButton(),
-					floatingActionButtonLocation:
-					FloatingActionButtonLocation.centerDocked,
-					bottomNavigationBar: NavigationBar(
-						index: index,
-						onTap: (newIndex) {
-							if (widget.navKey.currentState.canPop()) {
-								widget.navKey.currentState.popUntil((route) => route.isFirst);
-							} else {
-								setState(() {
-									index = newIndex;
-								});
-							}
-						},
-					),
+                  initialRoute: 'library/',
+                  onGenerateRoute: _generateRoute,
+                ),
+                PlayerButtonTarget(),
+              ],
+            ),
+          ),
+          floatingActionButton: PlayerActionButton(),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: NavigationBar(
+            index: index,
+            onTap: (newIndex) {
+              if (widget.navKey.currentState.canPop()) {
+                widget.navKey.currentState.popUntil((route) => route.isFirst);
+              } else {
+                setState(() {
+                  index = newIndex;
+                });
+              }
+            },
+          ),
         ),
       ),
     );
@@ -113,21 +115,24 @@ class _LibraryState extends State<LibraryNavigator> {
 }
 
 class _HomePages extends StatelessWidget {
-	final int index;
+  final int index;
 
-	const _HomePages({this.index});
+  const _HomePages({this.index});
 
-	@override
-	Widget build(BuildContext context) {
-		switch (index) {
-			case 0:
-				return HomeScreen();
-				break;
-			case 1:
-				return StarredScreen();
-				break;
-			default:
-				throw UnimplementedError('Page index: $index');
-		}
-	}
+  @override
+  Widget build(BuildContext context) {
+    switch (index) {
+      case 0:
+        return HomeScreen(
+          albumRepository: GetIt.I.get<AlbumRepository>(),
+          artistRepository: GetIt.I.get<ArtistRepository>(),
+        );
+        break;
+      case 1:
+        return StarredScreen();
+        break;
+      default:
+        throw UnimplementedError('Page index: $index');
+    }
+  }
 }

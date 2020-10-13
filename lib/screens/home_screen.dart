@@ -1,12 +1,23 @@
 import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:airstream/widgets/home/collections.dart';
 import 'package:airstream/widgets/home/playlists.dart';
-import 'package:airstream/widgets/home/refresh_button.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/refresh_button.dart';
 import 'package:airstream/widgets/home/search_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key key}) : super(key: key);
+  const HomeScreen(
+      {Key key,
+      @required this.albumRepository,
+      @required this.artistRepository})
+      : assert(albumRepository != null),
+        assert(artistRepository != null),
+        super(key: key);
+
+  final AlbumRepository albumRepository;
+  final ArtistRepository artistRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +32,15 @@ class HomeScreen extends StatelessWidget {
           _SliverTitle(
             title: 'Collections',
             onRefresh: () async {
-              await Repository().album.update();
-              await Repository().artist.update();
+              await albumRepository.forceSync();
+              await artistRepository.forceSync();
             },
           ),
-          SliverToBoxAdapter(child: Collections()),
+          SliverToBoxAdapter(
+              child: Collections(
+            albumRepository: albumRepository,
+            artistRepository: artistRepository,
+          )),
           _SliverTitle(
             title: 'Playlist',
             onRefresh: () async {
@@ -55,7 +70,7 @@ class _SliverTitle extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(title, style: Theme.of(context).textTheme.headline4),
-            RefreshButton(onPressed: () async => await onRefresh())
+            RefreshButton(onPressed: () => onRefresh())
           ],
         ),
       ),

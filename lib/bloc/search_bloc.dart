@@ -1,13 +1,17 @@
 import 'package:airstream/barrel/bloc_basics.dart';
 import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:flutter/material.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
+
+  SearchBloc({this.albumRepository, this.artistRepository}) : super(SearchInitial());
+
+  final AlbumRepository albumRepository;
+  final ArtistRepository artistRepository;
   final queryList = <String>[];
   Timer _timer;
-
-  @override
-  SearchState get initialState => SearchInitial();
 
   @override
   Stream<SearchState> mapEventToState(SearchEvent event) async* {
@@ -29,19 +33,18 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         queryList.clear();
         if (query.length > 1) {
           final songResults = await Repository().song.search(query: query);
-          final artistResults = await Repository().artist.search(query: query);
-          final albumResults = await Repository().album.search(request: query);
+          final artistResults = await artistRepository.search(query);
+          final albumResults = await albumRepository.search(query);
           final noResults = !songResults.hasData &&
-              !artistResults.hasData &&
-              !albumResults.hasData;
-          print(artistResults.errorString);
+              artistResults.hasError &&
+              albumResults.hasError;
           if (noResults) {
             yield SearchFailure(songResults.error);
           } else {
             yield SearchSuccess(
               songs: songResults.songs ?? [],
-              artists: artistResults.artists ?? [],
-              albums: albumResults.albums ?? [],
+              artists: artistResults.data ?? [],
+              albums: albumResults.data ?? [],
             );
           }
         } else {

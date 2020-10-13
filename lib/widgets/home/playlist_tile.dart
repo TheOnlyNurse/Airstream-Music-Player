@@ -1,6 +1,5 @@
 import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/widgets/airstream_collage.dart';
-import 'package:airstream/widgets/airstream_image.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistTile extends StatelessWidget {
@@ -12,7 +11,7 @@ class PlaylistTile extends StatelessWidget {
     if (songIds.length > 3) {
       return AirstreamCollage(songIds: songIds.sublist(0, 4));
     } else if (songIds.isNotEmpty) {
-      return AirstreamImage(songId: songIds.first);
+      throw UnimplementedError();
     } else {
       return Padding(
         padding: const EdgeInsets.all(16.0),

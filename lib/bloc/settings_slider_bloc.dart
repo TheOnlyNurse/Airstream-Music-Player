@@ -7,6 +7,9 @@ export 'package:airstream/events/settings_slider_event.dart';
 export 'package:airstream/states/settings_slider_state.dart';
 
 class SliderBloc extends Bloc<SliderEvent, SliderState> {
+
+  SliderBloc() : super(SliderInitial());
+
 	final _repository = Repository();
   SettingType type;
 
@@ -17,9 +20,6 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
     // Else continue increasing division size by magnitudes of 10
     return generatorDivisions(range, divisions: divisions * 10);
   }
-
-  @override
-  SliderState get initialState => SliderInitial();
 
   @override
   Stream<SliderState> mapEventToState(SliderEvent event) async* {

@@ -1,76 +1,107 @@
 import 'dart:io';
-
-import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/models/image_adapter.dart';
+import 'package:airstream/repository/image_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_animations/simple_animations.dart';
+import 'package:get_it/get_it.dart';
 
 class AirstreamImage extends StatelessWidget {
   const AirstreamImage({
     Key key,
-    this.coverArt,
-    this.songId,
-    this.isThumbnail = false,
+    this.adapter,
     this.fit = BoxFit.cover,
     this.height,
     this.width,
-    this.animationLength = const Duration(milliseconds: 300),
-  })  : assert(coverArt == null ? songId != null : coverArt != null),
-        super(key: key);
+  }) : super(key: key);
 
-  final String coverArt;
-  final int songId;
-  final bool isThumbnail;
+  final ImageAdapter adapter;
   final BoxFit fit;
   final double height;
   final double width;
-  final Duration animationLength;
 
-  Future _getFuture() {
-    final _repo = Repository();
-    if (coverArt != null) {
-      if (isThumbnail) {
-        return _repo.image.thumbnail(coverArt);
-      } else {
-        return _repo.image.original(coverArt);
-      }
+  /// Returns the empty widget when file is null.
+  Widget _getChild(File image) {
+    if (image != null) {
+      return Image.file(image, height: height, width: width, fit: fit);
     } else {
-      return _repo.image.fromSong(songId, isThumbnail: isThumbnail);
+      return _EmptyImage();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _getFuture(),
+      future: adapter.resolve(GetIt.I.get<ImageRepository>()),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final File response = snapshot.data;
-
-          return PlayAnimation<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: animationLength,
-            builder: (context, child, value) {
-              return AnimatedOpacity(
-                opacity: value,
-                duration: animationLength,
-                child: Container(
-                  height: height,
-                  width: width,
-                  child: response != null
-                      ? Image.file(response, fit: fit)
-                      : Image.asset('lib/graphics/album.png', fit: fit),
-                ),
-              );
-            },
-          );
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (adapter.shouldAnimate) {
+            return _AnimatedImage(child: _getChild(snapshot.data));
+          } else {
+            return _getChild(snapshot.data);
+          }
         }
 
-        return Container(
-          height: height,
-          width: width,
+        return SizedBox.expand(
           child: Center(child: CircularProgressIndicator()),
         );
       },
+    );
+  }
+}
+
+class _AnimatedImage extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+
+  const _AnimatedImage({
+    Key key,
+    this.duration = const Duration(seconds: 1),
+    @required this.child,
+  })  : assert(child != null),
+        super(key: key);
+
+  @override
+  __AnimatedImageState createState() => __AnimatedImageState();
+}
+
+class __AnimatedImageState extends State<_AnimatedImage>
+    with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    )..forward(from: 0);
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animation,
+      child: widget.child,
+    );
+  }
+}
+
+class _EmptyImage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Image.asset('lib/graphics/album.png', fit: BoxFit.contain),
     );
   }
 }

@@ -29,14 +29,12 @@ class SongListTile extends StatelessWidget {
       end: Offset.zero,
     );
 
-    Widget _displayState(SongListTileState state) {
-      if (state is SongListTileSuccess) {
-        return _TileStatus(
-          percentage: state.cachePercent,
-          isPlaying: state.isPlaying,
-        );
-      }
-      return _TileStatus();
+    int _getPercent(SongListTileState state) {
+      return state is SongListTileSuccess ? state.cachePercent : 0;
+    }
+
+    bool _getPlaying(SongListTileState state) {
+      return state is SongListTileSuccess ? state.isPlaying : false;
     }
 
     return BlocProvider(
@@ -47,91 +45,15 @@ class SongListTile extends StatelessWidget {
         builder: (context, state) {
           return SlideTransition(
             position: animation.drive(_slideTween),
-            child: Stack(
-              children: <Widget>[
-                SongTile(song: song),
-                Material(
-                  color: Colors.transparent,
-                  elevation: 0.0,
-                  child: Ink(
-                    child: InkWell(
-                      onTap: onTap,
-                      onLongPress: onLongPress,
-                      child: _displayState(state),
-                    ),
-                  ),
-                ),
-              ],
+            child: SongTile(
+              song: song,
+              onTap: onTap,
+              onLongPress: onLongPress,
+              percentage: _getPercent(state),
+              isPlaying: _getPlaying(state),
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _TileStatus extends StatelessWidget {
-  final bool isPlaying;
-  final int percentage;
-
-  const _TileStatus({
-    Key key,
-    this.percentage = 0,
-    this.isPlaying = false,
-  }) : super(key: key);
-
-  double _containerWidth(double maxWidth) {
-    if (percentage > 0 && percentage < 100) {
-      return (maxWidth - 20) * ((100 - percentage) / 100);
-    } else if (percentage == 100) {
-      return 5;
-    } else {
-      return maxWidth - 20;
-    }
-  }
-
-  BoxBorder _boxBorder(BuildContext context) {
-    if (percentage > 0 && percentage < 100) {
-      return Border(
-        left: BorderSide(color: Theme
-            .of(context)
-            .primaryColor, width: 2),
-      );
-    } else {
-      return null;
-    }
-  }
-
-  Color _containerColor(BuildContext context) {
-    if (isPlaying) {
-      return Theme
-          .of(context)
-          .accentColor;
-    } else if (percentage == 100) {
-      return Colors.transparent;
-    } else {
-      return Colors.black.withOpacity(0.5);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 72,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Container(
-            width: _containerWidth(MediaQuery
-                .of(context)
-                .size
-                .width),
-            decoration: BoxDecoration(
-              color: _containerColor(context),
-              border: _boxBorder(context),
-            ),
-          )
-        ],
       ),
     );
   }

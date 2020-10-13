@@ -1,10 +1,12 @@
 import 'package:airstream/bloc/random_bloc.dart';
 import 'package:airstream/events/random_event.dart';
+import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/states/random_state.dart';
 import 'package:airstream/widgets/sliver_card_grid.dart';
 import 'package:airstream/widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 class RandomScreen extends StatefulWidget {
   const RandomScreen({Key key}) : super(key: key);
@@ -35,7 +37,7 @@ class _RandomScreenState extends State<RandomScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RandomBloc()..add(RandomFetch()),
+      create: (context) => RandomBloc(GetIt.I.get<AlbumRepository>())..add(RandomFetch()),
       child: Scaffold(
         body: SafeArea(
           child: BlocBuilder<RandomBloc, RandomState>(builder: (context, state) {

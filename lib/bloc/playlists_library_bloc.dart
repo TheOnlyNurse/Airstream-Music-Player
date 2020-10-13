@@ -8,7 +8,7 @@ class PlaylistsLibraryBloc
   StreamSubscription onNetworkChange;
   StreamSubscription onPlaylistChange;
 
-  PlaylistsLibraryBloc() {
+  PlaylistsLibraryBloc() : super(PlaylistsLibraryInitial()) {
     onNetworkChange = _repository.settings.onChange.listen((type) {
       if (type == SettingType.isOffline) this.add(PlaylistsLibraryEvent.fetch);
     });
@@ -16,9 +16,6 @@ class PlaylistsLibraryBloc
       this.add(PlaylistsLibraryEvent.fetch);
     });
   }
-
-  @override
-  PlaylistsLibraryState get initialState => PlaylistsLibraryInitial();
 
   @override
   Stream<PlaylistsLibraryState> mapEventToState(

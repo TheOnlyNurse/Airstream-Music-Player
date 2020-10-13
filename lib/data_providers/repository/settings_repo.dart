@@ -6,8 +6,7 @@ class _SettingsRepository {
   Stream<SettingType> get onChange => _provider.onSettingsChange;
 
   bool get isOffline {
-    final bool isOffline = _provider.query(SettingType.isOffline);
-    return isOffline;
+    return _provider.query<bool>(SettingType.isOffline);
   }
 
   bool get isOnline => !isOffline;

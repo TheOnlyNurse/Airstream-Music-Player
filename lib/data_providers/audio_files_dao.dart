@@ -107,7 +107,7 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Deletes all entries
-  Future<Null> deleteAll() async {
+  Future<int> deleteAll() async {
     return delete(audioFiles).go();
   }
 

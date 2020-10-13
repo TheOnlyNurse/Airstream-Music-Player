@@ -10,14 +10,8 @@ class ScaleScreenTransition<T> extends MaterialPageRoute<T> {
     return FadeTransition(
       opacity: animation,
       child: ScaleTransition(
-        scale: Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(
-          CurvedAnimation(
-            parent: animation,
-            curve: Curves.fastOutSlowIn,
-          ),
+        scale: Tween<double>(begin: 0.7, end: 1.0).animate(
+          CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn),
         ),
         child: child,
       ),
@@ -54,7 +48,7 @@ PageRouteBuilder fadeInSlideRoute(Widget page) {
         opacity: animation,
         child: SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(-1, 0),
+            begin: const Offset(-0.5, 0),
             end: Offset.zero,
           ).animate(animation),
           child: child,

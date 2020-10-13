@@ -1,22 +1,30 @@
 import 'package:airstream/bloc/player_bloc.dart';
 import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/repository/image_repository.dart';
 import 'package:airstream/widgets/player/player_controls.dart';
 import 'package:airstream/widgets/player/queue_dialog.dart';
 import 'package:airstream/widgets/player/position_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 class PlayerScreen extends StatelessWidget {
-	final GlobalKey<NavigatorState> navKey;
+  final GlobalKey<NavigatorState> navKey;
 
   const PlayerScreen({Key key, this.navKey}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PlayerBloc()..add(PlayerFetch()),
+      create: (context) {
+        return PlayerBloc(
+          albumRepository:GetIt.I.get<AlbumRepository>(),
+          imageRepository: GetIt.I.get<ImageRepository>(),
+        )..add(PlayerFetch());
+      },
       child: BlocConsumer<PlayerBloc, PlayerState>(
         listener: (context, state) {
           if (state is PlayerSuccess && state.isFinished) {
@@ -76,9 +84,10 @@ class _ArtWork extends StatelessWidget {
                 return AnimatedOpacity(
                   opacity: value,
                   duration: animationLength,
-                  child: Container(
+                  child: Image.file(
+                    currentState.image,
+                    fit: BoxFit.cover,
                     width: MediaQuery.of(context).size.width,
-                    child: Image.file(currentState.image, fit: BoxFit.cover),
                   ),
                 );
               },
@@ -164,31 +173,31 @@ class _SongTitle extends StatelessWidget {
 }
 
 class _HeaderButtons extends StatelessWidget {
-	@override
-	Widget build(BuildContext context) {
-		return Row(
-			mainAxisAlignment: MainAxisAlignment.spaceBetween,
-			children: <Widget>[
-				RawMaterialButton(
-					constraints: BoxConstraints.tightFor(width: 60, height: 60),
-					shape: CircleBorder(),
-					child: Icon(Icons.close),
-					onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-				),
-				RawMaterialButton(
-					constraints: BoxConstraints.tightFor(width: 60, height: 60),
-					shape: CircleBorder(),
-					child: Icon(Icons.queue_music),
-					onPressed: () {
-						showDialog(
-							context: context,
-							builder: (context) {
-								return QueueDialog();
-							},
-						);
-					},
-				),
-			],
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        RawMaterialButton(
+          constraints: BoxConstraints.tightFor(width: 60, height: 60),
+          shape: CircleBorder(),
+          child: Icon(Icons.close),
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+        ),
+        RawMaterialButton(
+          constraints: BoxConstraints.tightFor(width: 60, height: 60),
+          shape: CircleBorder(),
+          child: Icon(Icons.queue_music),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return QueueDialog();
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
 }

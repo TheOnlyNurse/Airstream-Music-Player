@@ -15,7 +15,8 @@ class PlaylistDialog extends StatelessWidget {
           height: 250,
           width: 50,
           child: BlocProvider(
-            create: (context) => PlaylistDialogBloc()..add(PlaylistDialogFetch()),
+            create: (context) =>
+                PlaylistDialogBloc()..add(PlaylistDialogFetch()),
             child: BlocBuilder<PlaylistDialogBloc, PlaylistDialogState>(
               builder: (context, state) {
                 if (state is PlaylistDialogSuccess) {
@@ -72,8 +73,8 @@ class _PlaylistOptions extends StatelessWidget {
     void dialogBloc(PlaylistDialogEvent event) =>
         context.bloc<PlaylistDialogBloc>().add(event);
     final _allowedText = <TextInputFormatter>[
-      WhitelistingTextInputFormatter(RegExp("[a-zA-z ]")),
-    ];
+			FilteringTextInputFormatter(RegExp("[a-zA-z ]"), allow: true),
+		];
 
     return PageView(
       onPageChanged: (index) => context.bloc<PlaylistDialogBloc>().add(
@@ -122,17 +123,18 @@ class _PlaylistOptions extends StatelessWidget {
               ),
               SizedBox(height: 20),
               RawMaterialButton(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                fillColor: Theme
-                    .of(context)
-                    .primaryColor,
-                child: Text('Create'),
-                onPressed: () =>
-                    dialogBloc(PlaylistDialogCreate(
-                      _nameController.value.text,
-                      _commentController.value.text,
-                    )),
-              ),
+								shape: RoundedRectangleBorder(
+										borderRadius: BorderRadius.circular(4)),
+								fillColor: Theme
+										.of(context)
+										.primaryColor,
+								child: Text('Create'),
+								onPressed: () =>
+										dialogBloc(PlaylistDialogCreate(
+											_nameController.value.text,
+											_commentController.value.text,
+										)),
+							),
             ],
           ),
         ),

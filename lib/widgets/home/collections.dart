@@ -1,46 +1,67 @@
-import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/repository/album_repository.dart';
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:airstream/screens/album_list_screen.dart';
 import 'package:airstream/screens/alphabet_screen.dart';
 import 'package:airstream/screens/artists_screen.dart';
 import 'package:airstream/screens/decade_screen.dart';
 import 'package:airstream/screens/genre_screen.dart';
-import 'package:airstream/screens/random_screen.dart';
+import 'package:airstream/widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 
 class Collections extends StatelessWidget {
+  const Collections(
+      {Key key,
+      @required this.albumRepository,
+      @required this.artistRepository})
+      : assert(albumRepository != null),
+        assert(artistRepository != null),
+        super(key: key);
+
+  final AlbumRepository albumRepository;
+  final ArtistRepository artistRepository;
+
   @override
   Widget build(BuildContext context) {
     final collections = <_CollectionDetails>[
-      _CollectionDetails('Random', 'woodtype.jpg', page: RandomScreen()),
+      _CollectionDetails('Random', 'woodtype.webp',
+          page: AlbumListScreen(
+            future: () => albumRepository.random(),
+            title: 'Random',
+          )),
       _CollectionDetails(
         'Recently Added',
-        'vegetables.jpg',
+        'vegetables.webp',
         page: AlbumListScreen(
-          future: () => Repository().album.newlyAdded(),
+          future: () => albumRepository.recentlyAdded(),
           title: 'Recently Added',
         ),
       ),
       _CollectionDetails(
         'Most Played',
-        'girl.jpg',
+        'girl.webp',
         page: AlbumListScreen(
-          future: () => Repository().album.frequent(),
+          future: () => albumRepository.mostPlayed(),
           title: 'Most Played',
         ),
       ),
       _CollectionDetails(
         'Recently Played',
-        'bridal-veil-fall.jpg',
+        'bridal-veil-fall.webp',
         page: AlbumListScreen(
-          future: () => Repository().album.recent(),
+          future: () => albumRepository.recentlyPlayed(),
           title: 'Recently Played',
         ),
       ),
-      _CollectionDetails('By Decade', 'clock.jpg', page: DecadeScreen()),
-      _CollectionDetails('By Genre', 'symphony-hall.jpg', page: GenreScreen()),
-      _CollectionDetails('By Artist', 'brushes.jpg', page: ArtistsScreen()),
-      _CollectionDetails('Alphabetical', 'typewriter.jpg',
-          page: AlphabetScreen()),
+      _CollectionDetails('By Decade', 'clock.webp',
+          page: DecadeScreen(albumRepository: albumRepository)),
+      _CollectionDetails('By Genre', 'symphony-hall.webp',
+          page: GenreScreen(albumRepository: albumRepository)),
+      _CollectionDetails('By Artist', 'brushes.webp',
+          page: ArtistsScreen(
+            artistRepository: artistRepository,
+          )),
+      _CollectionDetails('Alphabetical', 'typewriter.webp',
+          page: AlphabetScreen(albumRepository: albumRepository)),
     ];
 
     return SizedBox(
@@ -120,25 +141,5 @@ class _CollectionDetails {
 
   const _CollectionDetails(this.title, this.asset, {this.page});
 
-  PageRouteBuilder route() {
-    return PageRouteBuilder(
-      opaque: false,
-      pageBuilder: (BuildContext context, _, __) {
-        return page ?? Container();
-      },
-      transitionsBuilder:
-          (___, Animation<double> animation, ____, Widget child) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(-1, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-    );
-  }
+  PageRouteBuilder route() => fadeInSlideRoute(page);
 }

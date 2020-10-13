@@ -1,63 +1,54 @@
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/response/artist_response.dart';
+import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/models/repository_response.dart';
+import 'package:airstream/models/static_assets.dart';
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:airstream/widgets/alpha_grid_view.dart';
 import 'package:airstream/widgets/artist_circle.dart';
-import 'package:airstream/widgets/sliver_close_bar.dart';
+import 'package:airstream/widgets/error_widgets.dart';
 import 'package:flutter/material.dart';
 
 class ArtistsScreen extends StatelessWidget {
-  const ArtistsScreen();
+  const ArtistsScreen({Key key, @required this.artistRepository})
+      : assert(artistRepository != null),
+        super(key: key);
+
+  final ArtistRepository artistRepository;
 
   @override
   Widget build(BuildContext context) {
+    final _scrollController = ScrollController();
+
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder(
-          future: Repository().artist.byAlphabet(),
+          future: artistRepository.byAlphabet(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final ArtistResponse response = snapshot.data;
+            if (snapshot.connectionState == ConnectionState.done) {
+              final ListResponse<Artist> response = snapshot.data;
+
               if (response.hasData) {
-                response.artists.sort((a, b) => a.name.compareTo(b.name));
                 return AlphabeticalGridView(
-                  headerStrings: response.artists.map((e) {
-                    return e.name;
-                  }).toList(),
-                  builder: (start, end) {
-                    final list = response.artists.sublist(start, end);
-                    return SliverPadding(
-                      padding: const EdgeInsets.only(
-                          left: 16.0, right: 16.0, bottom: 30.0),
-                      sliver: SliverGrid(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 200,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                          childAspectRatio: 1 / 1.2,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, int index) {
-                            return ArtistCircle(
-                              artist: list[index],
-                              onTap: (artist) {
-                                Navigator.pushNamed(
-                                  context,
-                                  'library/singleArtist',
-                                  arguments: artist,
-                                );
-                              },
-                            );
-                          },
-                          childCount: list.length,
-                        ),
-                      ),
-                    );
-                  },
-                  leading: <Widget>[SliverCloseBar()],
+                  controller: _scrollController,
+                  headerStrings: response.data.map((e) => e.name).toList(),
+                  cacheKey: 'artistHeaders',
+                  builder: GridView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(
+                        left: 16.0, right: 16.0, bottom: 30.0),
+                    gridDelegate: airstreamArtistsDelegate,
+                    itemCount: response.data.length,
+                    itemBuilder: (context, int index) {
+                      return ArtistCircle(artist: response.data[index]);
+                    },
+                  ),
                 );
               }
 
-              return Center(child: snapshot.data.error);
+              if (response.hasError) {
+                return ErrorScreen(response: response);
+              }
+
+              return Center(child: ErrorText(error: snapshot.error));
             }
 
             return Center(child: CircularProgressIndicator());

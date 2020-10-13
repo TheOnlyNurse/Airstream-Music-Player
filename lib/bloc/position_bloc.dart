@@ -12,7 +12,7 @@ class PositionBloc extends Bloc<PositionEvent, PositionState> {
   StreamSubscription onDownloading;
   StreamSubscription onNewSong;
 
-  PositionBloc() {
+  PositionBloc() : super(PositionInitial()) {
     onPosition = _repository.audio.audioPosition.listen((duration) {
       this.add(PositionNew(duration));
     });
@@ -27,9 +27,6 @@ class PositionBloc extends Bloc<PositionEvent, PositionState> {
       }
     });
   }
-
-  @override
-  PositionState get initialState => PositionInitial();
 
   @override
   Stream<PositionState> mapEventToState(PositionEvent event) async* {

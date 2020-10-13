@@ -1,8 +1,10 @@
 import 'package:airstream/barrel/bloc_basics.dart';
+import 'package:airstream/repository/image_repository.dart';
 import 'package:airstream/widgets/custom_alert_dialog.dart';
 import 'package:airstream/widgets/settings/custom_switch.dart';
 import 'package:airstream/widgets/settings_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {
   @override
@@ -35,7 +37,7 @@ class NetworkSettingsScreen extends StatelessWidget {
             SettingsSlider(title: 'Music Cache', type: SettingType.musicCache),
             SettingsSlider(title: 'Image Cache', type: SettingType.imageCache),
             SizedBox(height: 16),
-            _ClearCache(),
+            _ClearCache(imageRepository: GetIt.I.get<ImageRepository>()),
             _Title(title: 'Bitrate'),
             SettingsSlider(
               title: 'Wifi Bitrate',
@@ -70,6 +72,12 @@ class _Title extends StatelessWidget {
 }
 
 class _ClearCache extends StatelessWidget {
+  const _ClearCache({Key key, @required this.imageRepository})
+      : assert(imageRepository != null),
+        super(key: key);
+
+  final ImageRepository imageRepository;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -86,7 +94,7 @@ class _ClearCache extends StatelessWidget {
               });
           if (shouldClear) {
             Repository().audioCache.deleteAll();
-            Repository().image.deleteAll();
+            imageRepository.clear();
           }
         },
         child: Padding(

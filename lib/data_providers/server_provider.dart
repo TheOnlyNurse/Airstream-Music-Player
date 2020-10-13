@@ -5,7 +5,7 @@ import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/response/server_response.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
-import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart';
 import 'package:airstream/temp_password_holder.dart';
 
 class ServerProvider {
@@ -60,7 +60,7 @@ class ServerProvider {
     final response = await _fetch(_constructUrl(request));
 
     if (response != null) {
-      final xmlDoc = xml.parse(response.body);
+			final xmlDoc = XmlDocument.parse(response.body);
       final status = xmlDoc
           .findAllElements('subsonic-response')
           .first
@@ -91,6 +91,11 @@ class ServerProvider {
     final response = await _fetchDiscogs(query);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
+
+      if (json['results'].length < 1) {
+        return ServerResponse(error: ('Failed to fetch image'));
+      }
+
       final imageUrl = json['results'].first['cover_image'];
       final discogsImage = await _httpClient.get(imageUrl);
       if (discogsImage.statusCode == 200) {
@@ -110,17 +115,20 @@ class ServerProvider {
   Future<bool> upload(String request) async {
     final response = await _fetch(_constructUrl(request));
     if (response != null) {
-      final xmlDoc = xml.parse(response.body);
-      final status = xmlDoc
-          .findAllElements('subsonic-response')
-          .first
-          .getAttribute('status');
-      if (status == 'ok') {
-        return true;
-      } else {
-        final errorCode = int.parse(
-            xmlDoc.findAllElements('error').first.getAttribute('code'));
-        // "The requested data was not found."
+			final xmlDoc = XmlDocument.parse(response.body);
+			final status = xmlDoc
+					.findAllElements('subsonic-response')
+					.first
+					.getAttribute('status');
+			if (status == 'ok') {
+				return true;
+			} else {
+				final errorCode = int.parse(
+						xmlDoc
+								.findAllElements('error')
+								.first
+								.getAttribute('code'));
+				// "The requested data was not found."
         if (errorCode == 70) return true;
         // "User is not authorized for the given operation."
         if (errorCode == 50) return true;

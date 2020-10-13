@@ -19,7 +19,7 @@ export 'package:airstream/data_providers/download_provider.dart';
 
 // Cache providers
 export 'package:airstream/data_providers/audio_files_dao.dart';
-export 'package:airstream/data_providers/image_files_dao.dart';
+export 'package:airstream/data_providers/image_provider.dart';
 
 // Server providers
 export 'package:airstream/data_providers/scheduler.dart';
