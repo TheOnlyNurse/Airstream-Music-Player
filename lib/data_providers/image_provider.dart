@@ -99,8 +99,7 @@ class ImageFileProvider {
   /// 111 => 110 => 001
   bool _checkCipherForFile(int cipher, ImageType type) {
     final relevantBit = 1 << type.index;
-    final isolatedBit = cipher & relevantBit;
-    return isolatedBit >> type.index == 1;
+    return cipher & relevantBit != 0;
   }
 
   /// Sometimes a null file is required to indicate that the server shouldn't
@@ -109,8 +108,7 @@ class ImageFileProvider {
   /// We do this by shifting to range not used to hold "file existing" information
   bool _checkCipherForNull(int cipher, ImageType type) {
     final relevantBit = 1 << (type.index + ImageType.values.length);
-    final isolatedBit = cipher & relevantBit;
-    return isolatedBit >> (type.index + ImageType.values.length) == 1;
+    return cipher & relevantBit != 0;
   }
 
   /// Adds a 1 to the relevant bit of a given value to indicate a file exists
