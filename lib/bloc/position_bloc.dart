@@ -1,10 +1,17 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/position_event.dart';
-import 'package:airstream/states/position_state.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/position_event.dart';
+import '../states/position_state.dart';
 
 // Barrel for import clarity
-export 'package:airstream/events/position_event.dart';
-export 'package:airstream/states/position_state.dart';
+export '../events/position_event.dart';
+export '../states/position_state.dart';
 
 class PositionBloc extends Bloc<PositionEvent, PositionState> {
   final _repository = Repository();

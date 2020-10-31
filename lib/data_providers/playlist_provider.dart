@@ -1,8 +1,14 @@
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/response/playlist_response.dart';
+/// External Packages
+import 'package:hive/hive.dart';
 import 'package:xml/xml.dart' as xml;
+
+/// Internal Links
+import 'repository/repository.dart';
+import '../data_providers/repository/repository.dart';
+import '../models/playlist_model.dart';
+import '../models/response/playlist_response.dart';
+import 'scheduler.dart';
+import 'server_provider.dart';
 
 class PlaylistProvider {
   /// Private Variables

@@ -1,10 +1,17 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/settings_slider_event.dart';
-import 'package:airstream/states/settings_slider_state.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/settings_slider_event.dart';
+import '../states/settings_slider_state.dart';
 
 // Ease of use barrel
-export 'package:airstream/events/settings_slider_event.dart';
-export 'package:airstream/states/settings_slider_state.dart';
+export '../events/settings_slider_event.dart';
+export '../states/settings_slider_state.dart';
 
 class SliderBloc extends Bloc<SliderEvent, SliderState> {
 

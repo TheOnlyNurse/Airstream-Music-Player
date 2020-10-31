@@ -1,10 +1,17 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/player_events.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/repository/image_repository.dart';
-import 'package:airstream/states/player_state.dart';
-export 'package:airstream/events/player_events.dart';
-export 'package:airstream/states/player_state.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/player_events.dart';
+import '../repository/album_repository.dart';
+import '../repository/image_repository.dart';
+import '../states/player_state.dart';
+export '../events/player_events.dart';
+export '../states/player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   final _repository = Repository();

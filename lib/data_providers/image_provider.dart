@@ -1,6 +1,9 @@
-import 'package:airstream/barrel/provider_basics.dart';
+import 'dart:io';
+
+/// External Packages
 import 'package:moor/moor.dart';
 import 'package:path/path.dart' as p;
+import 'package:hive/hive.dart';
 
 class ImageFileProvider {
   const ImageFileProvider({@required Box<int> hive, @required String cacheFolder})

@@ -1,5 +1,9 @@
-import 'package:airstream/models/playlist_model.dart';
+/// External Packages
 import 'package:equatable/equatable.dart';
+
+/// Internal Links
+import '../models/playlist_model.dart';
+
 
 abstract class PlaylistDialogEvent extends Equatable {
   const PlaylistDialogEvent();

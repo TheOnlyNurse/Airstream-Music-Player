@@ -1,13 +1,19 @@
-import 'package:airstream/bloc/mini_player_bloc.dart';
-import 'package:airstream/events/nav_bar_event.dart';
-import 'package:airstream/states/mini_player_state.dart';
-import 'package:airstream/states/nav_bar_state.dart';
-import 'package:airstream/barrel/bloc_basics.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
+/// Internal links
+import '../data_providers/repository/repository.dart';
+import 'mini_player_bloc.dart';
+import '../events/nav_bar_event.dart';
+import '../states/mini_player_state.dart';
+import '../states/nav_bar_state.dart';
+
 // Barrel for ease of importing
-export 'package:airstream/events/nav_bar_event.dart';
-export 'package:airstream/states/nav_bar_state.dart';
+export '../events/nav_bar_event.dart';
+export '../states/nav_bar_state.dart';
 
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   final GlobalKey<NavigatorState> navigatorKey;

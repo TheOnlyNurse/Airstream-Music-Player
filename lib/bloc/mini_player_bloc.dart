@@ -1,10 +1,17 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/mini_player_event.dart';
-import 'package:airstream/states/mini_player_state.dart';
+import 'dart:async';
 
-// Ease of use barrel
-export 'package:airstream/events/mini_player_event.dart';
-export 'package:airstream/states/mini_player_state.dart';
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/mini_player_event.dart';
+import '../states/mini_player_state.dart';
+
+/// Ease of use barrel
+export '../events/mini_player_event.dart';
+export '../states/mini_player_state.dart';
 
 class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   final _repository = Repository();

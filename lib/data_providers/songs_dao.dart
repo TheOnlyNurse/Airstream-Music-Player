@@ -1,9 +1,15 @@
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/models/response/server_response.dart';
-import 'package:airstream/models/response/song_response.dart';
+/// External Packages
 import 'package:moor/moor.dart';
-import 'package:xml/xml.dart' as xml;
+import 'package:hive/hive.dart';
+import 'package:xml/xml.dart';
+
+/// Internal Links
+import 'moor_database.dart';
+import 'repository/repository.dart';
+import '../data_providers/moor_database.dart';
+import '../models/response/server_response.dart';
+import '../models/response/song_response.dart';
+import 'server_provider.dart';
 
 part 'songs_dao.g.dart';
 
@@ -232,7 +238,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   }
 
   /// Parses an xml document in relevant song elements
-	List<SongsCompanion> _documentToCompanions(xml.XmlDocument document) {
+	List<SongsCompanion> _documentToCompanions(XmlDocument document) {
 		final elements = document.findAllElements('song');
 		final songs = <SongsCompanion>[];
 		for (var element in elements) {
@@ -242,7 +248,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 	}
 
 	/// Parses an xml element into a companion for database insertion
-	SongsCompanion _elementToCompanion(xml.XmlElement element) {
+	SongsCompanion _elementToCompanion(XmlElement element) {
 		return SongsCompanion.insert(
 			id: Value(_parseAsInt(element.getAttribute('id'))),
 			title: element.getAttribute('title'),

@@ -1,14 +1,20 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/events/song_list_event.dart';
-import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/response/song_response.dart';
-import 'package:airstream/models/song_list_delegate.dart';
-import 'package:airstream/states/song_list_state.dart';
+import 'dart:async';
+
+/// External Packages
+import '../data_providers/moor_database.dart';
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../data_providers/repository/repository.dart';
+import '../events/song_list_event.dart';
+import '../models/playlist_model.dart';
+import '../models/response/song_response.dart';
+import '../models/song_list_delegate.dart';
+import '../states/song_list_state.dart';
 
 // Barrelling
-export 'package:airstream/events/song_list_event.dart';
-export 'package:airstream/states/song_list_state.dart';
+export '../events/song_list_event.dart';
+export '../states/song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
 

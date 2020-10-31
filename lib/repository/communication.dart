@@ -1,5 +1,5 @@
 // Enums used as communication
-enum SongChange { unstarred, starred }
+enum SongChange { unStarred, starred }
 enum PlaylistChange { songsRemoved, songsAdded, fetched }
 enum AudioPlayerState { playing, paused, stopped }
 enum AudioPlayerSongState { newSong }

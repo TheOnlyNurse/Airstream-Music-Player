@@ -1,4 +1,4 @@
-import 'package:airstream/barrel/communication.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/repository/communication.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:flutter/material.dart';
 

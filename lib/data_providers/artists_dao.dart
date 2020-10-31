@@ -1,7 +1,10 @@
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+/// External Packages
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
+
+/// Internal Links
+import 'moor_database.dart';
+import '../data_providers/moor_database.dart';
 
 part 'artists_dao.g.dart';
 

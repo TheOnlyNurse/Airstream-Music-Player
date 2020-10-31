@@ -1,5 +1,8 @@
-import 'package:airstream/barrel/communication.dart';
+/// External Packages
 import 'package:equatable/equatable.dart';
+
+/// Internal Links
+import '../repository/communication.dart';
 
 abstract class SliderEvent extends Equatable {
   const SliderEvent();

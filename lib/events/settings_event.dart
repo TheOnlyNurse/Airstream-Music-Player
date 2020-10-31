@@ -1,4 +1,4 @@
-import 'package:airstream/barrel/communication.dart';
+import '../repository/communication.dart';
 
 abstract class SettingsEvent {}
 

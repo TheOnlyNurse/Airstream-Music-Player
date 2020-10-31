@@ -1,8 +1,13 @@
-import 'package:airstream/barrel/bloc_basics.dart';
+import 'dart:async';
+
+/// External Packages
 import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/events/random_event.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/states/random_state.dart';
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../events/random_event.dart';
+import '../repository/album_repository.dart';
+import '../states/random_state.dart';
 import 'dart:math' as math;
 
 // Ease of use barrelling

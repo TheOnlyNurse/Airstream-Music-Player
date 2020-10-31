@@ -1,11 +1,18 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/starred_event.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/states/starred_state.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/starred_event.dart';
+import '../repository/album_repository.dart';
+import '../states/starred_state.dart';
 
 // Barrel for ease of importing
-export 'package:airstream/events/starred_event.dart';
-export 'package:airstream/states/starred_state.dart';
+export '../events/starred_event.dart';
+export '../states/starred_state.dart';
 
 class StarredBloc extends Bloc<StarredEvent, StarredState> {
   final _repository = Repository();

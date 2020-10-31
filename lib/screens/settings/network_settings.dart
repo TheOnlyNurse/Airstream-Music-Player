@@ -1,10 +1,14 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/repository/image_repository.dart';
-import 'package:airstream/widgets/custom_alert_dialog.dart';
-import 'package:airstream/widgets/settings/custom_switch.dart';
-import 'package:airstream/widgets/settings_slider.dart';
+/// External Packages
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+
+/// Internal Links
+import '../../repository/image_repository.dart';
+import '../../data_providers/repository/repository.dart';
+import '../../repository/communication.dart';
+import '../../widgets/custom_alert_dialog.dart';
+import '../../widgets/settings/custom_switch.dart';
+import '../../widgets/settings_slider.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {
   @override

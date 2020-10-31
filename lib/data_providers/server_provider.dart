@@ -1,12 +1,18 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/models/response/server_response.dart';
+import 'dart:async';
+
+/// External Packages
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
-import 'package:airstream/temp_password_holder.dart';
+import 'package:mutex/mutex.dart';
+
+/// Internal Links
+import 'repository/repository.dart';
+import '../models/response/server_response.dart';
+import '../temp_password_holder.dart';
+import 'scheduler.dart';
 
 class ServerProvider {
   /// Private Variables

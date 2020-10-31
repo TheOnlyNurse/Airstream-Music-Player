@@ -1,6 +1,9 @@
-import 'package:airstream/data_providers/audio_files_dao.dart';
+/// External Packages
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
+
+/// Internal Links
+import 'audio_files_dao.dart';
 
 part 'moor_cache.g.dart';
 

@@ -1,10 +1,17 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/repository/image_repository.dart';
+import 'dart:async';
+
+/// External Packages
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
+
+/// Internal Links
 import 'moor_database.dart';
+import 'repository/repository.dart';
+import '../repository/image_repository.dart';
+import '../repository/communication.dart';
+import 'download_provider.dart';
+
 
 class AudioProvider {
   /// Globally Accessible

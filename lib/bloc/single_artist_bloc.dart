@@ -1,13 +1,19 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/single_artist_event.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/repository/artist_repository.dart';
-import 'package:airstream/states/single_artist_state.dart';
-import 'package:airstream/widgets/error_widgets.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../repository/artist_repository.dart';
+import '../widgets/error_widgets.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/single_artist_event.dart';
+import '../repository/album_repository.dart';
+import '../states/single_artist_state.dart';
 
 // Barrelling
-export 'package:airstream/states/single_artist_state.dart';
-export 'package:airstream/events/single_artist_event.dart';
+export '../states/single_artist_state.dart';
+export '../events/single_artist_event.dart';
 
 class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
   SingleArtistBloc(

@@ -1,8 +1,15 @@
-import 'package:airstream/barrel/bloc_basics.dart';
+import 'dart:async';
+
+/// External Packages
 import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/repository/artist_repository.dart';
-import 'package:airstream/widgets/error_widgets.dart';
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+
+/// Internal links
+import '../repository/artist_repository.dart';
+import '../widgets/error_widgets.dart';
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
 
 class LibraryArtistsBloc extends Bloc<AlbumListEvent, AlbumListState> {
   LibraryArtistsBloc({this.artistRepository}) : super(AlbumListInitial()) {

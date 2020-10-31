@@ -1,12 +1,22 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/barrel/provider_basics.dart';
-import 'package:airstream/models/percentage_model.dart';
-import 'package:airstream/repository/image_repository.dart';
+import 'dart:math' as Math;
+import 'dart:async';
+import 'dart:io';
+
+/// External Packages
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
-import 'dart:math' as Math;
 import 'package:path_provider/path_provider.dart';
+
+/// Internal Links
 import 'moor_database.dart';
+import 'repository/repository.dart';
+import '../models/percentage_model.dart';
+import '../repository/image_repository.dart';
+import 'server_provider.dart';
+import 'audio_provider.dart';
+import 'settings_provider.dart';
+import '../repository/communication.dart';
+
 
 class DownloadProvider {
   /// Global functions

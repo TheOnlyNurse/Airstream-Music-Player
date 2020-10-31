@@ -1,4 +1,4 @@
-import 'package:airstream/barrel/communication.dart';
+import '../repository/communication.dart';
 import 'package:airstream/bloc/settings_slider_bloc.dart';
 import 'package:airstream/events/settings_slider_event.dart';
 import 'package:flutter/material.dart';

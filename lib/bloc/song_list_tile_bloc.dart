@@ -1,8 +1,15 @@
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/events/song_list_tile_event.dart';
-import 'package:airstream/states/song_list_tile_state.dart';
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
+/// External Packages
+import '../data_providers/moor_database.dart';
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+
+/// Internal links
+import '../repository/communication.dart';
+import '../data_providers/repository/repository.dart';
+import '../events/song_list_tile_event.dart';
+import '../states/song_list_tile_state.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   final Song tileSong;

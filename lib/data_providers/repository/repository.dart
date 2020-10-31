@@ -1,31 +1,9 @@
 library repository_library;
 
-//Providers
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:airstream/data_providers/audio_files_dao.dart';
-import 'package:airstream/data_providers/audio_provider.dart';
-import 'package:airstream/data_providers/download_provider.dart';
-import 'package:airstream/data_providers/moor_cache.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/data_providers/playlist_provider.dart';
-import 'package:airstream/data_providers/scheduler.dart';
-import 'package:airstream/data_providers/settings_provider.dart';
-import 'package:airstream/data_providers/songs_dao.dart';
-import 'package:airstream/data_providers/starred_provider.dart';
-
-// Models
-import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/models/response/audio_cache_response.dart';
-import 'package:airstream/models/response/playlist_response.dart';
-import 'package:airstream/models/response/provider_response.dart';
-import 'package:airstream/models/response/song_response.dart';
-import 'package:airstream/barrel/communication.dart';
-import 'package:airstream/models/percentage_model.dart';
-import 'package:airstream/models/response/starred_response.dart';
-
-// Flutter/Dart core
+/// External Packages
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
@@ -37,7 +15,29 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:path/path.dart' as p;
 
-// Parts
+/// Providers
+import '../audio_files_dao.dart';
+import '../audio_provider.dart';
+import '../download_provider.dart';
+import '../moor_cache.dart';
+import '../moor_database.dart';
+import '../playlist_provider.dart';
+import '../scheduler.dart';
+import '../settings_provider.dart';
+import '../songs_dao.dart';
+import '../starred_provider.dart';
+
+/// Models
+import '../../models/playlist_model.dart';
+import '../../models/response/audio_cache_response.dart';
+import '../../models/response/playlist_response.dart';
+import '../../models/response/provider_response.dart';
+import '../../models/response/song_response.dart';
+import '../../repository/communication.dart';
+import '../../models/percentage_model.dart';
+import '../../models/response/starred_response.dart';
+
+/// Parts
 part 'audio_repo.dart';
 
 part 'playlist_repo.dart';
@@ -71,22 +71,22 @@ class Repository {
 
   _PlaylistRepository get playlist => _libInstances['playlist'];
 
-	_SettingsRepository get settings => _libInstances['settings'];
+  _SettingsRepository get settings => _libInstances['settings'];
 
-	_DownloadRepository get download => _libInstances['download'];
+  _DownloadRepository get download => _libInstances['download'];
 
-	_StarredRepository get starred => _libInstances['starred'];
+  _StarredRepository get starred => _libInstances['starred'];
 
-	/// Initialise the boxes required
-	Future<Null> init(String dbPath) async {
-			// Moor database, requires db path
-			final dbIsolate = await _createMoorDatabase(dbPath);
-			final database = MoorDatabase.connect(await dbIsolate.connect());
-			GetIt.I.registerSingleton<MoorDatabase>(database);
-			// Moor cache, placed in temporary location automatically
-			final cacheIsolate = await _createMoorCache();
-			final cache = MoorCache.connect(await cacheIsolate.connect());
-			GetIt.I.registerSingleton<MoorCache>(cache);
+  /// Initialise the boxes required
+  Future<Null> init(String dbPath) async {
+    // Moor database, requires db path
+    final dbIsolate = await _createMoorDatabase(dbPath);
+    final database = MoorDatabase.connect(await dbIsolate.connect());
+    GetIt.I.registerSingleton<MoorDatabase>(database);
+    // Moor cache, placed in temporary location automatically
+    final cacheIsolate = await _createMoorCache();
+    final cache = MoorCache.connect(await cacheIsolate.connect());
+    GetIt.I.registerSingleton<MoorCache>(cache);
 
     // Create instances of library parts
     _libInstances = {
@@ -96,16 +96,15 @@ class Repository {
       'playlist': _PlaylistRepository(),
       'settings': _SettingsRepository(),
       'download': _DownloadRepository(),
-			'starred': _StarredRepository(),
-		};
-		return;
-	}
+      'starred': _StarredRepository(),
+    };
+    return;
+  }
 
-	/// Singleton boilerplate code
-	static final Repository _instance = Repository._internal();
+  /// Singleton boilerplate code
+  static final Repository _instance = Repository._internal();
 
-	Repository._internal();
+  Repository._internal();
 
-	factory Repository() => _instance;
-
+  factory Repository() => _instance;
 }

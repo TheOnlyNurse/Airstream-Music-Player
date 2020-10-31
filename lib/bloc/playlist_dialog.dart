@@ -1,10 +1,16 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/events/playlist_dialog_event.dart';
-import 'package:airstream/states/playlist_dialog_state.dart';
+import 'dart:async';
+
+/// External Packages
+import 'package:bloc/bloc.dart';
+
+/// Internal links
+import '../data_providers/repository/repository.dart';
+import '../events/playlist_dialog_event.dart';
+import '../states/playlist_dialog_state.dart';
 
 // Ease of use barreling
-export 'package:airstream/events/playlist_dialog_event.dart';
-export 'package:airstream/states/playlist_dialog_state.dart';
+export '../events/playlist_dialog_event.dart';
+export '../states/playlist_dialog_state.dart';
 
 class PlaylistDialogBloc
     extends Bloc<PlaylistDialogEvent, PlaylistDialogState> {

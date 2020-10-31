@@ -1,6 +1,11 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/barrel/provider_basics.dart';
+import 'dart:async';
+
+/// External Packages
 import 'package:connectivity/connectivity.dart';
+import 'package:hive/hive.dart';
+
+/// Internal Links
+import '../repository/communication.dart';
 
 class SettingsProvider {
   final _hiveBox = Hive.box('settings');
@@ -26,8 +31,8 @@ class SettingsProvider {
       assert(number < _range[type][1] + 1);
     }
 
-      _hiveBox.put(type.index, newValue);
-      _settingChanged.add(type);
+    _hiveBox.put(type.index, newValue);
+    _settingChanged.add(type);
   }
 
   List<int> range(SettingType type) => _range[type];

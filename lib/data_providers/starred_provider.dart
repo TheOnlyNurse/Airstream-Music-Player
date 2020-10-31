@@ -1,8 +1,11 @@
-import 'package:airstream/barrel/bloc_basics.dart';
-import 'package:airstream/data_providers/server_provider.dart';
-import 'package:airstream/models/response/starred_response.dart';
+/// External Packages
 import 'package:hive/hive.dart';
-import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart';
+
+/// Internal Links
+import '../data_providers/server_provider.dart';
+import '../models/response/starred_response.dart';
+
 
 class StarredProvider {
   /// Holds starred song, album and artist ids
@@ -39,7 +42,7 @@ class StarredProvider {
 
   /// Takes elements of a given string (key) in an xml document and places
   /// them into the hive box
-  Future<void> _parseDocument(xml.XmlDocument document, String key) async {
+  Future<void> _parseDocument(XmlDocument document, String key) async {
     final elements = document.findAllElements(key);
     final idList = <int>[];
     for (var element in elements) {
