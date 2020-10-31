@@ -1,4 +1,4 @@
-import 'package:airstream/widgets/player/player_queue.dart';
+import '../../complex_widgets/player/player_queue.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 

@@ -1,6 +1,6 @@
-import 'package:airstream/widgets/error_widgets.dart';
-import 'package:airstream/widgets/sliver_card_grid.dart';
-import 'package:airstream/widgets/sliver_close_bar.dart';
+import '../complex_widgets/error_widgets.dart';
+import '../complex_widgets/sliver_card_grid.dart';
+import '../complex_widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
 class AlbumListScreen extends StatelessWidget {

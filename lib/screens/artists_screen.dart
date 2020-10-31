@@ -2,9 +2,9 @@ import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/models/repository_response.dart';
 import 'package:airstream/models/static_assets.dart';
 import 'package:airstream/repository/artist_repository.dart';
-import 'package:airstream/widgets/alpha_grid_view.dart';
-import 'package:airstream/widgets/artist_circle.dart';
-import 'package:airstream/widgets/error_widgets.dart';
+import '../complex_widgets/alpha_grid_view.dart';
+import '../complex_widgets/artist_circle.dart';
+import '../complex_widgets/error_widgets.dart';
 import 'package:flutter/material.dart';
 
 class ArtistsScreen extends StatelessWidget {

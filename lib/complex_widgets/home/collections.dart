@@ -5,7 +5,7 @@ import 'package:airstream/screens/alphabet_screen.dart';
 import 'package:airstream/screens/artists_screen.dart';
 import 'package:airstream/screens/decade_screen.dart';
 import 'package:airstream/screens/genre_screen.dart';
-import 'package:airstream/widgets/screen_transitions.dart';
+import '../../complex_widgets/screen_transitions.dart';
 import 'package:flutter/material.dart';
 
 class Collections extends StatelessWidget {

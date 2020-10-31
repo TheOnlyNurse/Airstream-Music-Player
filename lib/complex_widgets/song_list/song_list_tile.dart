@@ -2,7 +2,7 @@ import 'package:airstream/bloc/song_list_tile_bloc.dart';
 import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/events/song_list_tile_event.dart';
 import 'package:airstream/states/song_list_tile_state.dart';
-import 'package:airstream/widgets/song_tile.dart';
+import '../../complex_widgets/song_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,5 +1,5 @@
 import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/widgets/artist_circle.dart';
+import '../complex_widgets/artist_circle.dart';
 import 'package:flutter/material.dart';
 
 class HorizontalArtistGrid extends StatelessWidget {

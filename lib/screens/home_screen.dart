@@ -1,10 +1,10 @@
 import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/repository/artist_repository.dart';
-import 'package:airstream/widgets/home/collections.dart';
-import 'package:airstream/widgets/home/playlists.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/widgets/refresh_button.dart';
-import 'package:airstream/widgets/home/search_bar.dart';
+import '../complex_widgets/home/collections.dart';
+import '../complex_widgets/home/playlists.dart';
+import '../complex_widgets/refresh_button.dart';
+import '../complex_widgets/home/search_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {

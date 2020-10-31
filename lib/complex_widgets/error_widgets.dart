@@ -1,5 +1,10 @@
-import 'package:airstream/models/repository_response.dart';
+import 'package:airstream/widgets/square_close_button.dart';
+
+/// External Packages
 import 'package:flutter/material.dart';
+
+/// Internal Links
+import '../models/repository_response.dart';
 
 class ErrorText extends StatelessWidget {
   const ErrorText({Key key, this.error}) : super(key: key);
@@ -75,6 +80,38 @@ class _SolutionText extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class NoStateErrorScreen extends StatelessWidget {
+  const NoStateErrorScreen({Key key, @required this.state})
+      : assert(state != null),
+        super(key: key);
+
+  final String state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SquareCloseButton(),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                "Could not read state: $state. "
+                "This shouldn't have happened, "
+                "please report this to the developer.",
+                style: Theme.of(context).textTheme.headline6,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

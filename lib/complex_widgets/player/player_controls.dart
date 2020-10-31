@@ -1,6 +1,6 @@
 import 'package:airstream/bloc/player_controls_bloc.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/widgets/player/play_button.dart';
+import '../../complex_widgets/player/play_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

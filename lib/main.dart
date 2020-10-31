@@ -41,7 +41,7 @@ class _Foundation extends StatelessWidget {
         '/musicPlayer': (context) => PlayerScreen(navKey: libraryNavigator),
         '/settings': (context) => SettingsScreen(),
         '/search': (context) => SearchScreen(navKey: libraryNavigator),
-        '/library': (context) => LibraryFoundation(navKey: libraryNavigator),
+        '/library': (context) => LibraryFoundation(navigatorKey: libraryNavigator),
       },
       home: SplashScreen(),
     );

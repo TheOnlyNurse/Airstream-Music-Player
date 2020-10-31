@@ -1,29 +1,36 @@
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/repository/artist_repository.dart';
+/// External Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:airstream/bloc/mini_player_bloc.dart';
-import 'package:airstream/bloc/nav_bar_bloc.dart';
-import 'package:airstream/bloc/player_target_bloc.dart';
-
-// Widgets
-import 'package:airstream/widgets/player/mini_player.dart';
-import 'package:airstream/widgets/screen_transitions.dart';
-import 'package:airstream/widgets/nav_bar.dart';
-
-// Screens that can be navigated from the library
-import 'package:airstream/screens/album_list_screen.dart';
-import 'package:airstream/screens/home_screen.dart';
-import 'package:airstream/screens/single_playlist_screen.dart';
-import 'package:airstream/screens/starred_screen.dart';
-import 'package:airstream/screens/single_artist_screen.dart';
-import 'package:airstream/screens/single_album_screen.dart';
 import 'package:get_it/get_it.dart';
 
-class LibraryFoundation extends StatefulWidget {
-  final GlobalKey<NavigatorState> navKey;
+/// Internal Links
+// Repositories
+import '../repository/album_repository.dart';
+import '../repository/artist_repository.dart';
 
-  const LibraryFoundation({Key key, this.navKey}) : super(key: key);
+// Blocs
+import '../bloc/mini_player_bloc.dart';
+import '../bloc/nav_bar_bloc.dart';
+import '../bloc/player_target_bloc.dart';
+import '../cubit/single_album_cubit.dart';
+
+// Widgets
+import '../complex_widgets/player/mini_player.dart';
+import '../complex_widgets/screen_transitions.dart';
+import '../complex_widgets/nav_bar.dart';
+
+// Screens that can be navigated from the library
+import 'album_list_screen.dart';
+import 'home_screen.dart';
+import 'single_playlist_screen.dart';
+import 'starred_screen.dart';
+import 'single_artist_screen.dart';
+import 'single_album_screen.dart';
+
+class LibraryFoundation extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const LibraryFoundation({Key key, this.navigatorKey}) : super(key: key);
 
   _LibraryState createState() => _LibraryState();
 }
@@ -42,7 +49,10 @@ class _LibraryState extends State<LibraryFoundation> {
           builder = (context) => SingleArtistScreen(artist: settings.arguments);
           break;
         case 'library/singleAlbum':
-          builder = (context) => SingleAlbumScreen(album: settings.arguments);
+          builder = (context) => SingleAlbumScreen(
+                album: settings.arguments,
+                cubit: SingleAlbumCubit(),
+              );
           break;
         case 'library/singlePlaylist':
           builder =
@@ -67,14 +77,14 @@ class _LibraryState extends State<LibraryFoundation> {
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(
             playerBloc: context.bloc<MiniPlayerBloc>(),
-            navigatorKey: widget.navKey,
+            navigatorKey: widget.navigatorKey,
           ),
         ),
       ],
       child: WillPopScope(
         onWillPop: () async {
-          if (widget.navKey.currentState.canPop()) {
-            widget.navKey.currentState.pop();
+          if (widget.navigatorKey.currentState.canPop()) {
+            widget.navigatorKey.currentState.pop();
             return false;
           } else {
             return true;
@@ -85,7 +95,7 @@ class _LibraryState extends State<LibraryFoundation> {
             child: Stack(
               children: <Widget>[
                 Navigator(
-                  key: this.widget.navKey,
+                  key: this.widget.navigatorKey,
                   initialRoute: 'library/',
                   onGenerateRoute: _generateRoute,
                 ),
@@ -99,8 +109,8 @@ class _LibraryState extends State<LibraryFoundation> {
           bottomNavigationBar: NavigationBar(
             index: index,
             onTap: (newIndex) {
-              if (widget.navKey.currentState.canPop()) {
-                widget.navKey.currentState.popUntil((route) => route.isFirst);
+              if (widget.navigatorKey.currentState.canPop()) {
+                widget.navigatorKey.currentState.popUntil((route) => route.isFirst);
               } else {
                 setState(() {
                   index = newIndex;

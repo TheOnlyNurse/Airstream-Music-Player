@@ -6,9 +6,9 @@ import 'package:get_it/get_it.dart';
 import '../../repository/image_repository.dart';
 import '../../data_providers/repository/repository.dart';
 import '../../repository/communication.dart';
-import '../../widgets/custom_alert_dialog.dart';
-import '../../widgets/settings/custom_switch.dart';
-import '../../widgets/settings_slider.dart';
+import '../../complex_widgets/custom_alert_dialog.dart';
+import '../../complex_widgets/settings/custom_switch.dart';
+import '../../complex_widgets/settings_slider.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {
   @override

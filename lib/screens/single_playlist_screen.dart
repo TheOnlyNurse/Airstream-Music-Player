@@ -1,6 +1,6 @@
 import 'package:airstream/models/playlist_model.dart';
 import 'package:airstream/models/song_list_delegate.dart';
-import 'package:airstream/widgets/song_list/song_list.dart';
+import '../complex_widgets/song_list/song_list.dart';
 import 'package:flutter/material.dart';
 
 class SinglePlaylistScreen extends StatelessWidget {

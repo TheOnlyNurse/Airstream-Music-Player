@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
-import '../widgets/error_widgets.dart';
+import '../complex_widgets/error_widgets.dart';
 import '../repository/communication.dart';
 import '../data_providers/repository/repository.dart';
 

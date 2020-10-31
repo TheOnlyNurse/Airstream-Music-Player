@@ -1,6 +1,6 @@
 import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/widgets/song_tile.dart';
+import '../../complex_widgets/song_tile.dart';
 import 'package:flutter/material.dart';
 
 class SliverSongList extends StatelessWidget {

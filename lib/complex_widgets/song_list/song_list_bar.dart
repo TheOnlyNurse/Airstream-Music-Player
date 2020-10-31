@@ -1,7 +1,7 @@
 import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/events/song_list_event.dart';
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/widgets/song_list/playlist_dialog.dart';
+import '../../complex_widgets/song_list/playlist_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

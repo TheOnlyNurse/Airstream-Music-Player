@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
-import '../widgets/error_widgets.dart';
+import '../complex_widgets/error_widgets.dart';
 import '../data_providers/repository/repository.dart';
 import '../events/single_artist_event.dart';
 import '../repository/album_repository.dart';

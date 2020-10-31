@@ -1,41 +1,35 @@
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/models/image_adapter.dart';
-import 'package:airstream/models/song_list_delegate.dart';
-import 'package:airstream/widgets/airstream_image.dart';
-import 'package:airstream/widgets/song_list/song_list.dart';
+/// External Packages
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+/// Internal Links
+import '../data_providers/moor_database.dart';
+import '../models/image_adapter.dart';
+import '../models/song_list_delegate.dart';
+import '../complex_widgets/airstream_image.dart';
+import '../complex_widgets/song_list/song_list.dart';
+import '../cubit/single_album_cubit.dart';
+import '../complex_widgets/error_widgets.dart';
 
 class SingleAlbumScreen extends StatelessWidget {
-  final Album album;
+  const SingleAlbumScreen({
+    Key key,
+    @required this.album,
+    @required this.cubit,
+  })  : assert(album != null),
+        assert(cubit != null),
+        super(key: key);
 
-  SingleAlbumScreen({this.album});
+  final Album album;
+  final SingleAlbumCubit cubit;
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-    return Container(
-      color: backgroundColor,
-      child: SongList(
-        delegate: AlbumSongList(album: album),
-        leading: <Widget>[
-          SliverAppBar(
-            backgroundColor: backgroundColor,
-            automaticallyImplyLeading: false,
-            titleSpacing: 4,
-            expandedHeight: 400,
-            flexibleSpace: AirstreamImage(
-              adapter: ImageAdapter(album: album, isHiDef: true),
-            ),
-            title: RawMaterialButton(
-              constraints: BoxConstraints.tightFor(width: 60, height: 60),
-              onPressed: () => Navigator.pop(context),
-              shape: CircleBorder(),
-              child: Icon(Icons.close),
-            ),
-          ),
-        ],
-      ),
+    return BlocBuilder<SingleAlbumCubit, SingleAlbumState>(
+      cubit: cubit,
+      builder: (_, state) {
+        return NoStateErrorScreen(state: state.toString());
+      },
     );
   }
 }

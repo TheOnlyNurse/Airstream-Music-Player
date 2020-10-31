@@ -1,5 +1,5 @@
 import 'package:airstream/models/playlist_model.dart';
-import 'package:airstream/widgets/airstream_collage.dart';
+import '../../complex_widgets/airstream_collage.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistTile extends StatelessWidget {

@@ -2,8 +2,8 @@ import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:airstream/models/song_list_delegate.dart';
-import 'package:airstream/widgets/song_list/song_list_bar.dart';
-import 'package:airstream/widgets/song_list/song_list_tile.dart';
+import '../../complex_widgets/song_list/song_list_bar.dart';
+import '../../complex_widgets/song_list/song_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
