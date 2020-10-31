@@ -16,44 +16,49 @@ export '../events/nav_bar_event.dart';
 export '../states/nav_bar_state.dart';
 
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
-  final GlobalKey<NavigatorState> navigatorKey;
-  final _repository = Repository();
-  StreamSubscription _buttonState;
-  StreamSubscription _offlineState;
-
   NavigationBarBloc({
     @required MiniPlayerBloc playerBloc,
     @required this.navigatorKey,
-  }) : super(NavigationBarSuccess()) {
-    assert(playerBloc != null);
-    assert(navigatorKey != null);
-
+  })  : assert(playerBloc != null),
+        assert(navigatorKey != null),
+        super(NavigationBarState()) {
     _buttonState = playerBloc.listen((state) {
-			if (state is MiniPlayerInitial) {
-				this.add(NavigationBarNotch(false));
-			} else {
-				this.add(NavigationBarNotch(true));
-			}
+      if (state is MiniPlayerInitial) {
+        this.add(NavigationBarNotch(false));
+      } else {
+        this.add(NavigationBarNotch(true));
+      }
     });
+
     _offlineState = _repository.settings.onChange.listen((hasChanged) {
       this.add(NavigationBarNetworkChange());
     });
   }
 
+  final _repository = Repository();
+  final GlobalKey<NavigatorState> navigatorKey;
+  StreamSubscription _buttonState;
+  StreamSubscription _offlineState;
+
   @override
   Stream<NavigationBarState> mapEventToState(NavigationBarEvent event) async* {
-    final currentState = state;
-
-    if (currentState is NavigationBarSuccess) {
-      if (event is NavigationBarNotch) {
-        yield currentState.copyWith(isNotched: event.isNotched);
+    if (event is NavigationBarTapped) {
+      var navigatorState = navigatorKey.currentState;
+      if (navigatorState.canPop()) {
+        navigatorState.popUntil((route) => route.isFirst);
+      } else {
+        yield state.copyWith(pageIndex: event.index);
       }
+    }
 
-      if (event is NavigationBarNetworkChange) {
-        final newState = _repository.settings.isOffline;
-        if (currentState.isOffline != newState) {
-          yield currentState.copyWith(isOffline: newState);
-        }
+    if (event is NavigationBarNotch) {
+      yield state.copyWith(isNotched: event.isNotched);
+    }
+
+    if (event is NavigationBarNetworkChange) {
+      final newState = _repository.settings.isOffline;
+      if (state.isOffline != newState) {
+        yield state.copyWith(isOffline: newState);
       }
     }
   }

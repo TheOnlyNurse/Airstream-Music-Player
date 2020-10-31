@@ -1,27 +1,28 @@
 import 'package:equatable/equatable.dart';
 
-abstract class NavigationBarState extends Equatable {
-  const NavigationBarState();
-
-  @override
-  List<Object> get props => [];
-}
-
-class NavigationBarSuccess extends NavigationBarState {
-  final bool isNotched;
-  final bool isOffline;
-
-  const NavigationBarSuccess({
+class NavigationBarState extends Equatable {
+  const NavigationBarState({
     this.isNotched = false,
     this.isOffline = false,
+    this.pageIndex = 0,
   });
 
-  NavigationBarSuccess copyWith({bool isNotched, bool isOffline, int index}) =>
-      NavigationBarSuccess(
-        isNotched: isNotched ?? this.isNotched,
-        isOffline: isOffline ?? this.isOffline,
-      );
+  final bool isNotched;
+  final bool isOffline;
+  final int pageIndex;
+
+  NavigationBarState copyWith({
+    bool isNotched,
+    bool isOffline,
+    int pageIndex,
+  }) {
+    return NavigationBarState(
+      isNotched: isNotched ?? this.isNotched,
+      isOffline: isOffline ?? this.isOffline,
+      pageIndex: pageIndex ?? this.pageIndex,
+    );
+  }
 
   @override
-  List<Object> get props => [isNotched, isOffline];
+  List<Object> get props => [isNotched, isOffline, pageIndex];
 }
