@@ -1,4 +1,4 @@
-/// External Packages
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -11,7 +11,7 @@ import '../repository/album_repository.dart';
 import '../repository/artist_repository.dart';
 import '../static_assets.dart';
 import '../complex_widgets/horizontal_artist_grid.dart';
-import '../complex_widgets/sliver_card_grid.dart';
+import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/song_list/sliver_song_list.dart';
 import '../widgets/flexible_image_with_title.dart';
 
@@ -44,7 +44,14 @@ class SingleArtistScreen extends StatelessWidget {
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
                   _SliverTitle(title: 'Albums'),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
-                  SliverAlbumGrid(albumList: state.albums),
+                  SliverAlbumGrid(
+                    albumList: state.albums,
+                    onTap: (album) => Navigator.pushReplacementNamed(
+                        context,
+                        'library/singleAlbum',
+                        arguments: album,
+                      ),
+                  ),
                   if (state.similarArtists != null)
                     _SliverTitle(title: 'Similar'),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
@@ -115,7 +122,12 @@ class _AppBar extends StatelessWidget {
       stretch: true,
       stretchTriggerOffset: 200,
       flexibleSpace: FlexibleImageWithTitle(
-        title: artist.name,
+        title: AutoSizeText(
+          artist.name,
+          style: Theme.of(context).textTheme.headline4,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+        ),
         adapter: ImageAdapter(artist: artist, isHiDef: true),
       ),
       automaticallyImplyLeading: false,

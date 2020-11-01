@@ -7,7 +7,7 @@ import '../complex_widgets/horizontal_album_grid.dart';
 import '../complex_widgets/refresh_button.dart';
 import 'package:airstream/data_providers/repository/repository.dart';
 import '../complex_widgets/screen_transitions.dart';
-import '../complex_widgets/sliver_card_grid.dart';
+import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/song_list/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 /// Internal Links
 import '../complex_widgets/airstream_image.dart';
@@ -9,7 +8,7 @@ class FlexibleImageWithTitle extends StatelessWidget {
   const FlexibleImageWithTitle({Key key, this.title, this.adapter})
       : super(key: key);
 
-  final String title;
+  final Widget title;
   final ImageAdapter adapter;
 
   @override
@@ -17,12 +16,7 @@ class FlexibleImageWithTitle extends StatelessWidget {
     return FlexibleSpaceBar(
       title: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: AutoSizeText(
-          title,
-          style: Theme.of(context).textTheme.headline4,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-        ),
+        child: title,
       ),
       centerTitle: true,
       stretchModes: [

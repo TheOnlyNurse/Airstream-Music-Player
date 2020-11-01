@@ -1,12 +1,16 @@
-import 'package:airstream/data_providers/moor_database.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';
-import '../complex_widgets/album_card.dart';
 import 'package:flutter/material.dart';
+import 'package:airstream/data_providers/moor_database.dart';
+
+/// Internal Links
+import '../static_assets.dart';
+import '../complex_widgets/album_card.dart';
 
 class SliverAlbumGrid extends StatelessWidget {
-  const SliverAlbumGrid({@required this.albumList});
+  const SliverAlbumGrid({Key key, this.albumList, this.onTap})
+      : super(key: key);
 
   final List<Album> albumList;
+  final void Function(Album) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +19,10 @@ class SliverAlbumGrid extends StatelessWidget {
       sliver: SliverGrid(
         gridDelegate: airstreamAlbumsDelegate,
         delegate: SliverChildBuilderDelegate(
-          (context, int index) => AlbumCard(album: albumList[index]),
+          (context, int index) => AlbumCard(
+            album: albumList[index],
+            onTap: onTap,
+          ),
           childCount: albumList.length,
         ),
       ),

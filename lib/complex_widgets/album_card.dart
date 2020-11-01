@@ -1,11 +1,13 @@
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/models/image_adapter.dart';
-import '../complex_widgets/airstream_image.dart';
 import 'package:flutter/material.dart';
+
+/// Internal Links
+import '../complex_widgets/airstream_image.dart';
+import '../data_providers/moor_database.dart';
+import '../models/image_adapter.dart';
 
 class AlbumCard extends StatelessWidget {
   final Album album;
-  final Function(Album) onTap;
+  final void Function(Album) onTap;
 
   AlbumCard({@required this.album, this.onTap});
 

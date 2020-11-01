@@ -1,8 +1,7 @@
-import 'package:airstream/complex_widgets/song_list/sliver_song_list.dart';
-
-/// External Packages
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 /// Internal Links
 import '../models/image_adapter.dart';
@@ -11,13 +10,16 @@ import '../complex_widgets/error_widgets.dart';
 import '../static_assets.dart';
 import '../widgets/flexible_image_with_title.dart';
 import '../widgets/square_close_button.dart';
+import '../complex_widgets/song_list/sliver_song_list.dart';
+import '../data_providers/moor_database.dart';
+import '../repository/artist_repository.dart';
+import '../widgets/future_button.dart';
 
 class SingleAlbumScreen extends StatelessWidget {
   const SingleAlbumScreen({
     Key key,
     @required this.cubit,
-  })  :
-        assert(cubit != null),
+  })  : assert(cubit != null),
         super(key: key);
 
   final SingleAlbumCubit cubit;
@@ -60,7 +62,22 @@ class _Success extends StatelessWidget {
           stretch: true,
           stretchTriggerOffset: 200,
           flexibleSpace: FlexibleImageWithTitle(
-            title: state.album.title,
+            title: FutureButton<Artist>(
+              future: GetIt.I.get<ArtistRepository>().byId(
+                    state.album.artistId,
+                  ),
+              onTap: (response) => Navigator.pushReplacementNamed(
+                context,
+                'library/singleArtist',
+                arguments: response,
+              ),
+              child: AutoSizeText(
+                state.album.title,
+                style: Theme.of(context).textTheme.headline4,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+              ),
+            ),
             adapter: ImageAdapter(album: state.album, isHiDef: true),
           ),
           automaticallyImplyLeading: false,

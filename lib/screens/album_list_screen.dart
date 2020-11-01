@@ -1,5 +1,5 @@
 import '../complex_widgets/error_widgets.dart';
-import '../complex_widgets/sliver_card_grid.dart';
+import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
