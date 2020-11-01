@@ -26,16 +26,21 @@ class FlexibleImageWithTitle extends StatelessWidget {
       background: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          AirstreamImage(adapter: adapter),
+          Padding(
+            // Due to how FlexibleSpaceBar renders images and stacked gradients
+            // a bottom padding of 1 is required to hide the overflowing part
+            padding: const EdgeInsets.only(bottom: 1),
+            child: AirstreamImage(adapter: adapter),
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(0, 0, 0, 0.5),
-                  Color.fromRGBO(0, 0, 0, 0.1),
+                  Color.fromRGBO(0, 0, 0, 0),
+                  Color.fromRGBO(8, 10, 40, 1),
                 ],
-                begin: Alignment(0, 1),
-                end: Alignment(0, -1),
+                begin: Alignment(0, -1),
+                end: Alignment(0, 1),
               ),
             ),
           ),

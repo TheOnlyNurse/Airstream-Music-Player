@@ -1,3 +1,4 @@
+import 'package:airstream/data_providers/repository/repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,8 +85,38 @@ class _Success extends StatelessWidget {
           title: SquareCloseButton(),
           titleSpacing: 0,
         ),
+        SliverToBoxAdapter(child: _ShuffleButton(songs: state.songs)),
         SliverSongList(songs: state.songs),
       ],
+    );
+  }
+}
+
+class _ShuffleButton extends StatelessWidget {
+  const _ShuffleButton({Key key, @required this.songs})
+      : assert(songs != null),
+        super(key: key);
+
+  final List<Song> songs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 6),
+      child: Center(
+        child: RawMaterialButton(
+          fillColor: Theme.of(context).buttonColor,
+          constraints: BoxConstraints.tightFor(width: 200, height: 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          onPressed: () {
+            songs.shuffle();
+            Repository().audio.start(playlist: songs);
+          },
+          child: Text('Shuffle', style: Theme.of(context).textTheme.headline6),
+        ),
+      ),
     );
   }
 }
