@@ -1,5 +1,5 @@
-/// External Packages
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 /// Internal Links
 import '../complex_widgets/airstream_image.dart';
@@ -17,9 +17,11 @@ class FlexibleImageWithTitle extends StatelessWidget {
     return FlexibleSpaceBar(
       title: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: FittedBox(
-          fit: BoxFit.fitWidth,
-          child: Text(title, style: Theme.of(context).textTheme.headline4),
+        child: AutoSizeText(
+          title,
+          style: Theme.of(context).textTheme.headline4,
+          maxLines: 2,
+          textAlign: TextAlign.center,
         ),
       ),
       centerTitle: true,
@@ -35,8 +37,8 @@ class FlexibleImageWithTitle extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(0, 0, 0, 0.1),
                   Color.fromRGBO(0, 0, 0, 0.5),
+                  Color.fromRGBO(0, 0, 0, 0.1),
                 ],
                 begin: Alignment(0, 1),
                 end: Alignment(0, -1),
