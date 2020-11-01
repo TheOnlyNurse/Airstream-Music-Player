@@ -1,25 +1,28 @@
-import '../complex_widgets/error_widgets.dart';
-import '../complex_widgets/sliver_album_grid.dart';
-import '../complex_widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
+/// Internal
+import '../data_providers/moor_database.dart';
+import '../models/repository_response.dart';
+import '../complex_widgets/error_widgets.dart';
+import '../complex_widgets/sliver_album_grid.dart';
+import '../widgets/sliver_close_bar.dart';
+
 class AlbumListScreen extends StatelessWidget {
-  final Function() future;
+  final Future<ListResponse<Album>> Function() future;
   final String title;
 
-  const AlbumListScreen({Key key, this.future, this.title})
-      : super(key: key);
+  const AlbumListScreen({Key key, this.future, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
+        child: FutureBuilder<ListResponse<Album>>(
           future: future(),
-          builder: (context, snapshot) {
+          builder: (_, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               final response = snapshot.data;
-              if (response.hasNoData) {
+              if (response.hasError) {
                 return ErrorScreen(response: response);
               }
 
@@ -27,8 +30,8 @@ class AlbumListScreen extends StatelessWidget {
                 physics: BouncingScrollPhysics(),
                 slivers: <Widget>[
                   SliverCloseBar(),
-                  if (title == null) SliverToBoxAdapter(
-                      child: SizedBox(height: 12)),
+                  if (title == null)
+                    SliverToBoxAdapter(child: SizedBox(height: 12)),
                   if (title != null) _Title(title: title),
                   SliverAlbumGrid(albumList: response.data),
                 ],
@@ -75,10 +78,7 @@ class _Title extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(title, style: Theme
-            .of(context)
-            .textTheme
-            .headline4),
+        child: Text(title, style: Theme.of(context).textTheme.headline4),
       ),
     );
   }

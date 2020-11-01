@@ -1,4 +1,4 @@
-import 'package:airstream/widgets/square_close_button.dart';
+import 'package:airstream/widgets/circle_close_button.dart';
 
 /// External Packages
 import 'package:flutter/material.dart';
@@ -96,7 +96,7 @@ class NoStateErrorScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SquareCloseButton(),
+        CircleCloseButton(),
         Expanded(
           child: Center(
             child: Padding(

@@ -11,7 +11,11 @@ class ImageAdapter {
     Album album,
     Artist artist,
     bool isHiDef = false,
-  })  : _album = album,
+  })  : assert(
+          !(album != null && artist != null),
+          'Must pass either [album] or [artist] but not both.',
+        ),
+        _album = album,
         _artist = artist,
         _isHiDef = isHiDef;
 

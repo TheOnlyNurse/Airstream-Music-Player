@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Internal
+import 'package:airstream/widgets/circle_close_button.dart';
+
 class SliverCloseBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -9,6 +12,7 @@ class SliverCloseBar extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
+      titleSpacing: 8,
       title: Container(
         width: MediaQuery.of(context).size.width / 2,
         alignment: Alignment.centerLeft,
@@ -17,16 +21,9 @@ class SliverCloseBar extends StatelessWidget {
             colors: [Theme.of(context).primaryColor, Colors.transparent],
             stops: [0.2, 1],
           ),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(30),
         ),
-        child: RawMaterialButton(
-          constraints: BoxConstraints.tightFor(
-            width: 50,
-            height: 50,
-          ),
-          onPressed: () => Navigator.pop(context),
-          child: Icon(Icons.close),
-        ),
+        child: CircleCloseButton(),
       ),
     );
   }

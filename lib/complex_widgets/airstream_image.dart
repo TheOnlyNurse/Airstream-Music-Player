@@ -19,7 +19,7 @@ class AirstreamImage extends StatelessWidget {
   final double width;
 
   /// Returns the empty widget when file is null.
-  Widget _getChild(File image) {
+  Widget _child(File image) {
     if (image != null) {
       return Image.file(image, height: height, width: width, fit: fit);
     } else {
@@ -29,14 +29,14 @@ class AirstreamImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<File>(
       future: adapter.resolve(GetIt.I.get<ImageRepository>()),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (adapter.shouldAnimate) {
-            return _AnimatedImage(child: _getChild(snapshot.data));
+            return _AnimatedImage(child: _child(snapshot.data));
           } else {
-            return _getChild(snapshot.data);
+            return _child(snapshot.data);
           }
         }
 

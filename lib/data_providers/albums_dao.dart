@@ -174,12 +174,12 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   }
 
   /// Updates albums that match a given id list to be starred.
-  Future<void> markStarred(List<int> idList) async {
+  Future<void> markStarred(List<int> idList, {bool starred = true}) async {
     return batch((batch) {
       for (var id in idList) {
         batch.update(
           albums,
-          AlbumsCompanion(isStarred: const Value(true)),
+          AlbumsCompanion(isStarred: Value(starred)),
           where: (t) => t.id.equals(id),
         );
       }

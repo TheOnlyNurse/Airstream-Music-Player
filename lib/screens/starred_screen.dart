@@ -138,7 +138,7 @@ class _Heading extends StatelessWidget {
           ),
           RefreshButton(
             onPressed: () async {
-              await GetIt.I.get<AlbumRepository>().updateStarred();
+              await GetIt.I.get<AlbumRepository>().forceSyncStarred();
               await Repository().starred.update();
               context.bloc<StarredBloc>().add(StarredFetch());
             },

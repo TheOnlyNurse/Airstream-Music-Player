@@ -1,7 +1,7 @@
 import 'package:airstream/models/repository_response.dart';
 import 'package:airstream/repository/album_repository.dart';
 import '../complex_widgets/error_widgets.dart';
-import '../complex_widgets/sliver_close_bar.dart';
+import '../widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 
 class DecadeScreen extends StatelessWidget {

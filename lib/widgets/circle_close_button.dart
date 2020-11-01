@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-class SquareCloseButton extends StatelessWidget {
+class CircleCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      constraints: BoxConstraints.tightFor(width: 60, height: 60),
+      constraints: BoxConstraints.tightFor(width: 55, height: 55),
       onPressed: () => Navigator.pop(context),
+      shape: CircleBorder(),
       child: Icon(Icons.close),
     );
   }

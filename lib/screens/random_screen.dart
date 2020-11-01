@@ -3,7 +3,7 @@ import 'package:airstream/events/random_event.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/states/random_state.dart';
 import '../complex_widgets/sliver_album_grid.dart';
-import '../complex_widgets/sliver_close_bar.dart';
+import '../widgets/sliver_close_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';

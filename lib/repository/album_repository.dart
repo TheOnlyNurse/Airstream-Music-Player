@@ -1,5 +1,6 @@
 import 'package:airstream/data_providers/albums_dao.dart';
 import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/data_providers/scheduler.dart';
 import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/models/repository_response.dart';
 import 'package:airstream/models/response/server_response.dart';
@@ -93,7 +94,7 @@ class AlbumRepository {
   Future<ListResponse<Album>> starred() async {
     List<Album> albums = await _database.starred();
     if (albums.isEmpty) {
-      await updateStarred();
+      await forceSyncStarred();
       albums = await _database.starred();
     }
     return _removeEmptyLists(albums);
@@ -134,7 +135,7 @@ class AlbumRepository {
 
   /// ========== DB MANAGEMENT ==========
 
-  Future<void> updateStarred() async {
+  Future<void> forceSyncStarred() async {
     final response = await ServerProvider().fetchXml('getStarred2?');
     if (response.hasData) {
       final elements = response.document.findAllElements('album').toList();
@@ -145,6 +146,12 @@ class AlbumRepository {
       await _database.markStarred(idList);
     }
     return;
+  }
+
+  Future<void> updateStarred(Album album, bool starred) async {
+    await _database.markStarred([album.id], starred: starred);
+    var request = starred ? 'star' : 'unstar';
+    Scheduler().schedule('$request?albumId=${album.id}');
   }
 
   /// Overrides the local database with one from the server.

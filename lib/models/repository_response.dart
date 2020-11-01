@@ -8,8 +8,6 @@ abstract class RepositoryResponse<T> {
 
   bool get hasData => data != null;
 
-  bool get hasNoData => !hasData;
-
   bool get hasError => !hasData;
 }
 

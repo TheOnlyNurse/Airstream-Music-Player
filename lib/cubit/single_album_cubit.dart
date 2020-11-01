@@ -1,11 +1,18 @@
+import 'package:airstream/repository/album_repository.dart';
+
 /// External Packages
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import '../data_providers/moor_database.dart';
 import '../data_providers/repository/repository.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
-  SingleAlbumCubit() : super(SingleAlbumInitial());
+  SingleAlbumCubit({@required this.albumRepository})
+      : assert(albumRepository != null),
+        super(SingleAlbumInitial());
+
+  final AlbumRepository albumRepository;
 
   void fetchSongs(Album album) async {
     final response = await Repository().song.fromAlbum(album);
@@ -13,6 +20,13 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
       emit(SingleAlbumSuccess(album: album, songs: response.songs));
     } else {
       emit(SingleAlbumError());
+    }
+  }
+
+  void change(bool isStarred) async {
+    var currentState = state;
+    if (currentState is SingleAlbumSuccess) {
+      albumRepository.updateStarred(currentState.album, isStarred);
     }
   }
 }
