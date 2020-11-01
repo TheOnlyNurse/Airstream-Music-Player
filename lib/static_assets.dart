@@ -14,6 +14,10 @@ const airstreamArtistsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
   childAspectRatio: 1 / 1.2,
 );
 
+const airstreamScrollPhysics = BouncingScrollPhysics(
+  parent: AlwaysScrollableScrollPhysics(),
+);
+
 enum ErrorSolution { network, database, report, }
 
 String errorSolution(ErrorSolution type) {

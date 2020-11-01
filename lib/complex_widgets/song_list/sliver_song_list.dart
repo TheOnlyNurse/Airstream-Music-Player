@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 class SliverSongList extends StatelessWidget {
   final List<Song> songs;
 
-  const SliverSongList({
-    Key key,
-    @required this.songs,
-  })  : assert(songs != null),
+  const SliverSongList({Key key, @required this.songs})
+      : assert(songs != null),
         super(key: key);
 
   @override

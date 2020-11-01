@@ -2,7 +2,7 @@ import 'package:airstream/data_providers/artists_dao.dart';
 import 'package:airstream/data_providers/moor_database.dart';
 import 'package:airstream/data_providers/server_provider.dart';
 import 'package:airstream/models/repository_response.dart';
-import 'package:airstream/models/static_assets.dart';
+import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart';
 

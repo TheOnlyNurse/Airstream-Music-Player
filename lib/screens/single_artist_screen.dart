@@ -1,15 +1,19 @@
-import 'package:airstream/bloc/single_artist_bloc.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/models/image_adapter.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/repository/artist_repository.dart';
-import '../complex_widgets/airstream_image.dart';
-import '../complex_widgets/horizontal_artist_grid.dart';
-import '../complex_widgets/sliver_card_grid.dart';
-import '../complex_widgets/song_list/sliver_song_list.dart';
+/// External Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+
+/// Internal Links
+import '../bloc/single_artist_bloc.dart';
+import '../data_providers/moor_database.dart';
+import '../models/image_adapter.dart';
+import '../repository/album_repository.dart';
+import '../repository/artist_repository.dart';
+import '../static_assets.dart';
+import '../complex_widgets/horizontal_artist_grid.dart';
+import '../complex_widgets/sliver_card_grid.dart';
+import '../complex_widgets/song_list/sliver_song_list.dart';
+import '../widgets/flexible_image_with_title.dart';
 
 class SingleArtistScreen extends StatelessWidget {
   final Artist artist;
@@ -31,9 +35,7 @@ class SingleArtistScreen extends StatelessWidget {
           builder: (context, state) {
             if (state is SingleArtistSuccess) {
               return CustomScrollView(
-                physics: BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
+                physics: airstreamScrollPhysics,
                 slivers: [
                   _AppBar(artist: artist),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
@@ -112,37 +114,9 @@ class _AppBar extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       stretch: true,
       stretchTriggerOffset: 200,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FittedBox(
-            fit: BoxFit.fitWidth,
-            child:
-                Text(artist.name, style: Theme.of(context).textTheme.headline4),
-          ),
-        ),
-        centerTitle: true,
-        stretchModes: [
-          StretchMode.zoomBackground,
-          StretchMode.fadeTitle,
-        ],
-        background: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            AirstreamImage(
-              adapter: ImageAdapter(artist: artist, isHiDef: true),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.black26, Colors.black26.withOpacity(0.5)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-          ],
-        ),
+      flexibleSpace: FlexibleImageWithTitle(
+        title: artist.name,
+        adapter: ImageAdapter(artist: artist, isHiDef: true),
       ),
       automaticallyImplyLeading: false,
       title: _CloseButton(),

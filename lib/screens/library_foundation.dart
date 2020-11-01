@@ -1,4 +1,3 @@
-
 /// External Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +13,6 @@ import '../bloc/mini_player_bloc.dart';
 import '../bloc/nav_bar_bloc.dart';
 import '../bloc/player_target_bloc.dart';
 import '../cubit/single_album_cubit.dart';
-import '../cubit/library_pages_cubit.dart';
 
 // Widgets
 import '../complex_widgets/player/mini_player.dart';
@@ -45,7 +43,6 @@ class LibraryFoundation extends StatelessWidget {
             navigatorKey: navigatorKey,
           ),
         ),
-        BlocProvider(create: (_) => LibraryPagesCubit()),
       ],
       child: WillPopScope(
         onWillPop: () async {
@@ -81,7 +78,6 @@ class LibraryFoundation extends StatelessWidget {
 }
 
 class _Pages extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NavigationBarBloc, NavigationBarState>(
@@ -134,7 +130,9 @@ Widget _route(String route, dynamic arguments) {
     case 'library/singleArtist':
       return SingleArtistScreen(artist: arguments);
     case 'library/singleAlbum':
-      return SingleAlbumScreen(album: arguments, cubit: SingleAlbumCubit());
+      return SingleAlbumScreen(
+        cubit: SingleAlbumCubit()..fetchSongs(arguments),
+      );
     case 'library/singlePlaylist':
       return SinglePlaylistScreen(playlist: arguments);
     case 'library/albumList':

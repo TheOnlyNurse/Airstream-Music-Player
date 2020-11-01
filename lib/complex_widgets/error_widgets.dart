@@ -85,11 +85,11 @@ class _SolutionText extends StatelessWidget {
 }
 
 class NoStateErrorScreen extends StatelessWidget {
-  const NoStateErrorScreen({Key key, @required this.state})
-      : assert(state != null),
+  const NoStateErrorScreen({Key key, @required this.message})
+      : assert(message != null),
         super(key: key);
 
-  final String state;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,7 @@ class NoStateErrorScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                "Could not read state: $state. "
+                "Could not read state: $message. "
                 "This shouldn't have happened, "
                 "please report this to the developer.",
                 style: Theme.of(context).textTheme.headline6,
