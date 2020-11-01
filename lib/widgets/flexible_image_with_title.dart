@@ -14,8 +14,11 @@ class FlexibleImageWithTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlexibleSpaceBar(
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+      // Gives a constant width, so that the auto adjusting text doesn't keep re-rendering.
+      title: ConstrainedBox(
+        constraints: BoxConstraints.tightFor(
+          width: MediaQuery.of(context).size.width - 160,
+        ),
         child: title,
       ),
       centerTitle: true,
@@ -27,8 +30,7 @@ class FlexibleImageWithTitle extends StatelessWidget {
         fit: StackFit.expand,
         children: <Widget>[
           Padding(
-            // Due to how FlexibleSpaceBar renders images and stacked gradients
-            // a bottom padding of 1 is required to hide the overflowing part
+            // Stops the image from overflowing under the gradient.
             padding: const EdgeInsets.only(bottom: 1),
             child: AirstreamImage(adapter: adapter),
           ),
