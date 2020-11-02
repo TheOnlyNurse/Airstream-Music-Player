@@ -1,9 +1,10 @@
-/// External Packages
+library library_foundation;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal Links
+/// Internal
 // Repositories
 import '../repository/album_repository.dart';
 import '../repository/artist_repository.dart';
@@ -26,10 +27,17 @@ import 'starred_screen.dart';
 import 'single_artist_screen.dart';
 import 'single_album_screen.dart';
 
-class LibraryFoundation extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
+/// Library
+part '../library_widgets/library_foundation/pages.dart';
 
+part '../library_widgets/library_foundation/route_transition.dart';
+
+part '../library_widgets/library_foundation/routes.dart';
+
+class LibraryFoundation extends StatelessWidget {
   const LibraryFoundation({Key key, this.navigatorKey}) : super(key: key);
+
+  final GlobalKey<NavigatorState> navigatorKey;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +69,7 @@ class LibraryFoundation extends StatelessWidget {
                 Navigator(
                   key: navigatorKey,
                   initialRoute: 'library/',
-                  onGenerateRoute: _routeBuilder,
+                  onGenerateRoute: _routeTransition,
                 ),
                 PlayerButtonTarget(),
               ],
@@ -74,71 +82,5 @@ class LibraryFoundation extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _Pages extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<NavigationBarBloc, NavigationBarState>(
-      builder: (context, state) {
-        switch (state.pageIndex) {
-          case 0:
-            return HomeScreen(
-              albumRepository: GetIt.I.get<AlbumRepository>(),
-              artistRepository: GetIt.I.get<ArtistRepository>(),
-            );
-            break;
-          case 1:
-            return StarredScreen();
-            break;
-          default:
-            throw UnimplementedError('Page index: ${state.pageIndex}');
-        }
-      },
-    );
-  }
-}
-
-PageRouteBuilder _routeBuilder(RouteSettings settings) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, __) {
-      return Material(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 12,
-        child: _route(settings.name, settings.arguments),
-      );
-    },
-    transitionsBuilder: (_, animation, __, child) {
-      return FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.7, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn),
-          ),
-          child: child,
-        ),
-      );
-    },
-  );
-}
-
-Widget _route(String route, dynamic arguments) {
-  switch (route) {
-    case 'library/':
-      return _Pages();
-    case 'library/singleArtist':
-      return SingleArtistScreen(artist: arguments);
-    case 'library/singleAlbum':
-      return SingleAlbumScreen(
-        cubit: SingleAlbumCubit(albumRepository: GetIt.I.get<AlbumRepository>())
-          ..fetchSongs(arguments),
-      );
-    case 'library/singlePlaylist':
-      return SinglePlaylistScreen(playlist: arguments);
-    case 'library/albumList':
-      return AlbumListScreen(future: arguments);
-    default:
-      throw Exception('Unknown route $route');
   }
 }
