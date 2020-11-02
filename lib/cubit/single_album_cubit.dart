@@ -29,6 +29,10 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
       albumRepository.updateStarred(currentState.album, isStarred);
     }
   }
+
+  void popupSelected(int index) async {
+
+  }
 }
 
 abstract class SingleAlbumState extends Equatable {
