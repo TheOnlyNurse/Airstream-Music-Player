@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 
 /// Internal Links
 import '../static_assets.dart';

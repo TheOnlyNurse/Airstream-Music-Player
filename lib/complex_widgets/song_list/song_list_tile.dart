@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/song_list_tile_bloc.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/events/song_list_tile_event.dart';
 import 'package:airstream/states/song_list_tile_state.dart';
 import '../../complex_widgets/song_tile.dart';

@@ -1,4 +1,4 @@
-part of '../../screens/single_album_screen.dart';
+part of '../screen.dart';
 
 class _Success extends StatelessWidget {
   const _Success(this.state, {Key key, this.cubit}) : super(key: key);

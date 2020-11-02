@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 /// Internal Links
 import 'moor_database.dart';
 import '../repository/communication.dart';
-import '../data_providers/moor_cache.dart';
+import '../providers/moor_cache.dart';
 import '../models/response/audio_cache_response.dart';
 import 'settings_provider.dart';
 

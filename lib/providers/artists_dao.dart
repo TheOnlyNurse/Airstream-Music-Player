@@ -4,7 +4,7 @@ import 'package:xml/xml.dart';
 
 /// Internal Links
 import 'moor_database.dart';
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 
 part 'artists_dao.g.dart';
 

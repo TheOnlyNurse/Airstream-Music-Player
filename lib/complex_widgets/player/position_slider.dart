@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/position_bloc.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/providers/repository/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

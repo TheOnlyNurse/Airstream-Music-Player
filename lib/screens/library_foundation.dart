@@ -13,7 +13,7 @@ import '../repository/artist_repository.dart';
 import '../bloc/mini_player_bloc.dart';
 import '../bloc/nav_bar_bloc.dart';
 import '../bloc/player_target_bloc.dart';
-import '../cubit/single_album_cubit.dart';
+import '../album/bloc/cubit.dart';
 
 // Widgets
 import '../complex_widgets/player/mini_player.dart';
@@ -25,7 +25,7 @@ import 'home_screen.dart';
 import 'single_playlist_screen.dart';
 import 'starred_screen.dart';
 import 'single_artist_screen.dart';
-import 'single_album_screen.dart';
+import '../album/screen.dart';
 
 /// Library
 part '../library_widgets/library_foundation/pages.dart';

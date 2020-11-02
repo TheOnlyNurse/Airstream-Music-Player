@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/player_bloc.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/repository/image_repository.dart';
 import '../complex_widgets/player/player_controls.dart';

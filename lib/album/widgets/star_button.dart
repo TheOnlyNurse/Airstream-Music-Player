@@ -1,4 +1,4 @@
-part of '../../screens/single_album_screen.dart';
+part of '../screen.dart';
 
 class _StarButton extends StatefulWidget {
   const _StarButton({Key key, this.isStarred = false, @required this.cubit})

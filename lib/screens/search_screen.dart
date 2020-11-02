@@ -1,5 +1,5 @@
 import 'package:airstream/bloc/search_bloc.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/repository/artist_repository.dart';
 import '../complex_widgets/horizontal_album_grid.dart';

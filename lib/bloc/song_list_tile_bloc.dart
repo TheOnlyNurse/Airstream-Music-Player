@@ -1,13 +1,13 @@
 import 'dart:async';
 
 /// External Packages
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
 import '../repository/communication.dart';
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import '../events/song_list_tile_event.dart';
 import '../states/song_list_tile_state.dart';
 

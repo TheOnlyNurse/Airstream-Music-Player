@@ -1,11 +1,11 @@
 import 'package:airstream/bloc/starred_bloc.dart';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/models/song_list_delegate.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/screens/album_list_screen.dart';
 import '../complex_widgets/horizontal_album_grid.dart';
 import '../complex_widgets/refresh_button.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/providers/repository/repository.dart';
 import '../complex_widgets/screen_transitions.dart';
 import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/song_list/song_list.dart';

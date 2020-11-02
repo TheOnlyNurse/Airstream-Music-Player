@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 

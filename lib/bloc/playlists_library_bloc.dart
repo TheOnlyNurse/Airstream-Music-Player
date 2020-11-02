@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 /// Internal links
 import '../repository/communication.dart';
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import '../models/playlist_model.dart';
 
 class PlaylistsLibraryBloc

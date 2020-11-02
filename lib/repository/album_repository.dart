@@ -1,7 +1,7 @@
-import 'package:airstream/data_providers/albums_dao.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/data_providers/scheduler.dart';
-import 'package:airstream/data_providers/server_provider.dart';
+import 'package:airstream/providers/albums_dao.dart';
+import 'package:airstream/providers/moor_database.dart';
+import 'package:airstream/providers/scheduler.dart';
+import 'package:airstream/providers/server_provider.dart';
 import 'package:airstream/models/repository_response.dart';
 import 'package:airstream/models/response/server_response.dart';
 import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';

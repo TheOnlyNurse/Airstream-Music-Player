@@ -1,13 +1,13 @@
 import 'dart:async';
 
 /// External Packages
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import '../repository/album_repository.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {

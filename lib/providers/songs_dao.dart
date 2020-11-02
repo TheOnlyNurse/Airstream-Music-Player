@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 /// Internal Links
 import 'moor_database.dart';
 import 'repository/repository.dart';
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import '../models/response/server_response.dart';
 import '../models/response/song_response.dart';
 import 'server_provider.dart';

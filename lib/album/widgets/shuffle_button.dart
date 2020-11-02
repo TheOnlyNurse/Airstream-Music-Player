@@ -1,4 +1,4 @@
-part of '../../screens/single_album_screen.dart';
+part of '../screen.dart';
 
 class _ShuffleButton extends StatelessWidget {
   const _ShuffleButton({Key key, @required this.songs})

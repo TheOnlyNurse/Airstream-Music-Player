@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Internal Links
 import '../complex_widgets/airstream_image.dart';
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import '../models/image_adapter.dart';
 
 class AlbumCard extends StatelessWidget {

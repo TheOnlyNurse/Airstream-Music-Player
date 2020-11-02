@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 
 /// Internal links
 import '../repository/communication.dart';
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 
 enum PlayerControlsEvent { firstTrack, lastTrack, noNavigation, middleOfPlaylist }
 

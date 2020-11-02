@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:xml/xml.dart';
 
 /// Internal Links
-import '../data_providers/server_provider.dart';
+import '../providers/server_provider.dart';
 import '../models/response/starred_response.dart';
 
 

@@ -1,4 +1,4 @@
-import 'package:airstream/data_providers/repository/repository.dart';
+import 'package:airstream/providers/repository/repository.dart';
 import 'package:airstream/repository/album_repository.dart';
 import 'package:airstream/repository/artist_repository.dart';
 import '../complex_widgets/home/collections.dart';

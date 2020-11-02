@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Internal
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
 import '../complex_widgets/error_widgets.dart';
 import '../complex_widgets/sliver_album_grid.dart';

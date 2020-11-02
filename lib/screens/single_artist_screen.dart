@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 
 /// Internal Links
 import '../bloc/single_artist_bloc.dart';
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import '../models/image_adapter.dart';
 import '../repository/album_repository.dart';
 import '../repository/artist_repository.dart';

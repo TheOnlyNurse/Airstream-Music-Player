@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import 'mini_player_bloc.dart';
 import '../events/nav_bar_event.dart';
 import '../states/mini_player_state.dart';

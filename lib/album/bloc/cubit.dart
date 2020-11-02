@@ -1,10 +1,15 @@
+library single_album_cubit;
+
 import 'package:airstream/repository/album_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+
 /// Internal
-import '../data_providers/moor_database.dart';
-import '../data_providers/repository/repository.dart';
+import '../../providers/moor_database.dart';
+import '../../providers/repository/repository.dart';
+
+part 'state.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   SingleAlbumCubit({@required this.albumRepository})
@@ -30,7 +35,7 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   }
 
   void popupSelected(int index) async {
-    switch(index) {
+    switch (index) {
       case 1:
         _refreshAlbum(this);
         break;
@@ -46,24 +51,3 @@ SingleAlbumState _refreshAlbum(SingleAlbumCubit cubit) {
   // TODO: Refresh current page with a new album screen
   throw UnimplementedError();
 }
-
-abstract class SingleAlbumState extends Equatable {
-  const SingleAlbumState();
-
-  @override
-  List<Object> get props => [];
-}
-
-class SingleAlbumInitial extends SingleAlbumState {}
-
-class SingleAlbumSuccess extends SingleAlbumState {
-  const SingleAlbumSuccess({this.album, this.songs});
-
-  final Album album;
-  final List<Song> songs;
-
-  @override
-  List<Object> get props => [album];
-}
-
-class SingleAlbumError extends SingleAlbumState {}

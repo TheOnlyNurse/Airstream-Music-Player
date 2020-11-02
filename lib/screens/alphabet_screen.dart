@@ -1,6 +1,6 @@
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/models/repository_response.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';
+import '../static_assets.dart';
 import 'package:airstream/repository/album_repository.dart';
 import '../complex_widgets/album_card.dart';
 import '../complex_widgets/alpha_grid_view.dart';

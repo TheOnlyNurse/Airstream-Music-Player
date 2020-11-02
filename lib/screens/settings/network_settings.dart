@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 
 /// Internal Links
 import '../../repository/image_repository.dart';
-import '../../data_providers/repository/repository.dart';
+import '../../providers/repository/repository.dart';
 import '../../repository/communication.dart';
 import '../../complex_widgets/custom_alert_dialog.dart';
 import '../../complex_widgets/settings/custom_switch.dart';

@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 
 /// Internal Links
-import '../../data_providers/moor_database.dart';
-import '../../data_providers/repository/repository.dart';
+import '../../providers/moor_database.dart';
+import '../../providers/repository/repository.dart';
 import '../song_tile.dart';
 
 class PlayerQueue extends StatefulWidget {

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 /// External Packages
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 
 /// Internal links
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import '../events/song_list_event.dart';
 import '../models/playlist_model.dart';
 import '../models/response/song_response.dart';

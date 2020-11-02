@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// External Packages
-import '../data_providers/moor_database.dart';
+import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -10,13 +10,13 @@ import 'package:path/path.dart' as p;
 
 /// Internal links
 import '../repository/artist_repository.dart';
-import '../data_providers/repository/repository.dart';
-import '../data_providers/albums_dao.dart';
-import '../data_providers/image_provider.dart';
+import '../providers/repository/repository.dart';
+import '../providers/albums_dao.dart';
+import '../providers/image_provider.dart';
 import '../models/playlist_model.dart';
 import '../repository/album_repository.dart';
 import '../repository/image_repository.dart';
-import '../data_providers/artists_dao.dart';
+import '../providers/artists_dao.dart';
 
 class SplashScreenCubit extends Cubit<SplashScreenState> {
   SplashScreenCubit() : super(SplashScreenLoading());

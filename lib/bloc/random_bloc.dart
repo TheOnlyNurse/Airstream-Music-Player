@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// External Packages
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 
 /// Internal links

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:airstream/data_providers/moor_database.dart';
+import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/repository/image_repository.dart';
 
 class ImageAdapter {

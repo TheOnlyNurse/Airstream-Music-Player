@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 
 /// Internal links
-import '../data_providers/repository/repository.dart';
+import '../providers/repository/repository.dart';
 import '../events/playlist_dialog_event.dart';
 import '../states/playlist_dialog_state.dart';
 

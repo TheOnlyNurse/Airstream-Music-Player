@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:airstream/data_providers/image_provider.dart';
-import 'package:airstream/data_providers/moor_database.dart';
-import 'package:airstream/data_providers/repository/repository.dart';
-import 'package:airstream/data_providers/server_provider.dart';
+import 'package:airstream/providers/image_provider.dart';
+import 'package:airstream/providers/moor_database.dart';
+import 'package:airstream/providers/repository/repository.dart';
+import 'package:airstream/providers/server_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mutex/mutex.dart';
 
