@@ -1,28 +1,31 @@
 import 'dart:async';
 
-/// External Packages
+
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
 import '../complex_widgets/error_widgets.dart';
-import '../providers/repository/repository.dart';
 import '../events/single_artist_event.dart';
 import '../repository/album_repository.dart';
 import '../states/single_artist_state.dart';
+import '../repository/song_repository.dart';
 
 // Barrelling
 export '../states/single_artist_state.dart';
 export '../events/single_artist_event.dart';
 
 class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
-  SingleArtistBloc(
-      {this.albumRepository, this.artistRepository})
-      : super(SingleArtistInitial());
+  SingleArtistBloc({
+    @required this.albumRepository,
+    @required this.artistRepository,
+    @required this.songRepository,
+  }) : super(SingleArtistInitial());
 
   final AlbumRepository albumRepository;
   final ArtistRepository artistRepository;
-  final _repo = Repository();
+  final SongRepository songRepository;
 
   @override
   Stream<SingleArtistState> mapEventToState(SingleArtistEvent event) async* {
@@ -39,7 +42,7 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
     }
 
     if (event is SingleArtistInfo && currentState is SingleArtistSuccess) {
-      final topSongs = await _repo.song.topSongsOf(currentState.artist);
+      final topSongs = await songRepository.topSongsOf(currentState.artist);
       final similar = await artistRepository.similar(currentState.artist);
       yield currentState.copyWith(
         songs: topSongs.data,

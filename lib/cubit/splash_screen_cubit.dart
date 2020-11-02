@@ -1,7 +1,5 @@
 import 'dart:async';
 
-/// External Packages
-import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -9,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 /// Internal links
+import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
 import '../providers/repository/repository.dart';
 import '../providers/albums_dao.dart';
@@ -17,6 +16,8 @@ import '../models/playlist_model.dart';
 import '../repository/album_repository.dart';
 import '../repository/image_repository.dart';
 import '../providers/artists_dao.dart';
+import '../providers/songs_dao.dart';
+import '../repository/song_repository.dart';
 
 class SplashScreenCubit extends Cubit<SplashScreenState> {
   SplashScreenCubit() : super(SplashScreenLoading());
@@ -55,7 +56,7 @@ class SplashScreenCubit extends Cubit<SplashScreenState> {
   void _initGetIt(String cachePath) {
     final getIt = GetIt.I;
     final moorDb = GetIt.I.get<MoorDatabase>();
-    
+
     // Providers for repositories.
     final imageFiles = ImageFileProvider(
       hive: Hive.box<int>('images'),
@@ -70,8 +71,11 @@ class SplashScreenCubit extends Cubit<SplashScreenState> {
     getIt.registerLazySingleton<ArtistRepository>(() {
       return ArtistRepository(artistsDao: ArtistsDao(moorDb));
     });
-  }
 
+    getIt.registerLazySingleton<SongRepository>(() {
+      return SongRepository(songsDao: SongsDao(moorDb));
+    });
+  }
 }
 
 abstract class SplashScreenState {

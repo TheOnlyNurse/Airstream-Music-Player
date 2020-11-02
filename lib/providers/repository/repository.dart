@@ -5,7 +5,6 @@ import 'dart:isolate';
 
 /// External Packages
 import 'dart:async';
-import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moor/isolate.dart';
@@ -24,14 +23,12 @@ import '../moor_database.dart';
 import '../playlist_provider.dart';
 import '../scheduler.dart';
 import '../settings_provider.dart';
-import '../songs_dao.dart';
 import '../starred_provider.dart';
 
 /// Models
 import '../../models/playlist_model.dart';
 import '../../models/response/audio_cache_response.dart';
 import '../../models/response/playlist_response.dart';
-import '../../models/repository_response.dart';
 import '../../repository/communication.dart';
 import '../../models/percentage_model.dart';
 import '../../models/response/starred_response.dart';
@@ -42,8 +39,6 @@ part 'audio_repo.dart';
 part 'playlist_repo.dart';
 
 part 'settings_repo.dart';
-
-part 'song_repo.dart';
 
 part 'download_repo.dart';
 
@@ -65,8 +60,6 @@ class Repository {
   _AudioRepository get audio => _libInstances['audio'];
 
   _AudioCacheRepository get audioCache => _libInstances['audioCache'];
-
-  _SongRepository get song => _libInstances['song'];
 
   _PlaylistRepository get playlist => _libInstances['playlist'];
 
@@ -90,7 +83,6 @@ class Repository {
     // Create instances of library parts
     _libInstances = {
       'audioCache': _AudioCacheRepository(dao: cache.audioFilesDao),
-      'song': _SongRepository(dao: database.songsDao),
       'audio': _AudioRepository(),
       'playlist': _PlaylistRepository(),
       'settings': _SettingsRepository(),

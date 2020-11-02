@@ -1,25 +1,24 @@
 library single_album_cubit;
 
-import 'package:airstream/repository/album_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 
 /// Internal
 import '../../providers/moor_database.dart';
-import '../../providers/repository/repository.dart';
+import '../../repository/album_repository.dart';
+import '../../repository/song_repository.dart';
 
 part 'state.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
-  SingleAlbumCubit({@required this.albumRepository})
-      : assert(albumRepository != null),
-        super(SingleAlbumInitial());
+  SingleAlbumCubit({this.albumRepository, this.songRepository})
+      : super(SingleAlbumInitial());
 
   final AlbumRepository albumRepository;
+  final SongRepository songRepository;
 
   void fetchSongs(Album album) async {
-    final response = await Repository().song.fromAlbum(album);
+    final response = await songRepository.fromAlbum(album);
     if (response.hasData) {
       emit(SingleAlbumSuccess(album: album, songs: response.data));
     } else {

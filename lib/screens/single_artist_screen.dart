@@ -1,3 +1,4 @@
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,7 @@ import '../complex_widgets/horizontal_artist_grid.dart';
 import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/song_list/sliver_song_list.dart';
 import '../widgets/flexible_image_with_title.dart';
+import '../repository/song_repository.dart';
 
 class SingleArtistScreen extends StatelessWidget {
   final Artist artist;
@@ -27,6 +29,7 @@ class SingleArtistScreen extends StatelessWidget {
         return SingleArtistBloc(
           albumRepository: GetIt.I.get<AlbumRepository>(),
           artistRepository: GetIt.I.get<ArtistRepository>(),
+          songRepository: GetIt.I.get<SongRepository>(),
         )..add(SingleArtistAlbums(artist: artist));
       },
       child: Container(

@@ -1,20 +1,25 @@
 import 'dart:async';
 
-/// External Packages
-import 'package:airstream/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
-import '../providers/repository/repository.dart';
 import '../repository/album_repository.dart';
+import '../providers/moor_database.dart';
+import '../repository/song_repository.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-
-  SearchBloc({this.albumRepository, this.artistRepository}) : super(SearchInitial());
+  SearchBloc({
+    @required this.albumRepository,
+    @required this.artistRepository,
+    @required this.songRepository,
+  }) : super(SearchInitial());
 
   final AlbumRepository albumRepository;
   final ArtistRepository artistRepository;
+  final SongRepository songRepository;
+
   final queryList = <String>[];
   Timer _timer;
 
@@ -37,7 +42,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         final query = queryList.last;
         queryList.clear();
         if (query.length > 1) {
-          final songResults = await Repository().song.search(query: query);
+          final songResults = await songRepository.search(query: query);
           final artistResults = await artistRepository.search(query);
           final albumResults = await albumRepository.search(query);
           final noResults = songResults.hasError &&
@@ -83,11 +88,11 @@ class SearchInitial extends SearchState {}
 class SearchLoading extends SearchState {}
 
 class SearchSuccess extends SearchState {
-	final List<Song> songs;
-	final List<Album> albums;
-	final List<Artist> artists;
+  final List<Song> songs;
+  final List<Album> albums;
+  final List<Artist> artists;
 
-	SearchSuccess({this.songs, this.albums, this.artists});
+  SearchSuccess({this.songs, this.albums, this.artists});
 }
 
 class SearchFailure extends SearchState {

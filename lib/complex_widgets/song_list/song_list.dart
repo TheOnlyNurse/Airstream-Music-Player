@@ -2,6 +2,8 @@ import 'package:airstream/bloc/song_list_bloc.dart';
 import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/providers/repository/repository.dart';
 import 'package:airstream/models/song_list_delegate.dart';
+import 'package:airstream/repository/song_repository.dart';
+import 'package:get_it/get_it.dart';
 import '../../complex_widgets/song_list/song_list_bar.dart';
 import '../../complex_widgets/song_list/song_list_tile.dart';
 import 'package:flutter/material.dart';
@@ -87,7 +89,9 @@ class SongList extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => SongListBloc()..add(SongListFetch(delegate)),
+      create: (context) => SongListBloc(
+        songRepository: GetIt.I.get<SongRepository>(),
+      )..add(SongListFetch(delegate)),
       child: BlocConsumer<SongListBloc, SongListState>(
         listener: (context, state) {
           if (state is SongListSuccess && state.removeMap.isNotEmpty) {
@@ -111,45 +115,44 @@ class SongList extends StatelessWidget {
 }
 
 class _SliverSongList extends StatelessWidget {
-	final GlobalKey<SliverAnimatedListState> animatedListKey;
-	final List<Song> songs;
-	final List<int> selectedIndexes;
+  final GlobalKey<SliverAnimatedListState> animatedListKey;
+  final List<Song> songs;
+  final List<int> selectedIndexes;
 
-	const _SliverSongList({
-		Key key,
-		@required this.songs,
-		this.animatedListKey,
-		List<int> selectedIndexes,
-	})
-			: this.selectedIndexes = selectedIndexes ?? const <int>[],
-				assert(songs != null),
-				super(key: key);
+  const _SliverSongList({
+    Key key,
+    @required this.songs,
+    this.animatedListKey,
+    List<int> selectedIndexes,
+  })  : this.selectedIndexes = selectedIndexes ?? const <int>[],
+        assert(songs != null),
+        super(key: key);
 
-	@override
-	Widget build(BuildContext context) {
-		return SliverPadding(
-			padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-			sliver: SliverAnimatedList(
-				key: animatedListKey,
-				initialItemCount: songs.length,
-				itemBuilder: (context, index, animation) {
-					return SongListTile(
-						animation: animation,
-						isSelected: selectedIndexes.contains(index),
-						song: songs[index],
-						onLongPress: () {
-							context.bloc<SongListBloc>().add(SongListSelection(index));
-						},
-						onTap: () {
-							if (selectedIndexes.isNotEmpty) {
-								context.bloc<SongListBloc>().add(SongListSelection(index));
-							} else {
-								Repository().audio.start(playlist: songs, index: index);
-							}
-						},
-					);
-				},
-			),
-		);
-	}
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      sliver: SliverAnimatedList(
+        key: animatedListKey,
+        initialItemCount: songs.length,
+        itemBuilder: (context, index, animation) {
+          return SongListTile(
+            animation: animation,
+            isSelected: selectedIndexes.contains(index),
+            song: songs[index],
+            onLongPress: () {
+              context.bloc<SongListBloc>().add(SongListSelection(index));
+            },
+            onTap: () {
+              if (selectedIndexes.isNotEmpty) {
+                context.bloc<SongListBloc>().add(SongListSelection(index));
+              } else {
+                Repository().audio.start(playlist: songs, index: index);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
 }

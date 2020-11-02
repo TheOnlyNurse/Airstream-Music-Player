@@ -1,26 +1,31 @@
-import 'package:airstream/bloc/starred_bloc.dart';
-import 'package:airstream/complex_widgets/error_widgets.dart';
-import 'package:airstream/providers/moor_database.dart';
-import 'package:airstream/models/song_list_delegate.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/screens/album_list_screen.dart';
-import '../complex_widgets/horizontal_album_grid.dart';
-import '../complex_widgets/refresh_button.dart';
-import 'package:airstream/providers/repository/repository.dart';
-import '../complex_widgets/screen_transitions.dart';
-import '../complex_widgets/sliver_album_grid.dart';
-import '../complex_widgets/song_list/song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+
+/// Internal
+import '../bloc/starred_bloc.dart';
+import '../complex_widgets/error_widgets.dart';
+import '../providers/moor_database.dart';
+import '../models/song_list_delegate.dart';
+import '../repository/album_repository.dart';
+import '../repository/song_repository.dart';
+import '../screens/album_list_screen.dart';
+import '../complex_widgets/horizontal_album_grid.dart';
+import '../complex_widgets/refresh_button.dart';
+import '../providers/repository/repository.dart';
+import '../complex_widgets/screen_transitions.dart';
+import '../complex_widgets/sliver_album_grid.dart';
+import '../complex_widgets/song_list/song_list.dart';
 
 class StarredScreen extends StatelessWidget {
   const StarredScreen({Key key}) : super(key: key);
 
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          StarredBloc(GetIt.I.get<AlbumRepository>())..add(StarredFetch()),
+      create: (context) => StarredBloc(
+        albumRepository: GetIt.I.get<AlbumRepository>(),
+        songRepository: GetIt.I.get<SongRepository>(),
+      )..add(StarredFetch()),
       child: BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
         if (state is StarredSuccess) {
           if (state.songs.isEmpty) {

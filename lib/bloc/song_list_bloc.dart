@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-
-/// External Packages
-import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 
 /// Internal links
@@ -13,16 +10,17 @@ import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
 import '../models/song_list_delegate.dart';
 import '../states/song_list_state.dart';
+import '../repository/song_repository.dart';
+import '../providers/moor_database.dart';
 
 // Barrelling
 export '../events/song_list_event.dart';
 export '../states/song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
+  SongListBloc({@required this.songRepository}) : super(SongListInitial());
 
-  SongListBloc() : super(SongListInitial());
-
-  final _repository = Repository();
+  final SongRepository songRepository;
   Playlist playlist;
 
   SongListState _successOrFailure(ListResponse<Song> response) {
@@ -42,17 +40,17 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
 
       if (delegate is PlaylistSongList) {
         playlist = delegate.playlist;
-        final response = await _repository.song.fromPlaylist(delegate.playlist);
+        final response = await songRepository.fromPlaylist(delegate.playlist);
         yield _successOrFailure(response);
       }
 
       if (delegate is AlbumSongList) {
-        final response = await _repository.song.fromAlbum(delegate.album);
+        final response = await songRepository.fromAlbum(delegate.album);
         yield _successOrFailure(response);
       }
 
       if (delegate is SimpleSongList) {
-				yield SongListSuccess(songList: delegate.initialSongs);
+        yield SongListSuccess(songList: delegate.initialSongs);
       }
     }
 

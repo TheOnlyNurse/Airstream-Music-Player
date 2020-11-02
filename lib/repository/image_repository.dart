@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:airstream/providers/image_provider.dart';
 import 'package:airstream/providers/moor_database.dart';
-import 'package:airstream/providers/repository/repository.dart';
 import 'package:airstream/providers/server_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mutex/mutex.dart';
@@ -137,14 +136,15 @@ class ImageRepository {
   }
 
   Future<List<File>> collage(List<int> songIds) async {
-    final images = <File>[];
-    for (var id in songIds) {
-      final response = await Repository().song.byId(id);
-      final art =
-          response.hasData ? await highDefinition(response.data.first.art) : null;
-      if (response != null) images.add(art);
-    }
-    if (images.isEmpty) return null;
-    return images;
+    throw UnimplementedError();
+    // final images = <File>[];
+    // for (var id in songIds) {
+    //   final response = await Repository().song.byId(id);
+    //   final art =
+    //       response.hasData ? await highDefinition(response.data.first.art) : null;
+    //   if (response != null) images.add(art);
+    // }
+    // if (images.isEmpty) return null;
+    // return images;
   }
 }

@@ -1,14 +1,17 @@
-import 'package:airstream/bloc/search_bloc.dart';
-import 'package:airstream/providers/moor_database.dart';
-import 'package:airstream/repository/album_repository.dart';
-import 'package:airstream/repository/artist_repository.dart';
-import '../complex_widgets/horizontal_album_grid.dart';
-import '../complex_widgets/horizontal_artist_grid.dart';
-import '../complex_widgets/song_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+
+/// Internal
+import '../bloc/search_bloc.dart';
+import '../providers/moor_database.dart';
+import '../repository/album_repository.dart';
+import '../repository/artist_repository.dart';
+import '../repository/song_repository.dart';
+import '../complex_widgets/horizontal_album_grid.dart';
+import '../complex_widgets/horizontal_artist_grid.dart';
+import '../complex_widgets/song_tile.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({
@@ -43,6 +46,7 @@ class _SearchScreenState extends State<SearchScreen> {
         return SearchBloc(
           albumRepository: GetIt.I.get<AlbumRepository>(),
           artistRepository: GetIt.I.get<ArtistRepository>(),
+          songRepository: GetIt.I.get<SongRepository>(),
         );
       },
       child: Scaffold(
