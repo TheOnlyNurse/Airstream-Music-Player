@@ -1,4 +1,5 @@
 import 'package:airstream/bloc/starred_bloc.dart';
+import 'package:airstream/complex_widgets/error_widgets.dart';
 import 'package:airstream/providers/moor_database.dart';
 import 'package:airstream/models/song_list_delegate.dart';
 import 'package:airstream/repository/album_repository.dart';
@@ -158,7 +159,7 @@ class _OtherStarredStates extends StatelessWidget {
 
   Widget _stateBasedWidget(StarredState state) {
     if (state is StarredInitial) return CircularProgressIndicator();
-    if (state is StarredFailure) return state.error;
+    if (state is StarredFailure) return ErrorText(error: state.message);
     return Text('Failed to read state: $state');
   }
 

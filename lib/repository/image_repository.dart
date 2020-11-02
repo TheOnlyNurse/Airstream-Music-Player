@@ -141,7 +141,7 @@ class ImageRepository {
     for (var id in songIds) {
       final response = await Repository().song.byId(id);
       final art =
-          response.hasData ? await highDefinition(response.song.art) : null;
+          response.hasData ? await highDefinition(response.data.first.art) : null;
       if (response != null) images.add(art);
     }
     if (images.isEmpty) return null;

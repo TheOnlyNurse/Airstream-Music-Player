@@ -1,6 +1,5 @@
 import 'package:airstream/providers/moor_database.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 abstract class StarredState extends Equatable {
   const StarredState();
@@ -12,9 +11,9 @@ abstract class StarredState extends Equatable {
 class StarredInitial extends StarredState {}
 
 class StarredFailure extends StarredState {
-  final Widget error;
+  final String message;
 
-  StarredFailure(this.error);
+  StarredFailure(this.message);
 }
 
 class StarredSuccess extends StarredState {

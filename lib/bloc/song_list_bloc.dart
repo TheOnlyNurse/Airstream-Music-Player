@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+
 /// External Packages
 import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
@@ -8,7 +10,7 @@ import 'package:bloc/bloc.dart';
 import '../providers/repository/repository.dart';
 import '../events/song_list_event.dart';
 import '../models/playlist_model.dart';
-import '../models/response/song_response.dart';
+import '../models/repository_response.dart';
 import '../models/song_list_delegate.dart';
 import '../states/song_list_state.dart';
 
@@ -23,11 +25,11 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
   final _repository = Repository();
   Playlist playlist;
 
-  SongListState _successOrFailure(SongResponse response) {
+  SongListState _successOrFailure(ListResponse<Song> response) {
     if (response.hasData) {
-      return SongListSuccess(songList: response.songs);
+      return SongListSuccess(songList: response.data);
     } else {
-      return SongListFailure(response.error);
+      return SongListFailure(Text(response.error));
     }
   }
 

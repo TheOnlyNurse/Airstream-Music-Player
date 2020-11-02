@@ -32,12 +32,12 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
     if (event is StarredFetch) {
       final albumResponse = await albumRepository.starred();
       final songResponse = await _repository.song.starred();
-      if (albumResponse.hasError && songResponse.hasNoData) {
+      if (albumResponse.hasError && songResponse.hasError) {
         yield StarredFailure(songResponse.error);
       } else {
         yield StarredSuccess(
           albums: albumResponse.data ?? [],
-          songs: songResponse.songs ?? [],
+          songs: songResponse.data ?? [],
         );
       }
     }

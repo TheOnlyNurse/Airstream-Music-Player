@@ -42,7 +42,7 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
       final topSongs = await _repo.song.topSongsOf(currentState.artist);
       final similar = await artistRepository.similar(currentState.artist);
       yield currentState.copyWith(
-        songs: topSongs.songs,
+        songs: topSongs.data,
         similarArtists: similar.data,
       );
     }

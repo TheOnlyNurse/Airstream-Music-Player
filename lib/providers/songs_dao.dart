@@ -8,7 +8,7 @@ import 'moor_database.dart';
 import 'repository/repository.dart';
 import '../providers/moor_database.dart';
 import '../models/response/server_response.dart';
-import '../models/response/song_response.dart';
+import '../models/repository_response.dart';
 import 'server_provider.dart';
 
 part 'songs_dao.g.dart';
@@ -35,7 +35,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   SongsDao(MoorDatabase db) : super(db);
 
   /// Searches for song list by search type and argument
-  Future<SongResponse> search(SongSearch byType, {dynamic argument}) async {
+  Future<ListResponse<Song>> search(SongSearch byType, {dynamic argument}) async {
     List<Song> result;
     switch (byType) {
       case SongSearch.byId:
@@ -59,26 +59,26 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     if (result.isEmpty) {
       return _checkIfOnline(await _download(byType, argument));
     } else {
-      return _checkIfOnline(SongResponse(hasData: true, songs: result));
+      return _checkIfOnline(ListResponse<Song>(data: result));
     }
   }
 
   /// Returns starred songs as dictated by starred provider
   /// Because _byIdList supplies cached songs if offline (through the main
   /// search function) there is no need to double up here
-  Future<SongResponse> starred() async {
+  Future<ListResponse<Song>> starred() async {
     final response = await Repository().starred.query('song');
-    if (response.hasNoData) return SongResponse(passOn: response);
+    if (response.hasNoData) throw UnimplementedError();
     final songs = await _byIdList(response.idList);
     if (songs.isEmpty) {
-      return SongResponse(error: 'Failed to find starred song ids.');
+      return ListResponse<Song>(error: 'Failed to find starred song ids.');
     } else {
-      return SongResponse(hasData: true, songs: songs);
+      return ListResponse<Song>(data: songs);
     }
   }
 
   /// Fetches top songs of a given artist from either a hive box or the server
-  Future<SongResponse> topSongsOf(Artist artist) async {
+  Future<ListResponse<Song>> topSongsOf(Artist artist) async {
     final _hiveBox = Hive.box('topSongs');
     List<int> cachedIdList = _hiveBox.get(artist.id);
     if (cachedIdList == null) {
@@ -99,9 +99,9 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
     final songs = await _byIdList(cachedIdList);
     if (songs.isEmpty) {
-      return SongResponse(error: 'Failed to find artist\'s top songs.');
+      return ListResponse<Song>(error: 'Failed to find artist\'s top songs.');
     } else {
-      return SongResponse(hasData: true, songs: songs);
+      return ListResponse<Song>(data: songs);
     }
   }
 
@@ -112,7 +112,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     final songs = <Song>[];
     for (var id in idList) {
       final response = await search(SongSearch.byId, argument: id);
-      if (response.hasData) songs.add(response.song);
+      if (response.hasData) songs.add(response.data.first);
     }
     return songs;
   }
@@ -125,22 +125,22 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   }
 
   /// Returns a cached version of songs if device is in offline mode
-  Future<SongResponse> _checkIfOnline(SongResponse input) async {
+  Future<ListResponse<Song>> _checkIfOnline(ListResponse<Song> input) async {
     if (Repository().settings.isOffline) {
-			if (input.hasNoData) return input;
+			if (input.hasError) return input;
       final cachedList = <Song>[];
       final offlineList = await Repository().audioCache.cachedSongs();
 
-      if (offlineList.hasNoData) return SongResponse(passOn: offlineList);
+      if (offlineList.hasNoData) throw UnimplementedError();
 
-      for (var song in input.songs) {
+      for (var song in input.data) {
         if (offlineList.idList.contains(song.id)) cachedList.add(song);
       }
 
       if (cachedList.isEmpty) {
-        return SongResponse(error: 'No songs match cache');
+        return ListResponse<Song>(error: 'No songs match cache');
       } else {
-        return SongResponse(hasData: true, songs: cachedList);
+        return ListResponse<Song>(data: cachedList);
       }
     } else {
       return input;
@@ -170,12 +170,12 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 	}
 
   /// Downloads a song or song list by search type and argument from the server
-  Future<SongResponse> _download(SongSearch byType, dynamic argument) async {
+  Future<ListResponse<Song>> _download(SongSearch byType, dynamic argument) async {
     final response = await _requestByType(byType, argument);
-    if (response.hasNoData) return SongResponse(passOn: response);
+    if (response.hasNoData) throw UnimplementedError();
     final companions = _documentToCompanions(response.document);
     if (companions.isEmpty) {
-      return SongResponse(error: 'Failed to find song/s on server.');
+      return ListResponse<Song>(error: 'Failed to find song/s on server.');
     }
     await _insertCompanions(companions);
     final songs = await _companionsToSongs(companions);
@@ -183,7 +183,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     if (byType == SongSearch.byAlbum) {
       songs.sort((a, b) => a.title.compareTo(b.title));
     }
-    return SongResponse(hasData: true, songs: songs);
+    return ListResponse<Song>(data: songs);
   }
 
   /// Returns requests to the server split by type

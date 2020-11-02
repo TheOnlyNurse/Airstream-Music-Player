@@ -3,7 +3,6 @@ import 'dart:async';
 /// External Packages
 import 'package:airstream/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 
 /// Internal links
 import '../repository/artist_repository.dart';
@@ -41,14 +40,14 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           final songResults = await Repository().song.search(query: query);
           final artistResults = await artistRepository.search(query);
           final albumResults = await albumRepository.search(query);
-          final noResults = !songResults.hasData &&
+          final noResults = songResults.hasError &&
               artistResults.hasError &&
               albumResults.hasError;
           if (noResults) {
             yield SearchFailure(songResults.error);
           } else {
             yield SearchSuccess(
-              songs: songResults.songs ?? [],
+              songs: songResults.data ?? [],
               artists: artistResults.data ?? [],
               albums: albumResults.data ?? [],
             );
@@ -92,7 +91,7 @@ class SearchSuccess extends SearchState {
 }
 
 class SearchFailure extends SearchState {
-  final Widget error;
+  final String message;
 
-  SearchFailure(this.error);
+  SearchFailure(this.message);
 }
