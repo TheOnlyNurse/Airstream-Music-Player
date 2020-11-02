@@ -1,13 +1,15 @@
-import 'package:airstream/providers/albums_dao.dart';
-import 'package:airstream/providers/moor_database.dart';
-import 'package:airstream/providers/scheduler.dart';
-import 'package:airstream/providers/server_provider.dart';
-import 'package:airstream/models/repository_response.dart';
-import 'package:airstream/models/response/server_response.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:xml/xml.dart';
+
+/// Internal
+import '../providers/albums_dao.dart';
+import '../providers/moor_database.dart';
+import '../providers/scheduler.dart';
+import '../providers/server_provider.dart';
+import '../models/repository_response.dart';
+import '../models/response/server_response.dart';
+import '../static_assets.dart';
 
 class AlbumRepository {
   const AlbumRepository({

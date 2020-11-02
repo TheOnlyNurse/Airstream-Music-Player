@@ -40,12 +40,12 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
 
       if (delegate is PlaylistSongList) {
         playlist = delegate.playlist;
-        final response = await songRepository.fromPlaylist(delegate.playlist);
+        final response = await songRepository.byPlaylist(delegate.playlist);
         yield _successOrFailure(response);
       }
 
       if (delegate is AlbumSongList) {
-        final response = await songRepository.fromAlbum(delegate.album);
+        final response = await songRepository.byAlbum(delegate.album);
         yield _successOrFailure(response);
       }
 

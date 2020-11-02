@@ -1,6 +1,5 @@
 library single_album;
 
-import 'package:airstream/providers/repository/repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +16,7 @@ import '../complex_widgets/song_list/sliver_song_list.dart';
 import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
 import '../widgets/future_button.dart';
+import '../providers/repository/repository.dart';
 
 /// Library
 part 'widgets/more_options.dart';

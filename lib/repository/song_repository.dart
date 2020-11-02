@@ -1,3 +1,4 @@
+import 'package:airstream/repository/artist_repository.dart';
 import 'package:flutter/foundation.dart';
 
 /// Internal
@@ -7,82 +8,123 @@ import '../providers/moor_database.dart';
 import '../providers/songs_dao.dart';
 
 class SongRepository {
-  SongRepository({@required SongsDao songsDao})
-      : assert(songsDao != null),
-        _database = songsDao;
+  SongRepository({
+    @required SongsDao songsDao,
+    @required ArtistRepository artistRepository,
+  })  : assert(songsDao != null),
+        assert(artistRepository != null),
+        _database = songsDao,
+        _artistRepository = artistRepository;
 
+  final ArtistRepository _artistRepository;
   final SongsDao _database;
 
-  /// Returns a song list (with on item) by id
-  Future<ListResponse<Song>> byId(int id) {
-    return _database.search(SongSearch.byId, argument: id);
+  /// ========== QUERYING ==========
+
+  /// Returns a song by id.
+  Future<SingleResponse<Song>> byId(int id) async {
+    var song = await _database.byId(id);
+    return song != null ? SingleResponse<Song>(data: song) : null;
   }
 
-  /// Get songs in a given album
-  Future<ListResponse<Song>> fromAlbum(Album album) {
-    return _database.search(SongSearch.byAlbum, argument: album.id);
-  }
-
-  /// Convert playlist song id list to song details from database
-  Future<ListResponse<Song>> fromPlaylist(Playlist playlist) async {
-    final songList = <Song>[];
-    String lastError;
-
-    for (int id in playlist.songIds) {
-      final query = await _database.search(SongSearch.byId, argument: id);
-      if (query.hasError) {
-        lastError = query.error;
-        continue;
-      }
-      songList.add(query.data.first);
-    }
-
-    if (songList.isNotEmpty) {
-      return ListResponse<Song>(data: songList);
-    } else if (lastError != null) {
+  /// Get songs that match a given album.
+  ///
+  /// Fetches from the server if the number of songs retrieved doesn't match
+  /// the songs expected in the album.
+  Future<ListResponse<Song>> byAlbum(Album album) async {
+    var songs = await _database.byAlbum(album.id);
+    if (songs.length != album.songCount) {
+      // TODO: Fetch album and add results into the database
       throw UnimplementedError();
     } else {
-      return ListResponse<Song>(error: 'No songs found in playlist');
+      return ListResponse(data: songs);
     }
   }
 
-  Future<ListResponse<Song>> starred() => _database.starred();
-
-  Future<ListResponse<Song>> topSongsOf(Artist artist) =>
-      _database.topSongsOf(artist);
-
-  /// Searches both song titles and artist names
-  /// Searches artist names
-  ///  1. When searching song titles returns less than 5 results
-  ///  2. When song titles returns no results
-  Future<ListResponse<Song>> search({String query}) async {
-    final titleQuery =
-        await _database.search(SongSearch.byTitle, argument: query);
-    if (titleQuery.hasData) {
-      if (titleQuery.data.length < 5) {
-        return _onNotEnoughResults(titleQuery, query);
-      } else {
-        return titleQuery;
-      }
+  /// Convert playlist song id list to song details from database.
+  Future<ListResponse<Song>> byPlaylist(Playlist playlist) async {
+    var songs = await _database.byIdList(playlist.songIds);
+    if (songs.length != playlist.songIds.length) {
+      // TODO: Fetch songs in playlist
+      throw UnimplementedError();
     } else {
-      return _database.search(SongSearch.byArtistName, argument: query);
+      return ListResponse<Song>(data: songs);
     }
   }
 
-  /// Searches artist name and combines the first query and the new query
-  /// Complements the search function above and shouldn't be used alone
-  Future<ListResponse<Song>> _onNotEnoughResults(
-    ListResponse<Song> firstQuery,
-    String query,
-  ) async {
-    final artistQuery = await _database.search(
-      SongSearch.byArtistName,
-      argument: query,
-    );
-    if (artistQuery.hasError) return firstQuery;
-    firstQuery.data.addAll(artistQuery.data);
-    // Remove any duplicate data points & keep list order
-    final combinedData = firstQuery.data.toSet().toList();
-    return ListResponse<Song>(data: combinedData);
+  Future<ListResponse<Song>> starred() {
+    // TODO: Merge Starred Provider and Song Repo
+    throw UnimplementedError();
+  }
+
+  Future<ListResponse<Song>> topSongsOf(Artist artist) async {
+    var songIds = await _artistRepository.topSongIds(artist);
+    if (songIds.hasError) {
+      // TODO: Fetch top songs of a given artist
+      // TODO: If the fetched list is empty, fill the list with the songs available
+      // TODO: Cache the generated list in the artist repository
+    }
+
+    var songs = await _database.byIdList(songIds.data);
+    if (songs.length != songIds.data.length) {
+      // TODO: Fetch song ids from the server
+      throw UnimplementedError();
+    } else {
+      return ListResponse<Song>(data: songs);
+    }
+  }
+
+  /// Searches both titles and artist names assigned to songs by a query string.
+  Future<ListResponse<Song>> search({String query}) async {
+    var byTitle = await _database.byTitle(query);
+    var byName = await _database.byArtistName(query);
+    var songs = [...byTitle, ...byName];
+
+    if (songs.length < 5) {
+      // TODO: Return search results from the server query
+      // TODO: Default to local results if the server query is insufficient
+      throw UnimplementedError();
+    } else {
+      return ListResponse<Song>(data: songs);
+    }
   }
 }
+
+/* There be dragons beyond!
+
+  /// Fetches top songs of a given artist from either a hive box or the server
+  Future<ListResponse<Song>> topSongsOf(Artist artist) async {
+    final _hiveBox = Hive.box('topSongs');
+    List<int> cachedIdList = _hiveBox.get(artist.id);
+    if (cachedIdList == null) {
+      final name = artist.name.replaceAll(' ', '+');
+      final response = await ServerProvider().fetchXml(
+        'getTopSongs?artist=$name&count=5',
+      );
+      if (response.hasData) {
+        final elements = response.document.findAllElements('song');
+        cachedIdList = elements.map((e) {
+          return int.parse(e.getAttribute('id'));
+        }).toList();
+        _hiveBox.put(artist.id, cachedIdList);
+      } else {
+        cachedIdList = [];
+      }
+    }
+
+    final songs = await byIdList(cachedIdList);
+    if (songs.isEmpty) {
+      return ListResponse<Song>(error: 'Failed to find artist\'s top songs.');
+    } else {
+      return ListResponse<Song>(data: songs);
+    }
+  }
+    /// Request to get songs by searching a query
+  Future<ServerResponse> _downloadSearch(String query) {
+    return ServerProvider().fetchXml('search3?query=$query'
+        '&songCount=10'
+        '&artistCount=0'
+        '&albumCount=0');
+  }
+
+ */

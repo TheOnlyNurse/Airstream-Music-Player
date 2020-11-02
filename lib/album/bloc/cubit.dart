@@ -18,7 +18,7 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   final SongRepository songRepository;
 
   void fetchSongs(Album album) async {
-    final response = await songRepository.fromAlbum(album);
+    final response = await songRepository.byAlbum(album);
     if (response.hasData) {
       emit(SingleAlbumSuccess(album: album, songs: response.data));
     } else {

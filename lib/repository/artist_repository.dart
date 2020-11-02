@@ -1,10 +1,12 @@
-import 'package:airstream/providers/artists_dao.dart';
-import 'package:airstream/providers/moor_database.dart';
-import 'package:airstream/providers/server_provider.dart';
-import 'package:airstream/models/repository_response.dart';
-import 'file:///D:/Home/Documents/FlutterProjects/airstream/lib/static_assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart';
+
+/// Internal
+import '../providers/artists_dao.dart';
+import '../providers/moor_database.dart';
+import '../providers/server_provider.dart';
+import '../models/repository_response.dart';
+import '../static_assets.dart';
 
 class ArtistRepository {
   final ArtistsDao _database;
@@ -53,7 +55,7 @@ class ArtistRepository {
   ///
   /// Fetches information from the server only if the information is missing.
   Future<ListResponse<Artist>> similar(Artist artist) async {
-    List<int> cachedIds = await _database.similarIds(artist.id);
+    var cachedIds = await _database.similarIds(artist.id);
 
     if (cachedIds == null) {
       final response = await ServerProvider().fetchXml(
@@ -72,6 +74,16 @@ class ArtistRepository {
       await _database.updateSimilar(artist.id, cachedIds);
     }
     return _removeEmptyLists(await _database.byIdList(cachedIds));
+  }
+
+  /// Returns the top songs of an artist.
+  Future<ListResponse<int>> topSongIds(Artist artist) async {
+    var cachedIDs = await _database.topSongs(artist.id);
+    if (cachedIDs != null) {
+      return ListResponse<int>(data: cachedIDs);
+    } else {
+      return ListResponse(error: 'Nothing is cached.');
+    }
   }
 
   /// ========== COMMON FUNCTIONS ==========
