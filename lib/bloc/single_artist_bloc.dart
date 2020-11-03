@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 
@@ -42,7 +41,10 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
     }
 
     if (event is SingleArtistInfo && currentState is SingleArtistSuccess) {
-      final topSongs = await songRepository.topSongsOf(currentState.artist);
+      final topSongs = await songRepository.topSongs(
+        currentState.artist,
+        fallback: currentState.albums.first,
+      );
       final similar = await artistRepository.similar(currentState.artist);
       yield currentState.copyWith(
         songs: topSongs.data,

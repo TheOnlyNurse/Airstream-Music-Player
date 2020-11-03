@@ -1,5 +1,6 @@
+import 'dart:math' as math;
+
 import 'package:airstream/providers/server_provider.dart';
-import 'package:airstream/repository/artist_repository.dart';
 import 'package:airstream/static_assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart';
@@ -13,13 +14,9 @@ import '../providers/songs_dao.dart';
 class SongRepository {
   SongRepository({
     @required SongsDao songsDao,
-    @required ArtistRepository artistRepository,
   })  : assert(songsDao != null),
-        assert(artistRepository != null),
-        _database = songsDao,
-        _artistRepository = artistRepository;
+        _database = songsDao;
 
-  final ArtistRepository _artistRepository;
   final SongsDao _database;
 
   /// ========== QUERYING ==========
@@ -38,7 +35,7 @@ class SongRepository {
     var songs = await _database.album(album.id);
     if (songs.length != album.songCount) {
       var downloaded = await _download('getAlbum?id=${album.id}');
-      downloaded?.sort((a,b) => a.title.compareTo(b.title));
+      downloaded?.sort((a, b) => a.title.compareTo(b.title));
       return _removeEmptyLists(downloaded);
     } else {
       return ListResponse(data: songs);
@@ -76,18 +73,38 @@ class SongRepository {
     }
   }
 
-  Future<ListResponse<Song>> topSongsOf(Artist artist) async {
-    var songIds = await _artistRepository.topSongIds(artist);
-    if (songIds.hasError) {
-      // TODO: Fetch top songs of a given artist
-      // TODO: If the fetched list is empty, fill the list with the songs available
-      // TODO: Cache the generated list in the artist repository
-    }
+  /// Returns "top" songs of a given artist.
+  Future<ListResponse<Song>> topSongs(
+    Artist artist, {
+    @required Album fallback,
+  }) async {
+    assert(fallback != null);
 
-    var songs = await _database.idList(songIds.data);
-    if (songs.length != songIds.data.length) {
-      // TODO: Fetch song ids from the server
-      throw UnimplementedError();
+    final songs = await _database.topSongs(artist.name);
+    if (songs.isEmpty) {
+      final compactName = artist.name.replaceAll(' ', '+');
+      final downloaded = await _download(
+        'getTopSongs?artist=$compactName&count=5',
+      );
+      final albumSongs = await byAlbum(fallback);
+
+      List<Song> merged;
+      if (albumSongs.hasData) {
+        merged = [...downloaded, ...albumSongs.data].toSet().toList();
+        merged = merged.sublist(0, math.min(merged.length, 5));
+      } else {
+        merged = downloaded;
+      }
+
+      assert(merged != null);
+      if (merged.isNotEmpty) {
+        await _database.markTopSongs(
+          artist.name,
+          merged.map((e) => e.id).toList(),
+        );
+      }
+
+      return _removeEmptyLists(merged);
     } else {
       return ListResponse<Song>(data: songs);
     }
@@ -146,35 +163,3 @@ class SongRepository {
     }
   }
 }
-
-/* There be dragons beyond!
-
-  /// Fetches top songs of a given artist from either a hive box or the server
-  Future<ListResponse<Song>> topSongsOf(Artist artist) async {
-    final _hiveBox = Hive.box('topSongs');
-    List<int> cachedIdList = _hiveBox.get(artist.id);
-    if (cachedIdList == null) {
-      final name = artist.name.replaceAll(' ', '+');
-      final response = await ServerProvider().fetchXml(
-        'getTopSongs?artist=$name&count=5',
-      );
-      if (response.hasData) {
-        final elements = response.document.findAllElements('song');
-        cachedIdList = elements.map((e) {
-          return int.parse(e.getAttribute('id'));
-        }).toList();
-        _hiveBox.put(artist.id, cachedIdList);
-      } else {
-        cachedIdList = [];
-      }
-    }
-
-    final songs = await byIdList(cachedIdList);
-    if (songs.isEmpty) {
-      return ListResponse<Song>(error: 'Failed to find artist\'s top songs.');
-    } else {
-      return ListResponse<Song>(data: songs);
-    }
-  }
-
- */

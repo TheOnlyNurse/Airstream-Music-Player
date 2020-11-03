@@ -73,10 +73,7 @@ class SplashScreenCubit extends Cubit<SplashScreenState> {
     });
 
     getIt.registerLazySingleton<SongRepository>(() {
-      return SongRepository(
-        songsDao: SongsDao(moorDb),
-        artistRepository: getIt.get<ArtistRepository>(),
-      );
+      return SongRepository(songsDao: SongsDao(moorDb));
     });
   }
 }

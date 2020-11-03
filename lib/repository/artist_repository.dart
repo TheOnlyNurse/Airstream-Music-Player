@@ -76,16 +76,6 @@ class ArtistRepository {
     return _removeEmptyLists(await _database.byIdList(cachedIds));
   }
 
-  /// Returns the top songs of an artist.
-  Future<ListResponse<int>> topSongIds(Artist artist) async {
-    var cachedIDs = await _database.topSongs(artist.id);
-    if (cachedIDs != null) {
-      return ListResponse<int>(data: cachedIDs);
-    } else {
-      return ListResponse(error: 'Nothing is cached.');
-    }
-  }
-
   /// ========== COMMON FUNCTIONS ==========
 
   ListResponse<Artist> _removeEmptyLists(List<Artist> artists) {

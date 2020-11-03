@@ -19,8 +19,6 @@ class Artists extends Table {
 
   BlobColumn get similar => blob().nullable()();
 
-  BlobColumn get topSongs => blob().nullable()();
-
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -50,12 +48,6 @@ class ArtistsDao extends DatabaseAccessor<MoorDatabase> with _$ArtistsDaoMixin {
   Future<List<int>> similarIds(int id) async {
     final query = select(artists)..where((tbl) => tbl.id.equals(id));
     return (await query.getSingle()).similar?.toList();
-  }
-
-  /// Returns a list of song ids that are the top songs of the given artist (from their id).
-  Future<List<int>> topSongs(int id) async {
-    final query = select(artists)..where((tbl) => tbl.id.equals(id));
-    return (await query.getSingle()).topSongs?.toList();
   }
 
   /// Returns an artist by their id.

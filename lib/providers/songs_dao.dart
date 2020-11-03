@@ -22,6 +22,8 @@ class Songs extends Table {
 
   BoolColumn get isStarred => boolean().withDefault(const Constant(false))();
 
+  TextColumn get topSongKey => text().nullable()();
+
   TextColumn get filename => text().nullable()();
 
   @override
@@ -65,8 +67,17 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     return query.get();
   }
 
+  /// Returns songs that are marked as isStarred: true.
   Future<List<Song>> starred() {
     var query = select(songs)..where((tbl) => tbl.isStarred.equals(true));
+    return query.get();
+  }
+
+  /// Returns top songs of a given artist name.
+  Future<List<Song>> topSongs(String artistName) {
+    var keys = List.generate(5, (index) => '$index.$artistName');
+    var query = select(songs)..where((tbl) => tbl.topSongKey.isIn(keys));
+    query.orderBy([(t) => OrderingTerm(expression: t.topSongKey)]);
     return query.get();
   }
 
@@ -98,6 +109,21 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
         SongsCompanion(isStarred: Value(isStarred)),
         where: (t) => t.id.isIn(idList),
       );
+    });
+  }
+
+  /// Marks a given list of song ids with an artist's name.
+  Future<void> markTopSongs(String artistName, List<int> idList) {
+    return batch((batch) {
+      for (var index = 0; index < idList.length; index++) {
+        final id = idList[index];
+        final key = '$index.$artistName';
+        batch.update(
+          songs,
+          SongsCompanion(topSongKey: Value(key)),
+          where: (t) => t.id.equals(id),
+        );
+      }
     });
   }
 
