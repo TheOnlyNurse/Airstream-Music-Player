@@ -102,18 +102,10 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
 
   /// Returns an album list given a list of album ids.
   ///
-  /// To ensure that albums are ordered according to the id list given, a transaction
-  /// filled with individual selects is required.
+  /// Note that the list will be ordered by its row index and not the given list.
   Future<List<Album>> byIdList(List<int> idList) async {
-    return transaction<List<Album>>(() async {
-      final albumsFromIds = <Album>[];
-      for (var id in idList) {
-        final query = select(albums)..where((tbl) => tbl.id.equals(id));
-        final album = await query.getSingle();
-        if (album != null) albumsFromIds.add(album);
-      }
-      return albumsFromIds;
-    });
+    var query = select(albums)..where((tbl) => tbl.id.isIn(idList));
+    return query.get();
   }
 
   /// Get an album based on a title request

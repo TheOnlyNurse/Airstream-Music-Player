@@ -224,7 +224,11 @@ class AlbumRepository {
         cache.put(cacheKey, idList);
       }
     }
-    return _database.byIdList(idList);
+    var unsorted = await _database.byIdList(idList);
+    // Reordering to match albums with it's appearance in the cached id list.
+    return idList
+        .map((id) => unsorted.firstWhere((album) => album.id == id))
+        .toList();
   }
 
   /// Returns a list of ids given an album fetch type
