@@ -35,3 +35,11 @@ String errorSolution(ErrorSolution type) {
       throw UnimplementedError('No solution of type: $type');
   }
 }
+
+class AirstreamSolutions {
+  const AirstreamSolutions();
+
+  static const network = 'Network status could be offline. Check if this app has network access.';
+  static const database = 'The local database could be out-of-date. Try refreshing it.';
+  static const report = "This isn't a unusual error. Please contact the developer.";
+}

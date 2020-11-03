@@ -72,7 +72,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
   Future<void> insertElements(List<XmlElement> elements) {
     return batch((batch) {
-      var companions = elements.map((e) => _elementToCompanion(e)).toList();
+      var companions = elements.map(_elementToCompanion).toList();
       batch.insertAll(songs, companions, mode: InsertMode.insertOrIgnore);
     });
   }

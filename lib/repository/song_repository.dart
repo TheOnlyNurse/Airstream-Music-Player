@@ -1,5 +1,8 @@
+import 'package:airstream/providers/server_provider.dart';
 import 'package:airstream/repository/artist_repository.dart';
+import 'package:airstream/static_assets.dart';
 import 'package:flutter/foundation.dart';
+import 'package:xml/xml.dart';
 
 /// Internal
 import '../models/playlist_model.dart';
@@ -34,8 +37,8 @@ class SongRepository {
   Future<ListResponse<Song>> byAlbum(Album album) async {
     var songs = await _database.byAlbum(album.id);
     if (songs.length != album.songCount) {
-      // TODO: Fetch album and add results into the database
-      throw UnimplementedError();
+      var downloaded = await _download('getAlbum?id=${album.id}');
+      return _removeEmptyLists(downloaded);
     } else {
       return ListResponse(data: songs);
     }
@@ -45,8 +48,11 @@ class SongRepository {
   Future<ListResponse<Song>> byPlaylist(Playlist playlist) async {
     var songs = await _database.byIdList(playlist.songIds);
     if (songs.length != playlist.songIds.length) {
-      // TODO: Fetch songs in playlist
-      throw UnimplementedError();
+      var downloaded = await _download(
+        'getPlaylist?id=${playlist.id}',
+        elementName: 'entry',
+      );
+      return _removeEmptyLists(downloaded);
     } else {
       return ListResponse<Song>(data: songs);
     }
@@ -75,17 +81,55 @@ class SongRepository {
   }
 
   /// Searches both titles and artist names assigned to songs by a query string.
-  Future<ListResponse<Song>> search({String query}) async {
+  Future<ListResponse<Song>> search(String query) async {
     var byTitle = await _database.byTitle(query);
     var byName = await _database.byArtistName(query);
-    var songs = [...byTitle, ...byName];
+    // Converting to set to remove duplicates
+    var songs = [...byTitle, ...byName].toSet().toList();
 
     if (songs.length < 5) {
-      // TODO: Return search results from the server query
-      // TODO: Default to local results if the server query is insufficient
-      throw UnimplementedError();
+      var downloaded = await _download(
+        'search3?query=$query&'
+        'artistCount=0&'
+        'albumCount=0&'
+        'songCount=10',
+      );
+      return _removeEmptyLists(downloaded);
     } else {
       return ListResponse<Song>(data: songs);
+    }
+  }
+
+  /// ========== COMMON ==========
+
+  /// Returns an error message with possible solutions instead of an empty list.
+  ListResponse<Song> _removeEmptyLists(List<Song> songs) {
+    if (songs.isEmpty) {
+      return const ListResponse<Song>(
+          error: "No songs found in database.",
+          solutions: [
+            AirstreamSolutions.network,
+          ]);
+    } else {
+      return ListResponse<Song>(data: songs);
+    }
+  }
+
+  /// Downloads, inserts (into the local database) and returns songs from a given url query.
+  ///
+  /// If the element within the XmlDocument to be parsed as a song object is not
+  /// 'song' then use [elementName] to assign the correct one.
+  Future<List<Song>> _download(String urlQuery,
+      {String elementName = 'song'}) async {
+    var response = await ServerProvider().fetchXml(urlQuery);
+    if (response.hasData) {
+      var elements = response.document.findAllElements(elementName);
+      await _database.insertElements(elements);
+      return _database.byIdList(elements.map((e) {
+        return int.parse(e.getAttribute('id'));
+      }).toList());
+    } else {
+      return [];
     }
   }
 }
