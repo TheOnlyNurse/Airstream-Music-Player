@@ -26,7 +26,7 @@ class SongRepository {
 
   /// Returns a song by id.
   Future<SingleResponse<Song>> byId(int id) async {
-    var song = await _database.byId(id);
+    var song = await _database.id(id);
     return song != null ? SingleResponse<Song>(data: song) : null;
   }
 
@@ -35,7 +35,7 @@ class SongRepository {
   /// Fetches from the server if the number of songs retrieved doesn't match
   /// the songs expected in the album.
   Future<ListResponse<Song>> byAlbum(Album album) async {
-    var songs = await _database.byAlbum(album.id);
+    var songs = await _database.album(album.id);
     if (songs.length != album.songCount) {
       var downloaded = await _download('getAlbum?id=${album.id}');
       downloaded?.sort((a,b) => a.title.compareTo(b.title));
@@ -47,7 +47,7 @@ class SongRepository {
 
   /// Convert playlist song id list to song details from database.
   Future<ListResponse<Song>> byPlaylist(Playlist playlist) async {
-    var songs = await _database.byIdList(playlist.songIds);
+    var songs = await _database.idList(playlist.songIds);
     if (songs.length != playlist.songIds.length) {
       var downloaded = await _download(
         'getPlaylist?id=${playlist.id}',
@@ -59,9 +59,21 @@ class SongRepository {
     }
   }
 
-  Future<ListResponse<Song>> starred() {
-    // TODO: Merge Starred Provider and Song Repo
-    throw UnimplementedError();
+  /// Returns songs marked as starred, fetching from server if an empty list is received.
+  Future<ListResponse<Song>> starred({bool forceSync = false}) async {
+    var songs = await _database.starred();
+    if (songs.isEmpty || forceSync) {
+      var downloaded = await _download('getStarred2?');
+      if (downloaded.isNotEmpty) {
+        await _database.clearStarred();
+        await _database.updateStarred(downloaded.map((e) => e.id).toList());
+        return ListResponse<Song>(data: downloaded);
+      } else {
+        return _removeEmptyLists(songs);
+      }
+    } else {
+      return ListResponse(data: songs);
+    }
   }
 
   Future<ListResponse<Song>> topSongsOf(Artist artist) async {
@@ -72,7 +84,7 @@ class SongRepository {
       // TODO: Cache the generated list in the artist repository
     }
 
-    var songs = await _database.byIdList(songIds.data);
+    var songs = await _database.idList(songIds.data);
     if (songs.length != songIds.data.length) {
       // TODO: Fetch song ids from the server
       throw UnimplementedError();
@@ -83,8 +95,8 @@ class SongRepository {
 
   /// Searches both titles and artist names assigned to songs by a query string.
   Future<ListResponse<Song>> search(String query) async {
-    var byTitle = await _database.byTitle(query);
-    var byName = await _database.byArtistName(query);
+    var byTitle = await _database.title(query);
+    var byName = await _database.artistName(query);
     // Converting to set to remove duplicates
     var songs = [...byTitle, ...byName].toSet().toList();
 
@@ -126,7 +138,7 @@ class SongRepository {
     if (response.hasData) {
       var elements = response.document.findAllElements(elementName).toList();
       await _database.insertElements(elements);
-      return _database.byIdList(elements.map((e) {
+      return _database.idList(elements.map((e) {
         return int.parse(e.getAttribute('id'));
       }).toList());
     } else {
@@ -163,13 +175,6 @@ class SongRepository {
     } else {
       return ListResponse<Song>(data: songs);
     }
-  }
-    /// Request to get songs by searching a query
-  Future<ServerResponse> _downloadSearch(String query) {
-    return ServerProvider().fetchXml('search3?query=$query'
-        '&songCount=10'
-        '&artistCount=0'
-        '&albumCount=0');
   }
 
  */

@@ -12,7 +12,6 @@ import '../repository/song_repository.dart';
 import '../screens/album_list_screen.dart';
 import '../complex_widgets/horizontal_album_grid.dart';
 import '../complex_widgets/refresh_button.dart';
-import '../providers/repository/repository.dart';
 import '../complex_widgets/screen_transitions.dart';
 import '../complex_widgets/sliver_album_grid.dart';
 import '../complex_widgets/song_list/song_list.dart';
@@ -145,7 +144,7 @@ class _Heading extends StatelessWidget {
           RefreshButton(
             onPressed: () async {
               await GetIt.I.get<AlbumRepository>().forceSyncStarred();
-              await Repository().starred.update();
+              await GetIt.I.get<SongRepository>().starred(forceSync: true);
               context.bloc<StarredBloc>().add(StarredFetch());
             },
           ),

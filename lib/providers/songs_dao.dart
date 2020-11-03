@@ -35,36 +35,38 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   /// ========== QUERYING ==========
 
   /// Returns a song list given a list of ids.
-  Future<List<Song>> byIdList(List<int> idList) async {
+  Future<List<Song>> idList(List<int> idList) async {
     final songList = select(songs)..where((tbl) => tbl.id.isIn(idList));
     return songList.get();
   }
 
   /// Searches for song by id.
-  Future<Song> byId(int id) async {
+  Future<Song> id(int id) async {
     final query = select(songs)..where((tbl) => tbl.id.equals(id));
     return query.getSingle();
   }
 
   /// Returns songs that have a matching album id.
-  Future<List<Song>> byAlbum(int albumId) {
-    final query = select(songs);
-    query.where((tbl) => tbl.albumId.equals(albumId));
+  Future<List<Song>> album(int albumId) {
+    final query = select(songs)..where((tbl) => tbl.albumId.equals(albumId));
     query.orderBy([(t) => OrderingTerm(expression: t.title)]);
     return query.get();
   }
 
   /// Returns a song list by a title query
-  Future<List<Song>> byTitle(String title) {
-    final query = select(songs);
-    query.where((tbl) => tbl.title.like('%$title%'));
+  Future<List<Song>> title(String title) {
+    final query = select(songs)..where((tbl) => tbl.title.like('%$title%'));
     return query.get();
   }
 
   /// Returns a song list by artist name query
-  Future<List<Song>> byArtistName(String artist) {
-    final query = select(songs);
-    query.where((tbl) => tbl.artist.like('%$artist%'));
+  Future<List<Song>> artistName(String artist) {
+    final query = select(songs)..where((tbl) => tbl.artist.like('%$artist%'));
+    return query.get();
+  }
+
+  Future<List<Song>> starred() {
+    var query = select(songs)..where((tbl) => tbl.isStarred.equals(true));
     return query.get();
   }
 
@@ -74,6 +76,28 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     return batch((batch) {
       var companions = elements.map(_elementToCompanion).toList();
       batch.insertAll(songs, companions, mode: InsertMode.insertOrIgnore);
+    });
+  }
+
+  /// Changes all songs with isStarred: true to false.
+  Future<void> clearStarred() {
+    return batch((batch) {
+      batch.update(
+        songs,
+        SongsCompanion(isStarred: const Value(false)),
+        where: (t) => t.isStarred.equals(true),
+      );
+    });
+  }
+
+  /// Updates songs (by a given id list) to have given a isStarred value.
+  Future<void> updateStarred(List<int> idList, {isStarred = true}) {
+    return batch((batch) {
+      batch.update(
+        songs,
+        SongsCompanion(isStarred: Value(isStarred)),
+        where: (t) => t.id.isIn(idList),
+      );
     });
   }
 
@@ -93,6 +117,4 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
   int _parseAsInt(String attribute) {
     return attribute == null ? null : int.parse(attribute);
   }
-
-
 }
