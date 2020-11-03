@@ -42,7 +42,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         final query = queryList.last;
         queryList.clear();
         if (query.length > 1) {
-          final songResults = await songRepository.search(query: query);
+          final songResults = await songRepository.search(query);
           final artistResults = await artistRepository.search(query);
           final albumResults = await albumRepository.search(query);
           final noResults = songResults.hasError &&

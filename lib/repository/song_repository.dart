@@ -38,6 +38,7 @@ class SongRepository {
     var songs = await _database.byAlbum(album.id);
     if (songs.length != album.songCount) {
       var downloaded = await _download('getAlbum?id=${album.id}');
+      downloaded?.sort((a,b) => a.title.compareTo(b.title));
       return _removeEmptyLists(downloaded);
     } else {
       return ListResponse(data: songs);
@@ -123,7 +124,7 @@ class SongRepository {
       {String elementName = 'song'}) async {
     var response = await ServerProvider().fetchXml(urlQuery);
     if (response.hasData) {
-      var elements = response.document.findAllElements(elementName);
+      var elements = response.document.findAllElements(elementName).toList();
       await _database.insertElements(elements);
       return _database.byIdList(elements.map((e) {
         return int.parse(e.getAttribute('id'));

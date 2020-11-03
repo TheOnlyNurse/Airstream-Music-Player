@@ -2,6 +2,7 @@ library single_album_cubit;
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 /// Internal
 import '../../providers/moor_database.dart';
@@ -11,8 +12,11 @@ import '../../repository/song_repository.dart';
 part 'state.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
-  SingleAlbumCubit({this.albumRepository, this.songRepository})
-      : super(SingleAlbumInitial());
+  SingleAlbumCubit(
+      {@required this.albumRepository, @required this.songRepository})
+      : assert(albumRepository != null),
+        assert(songRepository != null),
+        super(SingleAlbumInitial());
 
   final AlbumRepository albumRepository;
   final SongRepository songRepository;

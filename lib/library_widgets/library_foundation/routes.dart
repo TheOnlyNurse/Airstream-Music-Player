@@ -10,6 +10,7 @@ Widget _route(String route, dynamic arguments) {
       return SingleAlbumScreen(
         cubit: SingleAlbumCubit(
           albumRepository: GetIt.I.get<AlbumRepository>(),
+          songRepository: GetIt.I.get<SongRepository>(),
         )..fetchSongs(arguments),
       );
     case 'library/singlePlaylist':
