@@ -23,10 +23,10 @@ class AudioProvider {
   /// The current Song (class containing details) being played
   Song get currentSong => _songQueue[_currentIndex];
 
-  /// A stream of player common.states
+  /// A stream of player states
   ValueStream<AudioPlayerState> get playerState => _playerState.stream;
 
-  /// A stream of song common.states (newSong)
+  /// A stream of song states (newSong)
   Stream<AudioPlayerSongState> get songState => _songState.stream;
 
   /// The current position of the player

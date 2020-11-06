@@ -41,7 +41,7 @@ dependencies:
   flare_flutter: ^2.0.4
   auto_size_text: ^2.1.0
 
-  # Complex common.widgets
+  # Complex widgets
   flare_splash_screen: ^3.0.1
   simple_animations: ^2.2.1
   draggable_scrollbar: ^0.0.4

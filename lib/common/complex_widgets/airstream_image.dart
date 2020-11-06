@@ -104,7 +104,7 @@ class _EmptyImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
-      child: Image.asset('lib/common.graphics/features.album.png', fit: BoxFit.contain),
+      child: Image.asset('lib/common/graphics/album.png', fit: BoxFit.contain),
     );
   }
 }

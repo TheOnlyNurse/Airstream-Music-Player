@@ -68,7 +68,7 @@ Future<void> _initHive(String databasePath) async {
 void _initGetIt(String cachePath) {
   // Assistant function to ease lazy singleton registration.
   void lazy<T>(T repo) => GetIt.I.registerLazySingleton<T>(() => repo);
-  // Many common.providers require access to the Moor Database isolate.
+  // Many providers require access to the Moor Database isolate.
   final moorDb = GetIt.I.get<MoorDatabase>();
 
   // Registering repositories for use.

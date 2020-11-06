@@ -47,8 +47,8 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
 }
 
 SingleAlbumState _refreshAlbum(SingleAlbumCubit cubit) {
-  // TODO: Update features.album reference in dao
-  // TODO: Delete features.album art
-  // TODO: Refresh current page with a new features.album screen
+  // TODO: Update album reference in dao
+  // TODO: Delete album art
+  // TODO: Refresh current page with a new album screen
   throw UnimplementedError();
 }

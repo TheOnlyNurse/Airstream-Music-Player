@@ -72,10 +72,10 @@ extension SimpleQueries on SongRepository {
     return song != null ? SingleResponse<Song>(data: song) : null;
   }
 
-  /// Get songs that match a given features.album.
+  /// Get songs that match a given album.
   ///
   /// Fetches from the server if the number of songs retrieved doesn't match
-  /// the songs expected in the features.album.
+  /// the songs expected in the album.
   Future<ListResponse<Song>> byAlbum(Album album) async {
     var songs = await _database.album(album.id);
 

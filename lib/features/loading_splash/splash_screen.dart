@@ -66,7 +66,7 @@ class _Splash extends StatelessWidget {
       child: SizedBox(
         height: 250,
         child: FlareActor(
-          "lib/common.graphics/splash-screen.flr",
+          "lib/common/graphics/splash-screen.flr",
           alignment: const Alignment(0, 0),
           fit: BoxFit.contain,
           animation: isLoading ? 'loading' : 'done',

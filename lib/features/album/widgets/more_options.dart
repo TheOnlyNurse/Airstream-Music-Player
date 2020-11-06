@@ -11,7 +11,7 @@ class _MoreOptions extends StatelessWidget {
       icon: Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuEntry<int>>[
         const PopupMenuItem(
-          child: Text('Reload features.album'),
+          child: Text('Reload album'),
           value: 1,
         ),
       ],

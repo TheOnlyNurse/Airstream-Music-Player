@@ -48,7 +48,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     return query.getSingle();
   }
 
-  /// Returns songs that have a matching features.album id.
+  /// Returns songs that have a matching album id.
   Future<List<Song>> album(int albumId) {
     final query = select(songs)..where((tbl) => tbl.albumId.equals(albumId));
     query.orderBy([(t) => OrderingTerm(expression: t.title)]);
@@ -133,7 +133,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
       id: Value(int.parse(element.getAttribute('id'))),
       title: element.getAttribute('title'),
       artist: element.getAttribute('artist'),
-      album: element.getAttribute('features.album'),
+      album: element.getAttribute('album'),
       art: Value(element.getAttribute('coverArt')),
       albumId: _parseAsInt(element.getAttribute('albumId')),
     );

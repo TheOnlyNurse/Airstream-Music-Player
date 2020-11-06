@@ -23,7 +23,7 @@ class AlbumRepository {
 
   /// Requests a random list of albums.
   ///
-  /// Since the features.album order should also be random, a subsequent shuffle is needed.
+  /// Since the album order should also be random, a subsequent shuffle is needed.
   Future<ListResponse<Album>> random() async {
     final albums = await _database.random(50);
     albums.shuffle();
@@ -68,7 +68,7 @@ class AlbumRepository {
     }
   }
 
-  /// Returns a list of decades dictated by features.album years.
+  /// Returns a list of decades dictated by album years.
   Future<ListResponse<int>> decades() async {
     final decades = await _database.extractDecades();
     if (decades.isEmpty) {
@@ -102,12 +102,12 @@ class AlbumRepository {
     return _removeEmptyLists(albums);
   }
 
-  /// Returns an features.album by it's id.
+  /// Returns an album by it's id.
   Future<SingleResponse<Album>> byId(int id) async {
     final album = await _database.byId(id);
     if (album == null) {
       return SingleResponse<Album>(
-        error: 'Failed to find features.album.',
+        error: 'Failed to find album.',
         solutions: [errorSolution(ErrorSolution.database)],
       );
     } else {
@@ -115,12 +115,12 @@ class AlbumRepository {
     }
   }
 
-  /// Returns an features.album list that matches a genre.
+  /// Returns an album list that matches a genre.
   Future<ListResponse<Album>> genre(String genre) async {
     return _removeEmptyLists(await _database.byGenre(genre));
   }
 
-  /// Returns an features.album list with years within the given decade.
+  /// Returns an album list with years within the given decade.
   Future<ListResponse<Album>> decade(int decade) async {
     return _removeEmptyLists(await _database.byDecade(decade));
   }
@@ -140,7 +140,7 @@ class AlbumRepository {
   Future<void> forceSyncStarred() async {
     final response = await ServerProvider().fetchXml('getStarred2?');
     if (response.hasData) {
-      final elements = response.document.findAllElements('features.album').toList();
+      final elements = response.document.findAllElements('album').toList();
       final idList = elements.map((e) {
         return int.parse(e.getAttribute('id'));
       }).toList();
@@ -167,7 +167,7 @@ class AlbumRepository {
         specifics: 'size=500&offset=$offset',
       );
       if (response.hasNoData) throw UnimplementedError();
-      final elements = response.document.findAllElements('features.album').toList();
+      final elements = response.document.findAllElements('album').toList();
       if (elements.isEmpty) break;
       allElements.addAll(elements);
       offset += 500;
@@ -204,7 +204,8 @@ class AlbumRepository {
 
   /// Returns albums from a temporary cache, typically used for most/recently played.
   ///
-  /// Album ids are stored in the cache and are converted to features.album objects.
+  /// Album ids are stored in the cache and are converted to album objects.
+  /// Does not return null objects, only empty lists.
   Future<List<Album>> _albumsFromCache({
     String cacheKey,
     String type,
@@ -224,20 +225,26 @@ class AlbumRepository {
         cache.put(cacheKey, idList);
       }
     }
-    var unsorted = await _database.byIdList(idList);
-    // Reordering to match albums with it's appearance in the cached id list.
-    return idList
-        .map((id) => unsorted.firstWhere((album) => album.id == id))
-        .toList();
+
+    final unsorted = await _database.byIdList(idList);
+    // Ids from database and server can be out of sync.
+    if (unsorted.isEmpty) {
+      return [];
+    } else {
+      // Reordering to match albums with it's appearance in the cached id list.
+      return idList
+          .map((id) => unsorted.firstWhere((album) => album.id == id))
+          .toList();
+    }
   }
 
-  /// Returns a list of ids given an features.album fetch type
+  /// Returns a list of ids given an album fetch type
   Future<List<int>> _idsFromType(String type) async {
     int idFromElement(e) => int.parse(e.getAttribute('id'));
 
     final response = await _fetch(type: type, specifics: 'size=50');
     if (response.hasNoData) return null;
-    final elements = response.document.findAllElements('features.album').toList();
+    final elements = response.document.findAllElements('album').toList();
     return elements.isEmpty ? null : elements.map(idFromElement).toList();
   }
 

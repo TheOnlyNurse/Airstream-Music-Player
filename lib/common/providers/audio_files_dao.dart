@@ -93,7 +93,7 @@ class AudioFilesDao extends DatabaseAccessor<MoorDatabase>
   /// This does not alter/delete the referenced files.
   Future<void> clear() => delete(audioFiles).go();
 
-  /// Returns a list of cached features.album or song ids
+  /// Returns a list of cached album or song ids
   Future<AudioCacheResponse> cachedIds(String request) async {
     assert(request == 'songs' || request == 'albums');
     final query = selectOnly(audioFiles);

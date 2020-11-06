@@ -100,7 +100,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
     return query.map((e) => e.year ~/ 10 * 10).get();
   }
 
-  /// Returns an features.album list given a list of features.album ids.
+  /// Returns an album list given a list of album ids.
   ///
   /// Note that the list will be ordered by its row index and not the given list.
   Future<List<Album>> byIdList(List<int> idList) async {
@@ -108,7 +108,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
     return query.get();
   }
 
-  /// Get an features.album based on a title request
+  /// Get an album based on a title request
   Future<List<Album>> search(String request) async {
     final query = select(albums);
     query.where((a) => a.title.like('%$request%'));

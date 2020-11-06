@@ -42,7 +42,7 @@ class AirstreamCollage extends StatelessWidget {
           } else {
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Image.asset('lib/common.graphics/features.album.png', fit: fit),
+              child: Image.asset('lib/common/graphics/album.png', fit: fit),
             );
           }
         } else {

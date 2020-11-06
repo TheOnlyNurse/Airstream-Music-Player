@@ -10,13 +10,13 @@ extension NavyBlueTheme on ColorScheme {
   /// A color that's clearly legible when drawn on background
   Color get onBackground => const Color(0xFFFFFFFF).withOpacity(0.6);
 
-  /// The background color for common.widgets like Card
+  /// The background color for widgets like Card
   Color get surface => const Color(0xFF32407b);
 
   /// A color that's clearly legible when drawn on surface
   Color get onSurface => const Color(0xFFFFFFFF);
 
-  /// The color displayed most frequently across your app’s common.screens and components
+  /// The color displayed most frequently across your app’s screens and components
   Color get primary => const Color(0xFF515585);
 
   /// A darker version of the primary color

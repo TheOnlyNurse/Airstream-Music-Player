@@ -108,7 +108,7 @@ class _CollectionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   image: DecorationImage(
                     image: AssetImage(
-                        'lib/common.graphics/collections/${details.asset}'),
+                        'lib/common/graphics/collections/${details.asset}'),
                     fit: BoxFit.cover,
                   ),
                 ),

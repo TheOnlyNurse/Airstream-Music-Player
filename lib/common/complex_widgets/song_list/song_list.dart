@@ -63,7 +63,7 @@ class SongList extends StatelessWidget {
         slivers.add(sliverAppBar);
       }
 
-      // Add common.widgets that appear before the song list
+      // Add widgets that appear before the song list
       if (leading != null) slivers.addAll(leading);
 
       // If a title is set, add before song list
@@ -83,7 +83,7 @@ class SongList extends StatelessWidget {
       return slivers;
     }
 
-    /// Widget based on common.states that isn't a success state
+    /// Widget based on states that isn't a success state
     Widget _processOtherStates(SongListState state) {
       if (state is SongListInitial) return CircularProgressIndicator();
       if (state is SongListFailure) return state.errorMessage;

@@ -17,7 +17,7 @@ class PlaylistTile extends StatelessWidget {
     } else {
       return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Image.asset('lib/common.graphics/features.album.png'),
+        child: Image.asset('lib/common/graphics/album.png'),
       );
     }
   }
