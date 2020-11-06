@@ -8,23 +8,23 @@ import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 
 // Blocs
-import '../../common/bloc/mini_player_bloc.dart';
-import '../../common/bloc/nav_bar_bloc.dart';
-import '../../common/bloc/player_target_bloc.dart';
+import '../mini_player/bloc/mini_player_bloc.dart';
+import '../navigation_bar/bloc/navigation_bar_bloc.dart';
 import '../album/bloc/album_cubit.dart';
 
 // Widgets
-import '../../common/complex_widgets/player/mini_player.dart';
-import '../../common/complex_widgets/nav_bar.dart';
+import '../mini_player/mini_player.dart';
+import '../navigation_bar/navigation_bar.dart';
 
 // Screens that can be navigated from the library
 import '../../common/screens/album_list_screen.dart';
 import '../home/home_screen.dart';
 import '../../common/screens/single_playlist_screen.dart';
 import '../starred/starred_screen.dart';
-import '../../common/screens/single_artist_screen.dart';
+import '../artist/artist_screen.dart';
 import '../../common/repository/song_repository.dart';
 import '../album/screen.dart';
+import '../mini_player/mini_player_shade.dart';
 
 /// Library
 part 'widgets/pages.dart';
@@ -42,8 +42,10 @@ class LibraryFoundation extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<MiniPlayerBloc>(create: (_) => MiniPlayerBloc()),
-        BlocProvider<PlayerTargetBloc>(create: (_) => PlayerTargetBloc()),
+        BlocProvider<MiniPlayerBloc>(create: (_) => MiniPlayerBloc(
+          screenHeight: MediaQuery.of(context).size.height,
+          navigator: Navigator.of(context, rootNavigator: true),
+        )),
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(
             playerBloc: context.bloc<MiniPlayerBloc>(),
@@ -70,11 +72,11 @@ class LibraryFoundation extends StatelessWidget {
                   initialRoute: 'library/',
                   onGenerateRoute: _routeTransition,
                 ),
-                PlayerButtonTarget(),
+                MiniPlayerShade(),
               ],
             ),
           ),
-          floatingActionButton: PlayerActionButton(),
+          floatingActionButton: MiniPlayerButton(),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: NavigationBar(),

@@ -6,7 +6,7 @@ import '../models/repository_response.dart';
 import '../static_assets.dart';
 import '../repository/artist_repository.dart';
 import '../complex_widgets/alpha_grid_view.dart';
-import '../complex_widgets/artist_circle.dart';
+import '../widgets/artist_circle.dart';
 import '../complex_widgets/error_widgets.dart';
 
 class ArtistsScreen extends StatelessWidget {

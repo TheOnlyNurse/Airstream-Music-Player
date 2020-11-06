@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// Internal Links
 import '../providers/moor_database.dart';
 import '../static_assets.dart';
-import '../complex_widgets/album_card.dart';
+import '../widgets/album_card.dart';
 
 class SliverAlbumGrid extends StatelessWidget {
   const SliverAlbumGrid({Key key, this.albumList, this.onTap})

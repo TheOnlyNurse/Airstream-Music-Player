@@ -52,7 +52,7 @@ class DownloadProvider {
         _startTimer(whenComplete, current);
         _tempSongSink.add(bytes);
         // Update the current percentage
-        current = current.update(addToCurrent: bytes.length);
+        current = current.update(increment: bytes.length);
         _percentage.add(current);
       });
 

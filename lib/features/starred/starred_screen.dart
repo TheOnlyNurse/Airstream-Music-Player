@@ -9,10 +9,8 @@ import '../../common/providers/moor_database.dart';
 import '../../common/models/song_list_delegate.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
-import '../../common/screens/album_list_screen.dart';
-import '../../common/complex_widgets/horizontal_album_grid.dart';
+import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/complex_widgets/refresh_button.dart';
-import '../../common/complex_widgets/screen_transitions.dart';
 import '../../common/complex_widgets/sliver_album_grid.dart';
 import '../../common/complex_widgets/song_list/song_list.dart';
 
@@ -114,14 +112,10 @@ class _MoreAlbumsButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            fadeInSlideRoute(
-              AlbumListScreen(
-                title: 'Starred Albums',
-                future: () => albumRepository.starred(),
-              ),
-            ),
+            'library/albumList',
+            arguments: albumRepository.starred(),
           );
         },
       ),

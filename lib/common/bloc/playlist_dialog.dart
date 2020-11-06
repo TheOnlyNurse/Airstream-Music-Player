@@ -1,6 +1,5 @@
 import 'dart:async';
 
-/// External Packages
 import 'package:bloc/bloc.dart';
 
 /// Internal links

@@ -6,8 +6,8 @@ import '../../../common/repository/image_repository.dart';
 import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
 import '../../../common/complex_widgets/custom_alert_dialog.dart';
-import '../../../common/complex_widgets/settings/custom_switch.dart';
-import '../widgets/settings_slider.dart';
+import '../widgets/switch.dart';
+import '../widgets/slider.dart';
 import '../../../common/repository/song_repository.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {

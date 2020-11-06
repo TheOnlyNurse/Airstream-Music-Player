@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
 
-extension NavyBlueTheme on ColorScheme {
+mixin NavyBlueTheme implements ColorScheme {
   /// The overall brightness of this color scheme
   Brightness get brightness => Brightness.dark;
 
@@ -39,4 +40,27 @@ extension NavyBlueTheme on ColorScheme {
 
   /// A color that's clearly legible when drawn on error
   Color get onError => const Color(0xFF000000);
+
+  @override
+  ColorScheme copyWith({Color primary, Color primaryVariant, Color secondary, Color secondaryVariant, Color surface, Color background, Color error, Color onPrimary, Color onSecondary, Color onSurface, Color onBackground, Color onError, Brightness brightness}) {
+    // TODO: implement copyWith
+    throw UnimplementedError();
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    // TODO: implement debugFillProperties
+  }
+
+  @override
+  DiagnosticsNode toDiagnosticsNode({String name, DiagnosticsTreeStyle style}) {
+    // TODO: implement toDiagnosticsNode
+    throw UnimplementedError();
+  }
+
+  @override
+  String toStringShort() {
+    // TODO: implement toStringShort
+    throw UnimplementedError();
+  }
 }

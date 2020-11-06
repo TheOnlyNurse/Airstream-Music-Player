@@ -26,8 +26,7 @@ class FutureButton<T> extends StatelessWidget {
           var response = snapshot.data;
           if (response.hasError) {
             throw Exception(
-              'Tappable received future with error: '
-              '${response.error}',
+              'FutureButton received future with error: ${response.error}',
             );
           } else {
             return GestureDetector(

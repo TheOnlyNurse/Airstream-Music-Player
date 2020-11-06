@@ -8,7 +8,6 @@ import '../../../common/screens/alphabet_screen.dart';
 import '../../../common/screens/artists_screen.dart';
 import '../../../common/screens/decade_screen.dart';
 import '../../../common/screens/genre_screen.dart';
-import '../../../common/complex_widgets/screen_transitions.dart';
 
 class Collections extends StatelessWidget {
   const Collections(
@@ -143,5 +142,22 @@ class _CollectionDetails {
 
   const _CollectionDetails(this.title, this.asset, {this.page});
 
-  PageRouteBuilder route() => fadeInSlideRoute(page);
+  PageRouteBuilder route() => PageRouteBuilder(
+    opaque: false,
+    pageBuilder: (BuildContext context, _, __) {
+      return page;
+    },
+    transitionsBuilder: (___, animation, ____, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(-0.5, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      );
+    },
+  );
 }

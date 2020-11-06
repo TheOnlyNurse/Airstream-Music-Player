@@ -5,7 +5,7 @@ import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
 import '../static_assets.dart';
 import '../repository/album_repository.dart';
-import '../complex_widgets/album_card.dart';
+import '../widgets/album_card.dart';
 import '../complex_widgets/alpha_grid_view.dart';
 import '../complex_widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';

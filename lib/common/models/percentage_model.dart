@@ -16,16 +16,14 @@ class PercentageModel extends Equatable {
 
   int get percentage => (current / total * 100).round();
 
-	@override
-	List<Object> get props => [hasData, songId, percentage];
+  @override
+  List<Object> get props => [hasData, songId, percentage];
 
-	PercentageModel update({bool hasData, int addToCurrent, int total}) {
-		return PercentageModel(
-			hasData: hasData ?? this.hasData,
-			songId: this.songId,
-			current: addToCurrent != null ? this.current + addToCurrent : this
-					.current,
-			total: total ?? this.total,
-		);
-	}
+  PercentageModel update({bool hasData, int increment, int total}) =>
+      PercentageModel(
+        hasData: hasData ?? this.hasData,
+        songId: this.songId,
+        current: increment != null ? this.current + increment : this.current,
+        total: total ?? this.total,
+      );
 }

@@ -10,7 +10,7 @@ class ErrorSolutions {
   static const database =
       'The local database could be out-of-date. Try refreshing it.';
   static const report =
-      "This isn't a unusual error. Please contact the developer.";
+      "This is an unusual error. Please contact the developer.";
 }
 
 class WidgetProperties {
