@@ -1,6 +1,6 @@
-part of repository_library;
+part of 'repository.dart';
 
-Future<MoorIsolate> _createMoorDatabase(String dbPath) async {
+Future<MoorIsolate> createMoorDatabase(String dbPath) async {
   final path = p.join(dbPath, 'db.sqlite');
   final receivePort = ReceivePort();
   await Isolate.spawn(
@@ -16,25 +16,6 @@ void _startDatabase(_IsolateRequest request) {
     () => DatabaseConnection.fromExecutor(executor),
   );
   request.sendPort.send(moorIsolate);
-}
-
-Future<MoorIsolate> _createMoorCache() async {
-  final dbFolder = await getTemporaryDirectory();
-  final path = p.join(dbFolder.path, 'db.sqlite');
-  final receivePort = ReceivePort();
-  await Isolate.spawn(
-    _startCache,
-    _IsolateRequest(receivePort.sendPort, path),
-  );
-  return (await receivePort.first as MoorIsolate);
-}
-
-void _startCache(_IsolateRequest request) {
-	final executor = VmDatabase(File(request.path), logStatements: false);
-	final moorIsolate = MoorIsolate.inCurrent(
-				() => DatabaseConnection.fromExecutor(executor),
-	);
-	request.sendPort.send(moorIsolate);
 }
 
 /// Used to communicate between isolates and the main thread

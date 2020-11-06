@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:airstream/repository/song_repository.dart';
 /// External Packages
 import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 import 'package:get_it/get_it.dart';
@@ -7,7 +8,6 @@ import 'package:rxdart/rxdart.dart';
 
 /// Internal Links
 import 'moor_database.dart';
-import 'repository/repository.dart';
 import '../repository/image_repository.dart';
 import '../repository/communication.dart';
 import 'download_provider.dart';
@@ -153,7 +153,7 @@ class AudioProvider {
       _playerState.add(AudioPlayerState.playing);
     } catch (e) {
       changePlayerState(ChangePlayerState.stop);
-      await Repository().audioCache.deleteSong(song);
+      await GetIt.I.get<SongRepository>().deleteFile(song);
     }
   }
 
@@ -171,9 +171,9 @@ class AudioProvider {
     final song = this.currentSong;
     // Notify new song is loading
     _songState.add(AudioPlayerSongState.newSong);
-    final response = await Repository().audioCache.pathOf(song);
-    if (response.hasData) {
-      this._play(response.path, song);
+    final filePath = await GetIt.I.get<SongRepository>().filePath(song);
+    if (filePath != null) {
+      this._play(filePath, song);
     } else {
       if (_audioPlayer.current.value != null) _audioPlayer.pause();
       DownloadProvider().downloadSong(song);

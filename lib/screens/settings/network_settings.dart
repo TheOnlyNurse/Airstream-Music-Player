@@ -1,3 +1,5 @@
+import 'package:airstream/repository/song_repository.dart';
+
 /// External Packages
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -41,7 +43,10 @@ class NetworkSettingsScreen extends StatelessWidget {
             SettingsSlider(title: 'Music Cache', type: SettingType.musicCache),
             SettingsSlider(title: 'Image Cache', type: SettingType.imageCache),
             SizedBox(height: 16),
-            _ClearCache(imageRepository: GetIt.I.get<ImageRepository>()),
+            _ClearCache(
+              imageRepository: GetIt.I.get<ImageRepository>(),
+              songRepository: GetIt.I.get<SongRepository>(),
+            ),
             _Title(title: 'Bitrate'),
             SettingsSlider(
               title: 'Wifi Bitrate',
@@ -76,11 +81,14 @@ class _Title extends StatelessWidget {
 }
 
 class _ClearCache extends StatelessWidget {
-  const _ClearCache({Key key, @required this.imageRepository})
+  const _ClearCache(
+      {Key key, @required this.imageRepository, @required this.songRepository})
       : assert(imageRepository != null),
+        assert(songRepository != null),
         super(key: key);
 
   final ImageRepository imageRepository;
+  final SongRepository songRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +105,7 @@ class _ClearCache extends StatelessWidget {
                 return CustomAlertDialog(title: 'Clear cache?');
               });
           if (shouldClear) {
-            Repository().audioCache.deleteAll();
+            songRepository.clearCache();
             imageRepository.clear();
           }
         },

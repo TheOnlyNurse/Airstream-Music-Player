@@ -6,6 +6,6 @@ part of 'audio_files_dao.dart';
 // DaoGenerator
 // **************************************************************************
 
-mixin _$AudioFilesDaoMixin on DatabaseAccessor<MoorCache> {
+mixin _$AudioFilesDaoMixin on DatabaseAccessor<MoorDatabase> {
   $AudioFilesTable get audioFiles => attachedDatabase.audioFiles;
 }

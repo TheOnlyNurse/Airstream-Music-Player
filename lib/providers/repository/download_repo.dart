@@ -1,4 +1,4 @@
-part of repository_library;
+part of 'repository.dart';
 
 class _DownloadRepository {
   /// Private

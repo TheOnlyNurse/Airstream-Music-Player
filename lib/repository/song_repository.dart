@@ -1,9 +1,15 @@
 import 'dart:math' as math;
+import 'dart:io';
 
+import 'package:airstream/providers/audio_files_dao.dart';
+import 'package:airstream/providers/repository/repository.dart';
 import 'package:airstream/providers/server_provider.dart';
 import 'package:airstream/static_assets.dart';
 import 'package:flutter/foundation.dart';
+import 'package:moor/moor.dart';
+import 'package:mutex/mutex.dart';
 import 'package:xml/xml.dart';
+import 'package:path/path.dart' as Path;
 
 /// Internal
 import '../models/playlist_model.dart';
@@ -14,13 +20,52 @@ import '../providers/songs_dao.dart';
 class SongRepository {
   SongRepository({
     @required SongsDao songsDao,
+    @required AudioFilesDao audioFilesDao,
+    @required String cacheFolder,
   })  : assert(songsDao != null),
-        _database = songsDao;
+        assert(audioFilesDao != null),
+        _database = songsDao,
+        _fileDatabase = audioFilesDao,
+        _cacheFolder = cacheFolder;
 
   final SongsDao _database;
+  final AudioFilesDao _fileDatabase;
+  final String _cacheFolder;
+  final _cacheCheckLocker = Mutex();
 
-  /// ========== QUERYING ==========
+  /// Returns an error message with possible solutions instead of an empty list.
+  ListResponse<Song> _removeEmptyLists(List<Song> songs) {
+    if (songs.isEmpty) {
+      return const ListResponse<Song>(
+          error: "No songs found in database.",
+          solutions: [
+            AirstreamSolutions.network,
+          ]);
+    } else {
+      return ListResponse<Song>(data: songs);
+    }
+  }
 
+  /// Downloads, inserts (into the local database) and returns songs from a given url query.
+  ///
+  /// If the element within the XmlDocument to be parsed as a song object is not
+  /// 'song' then use [elementName] to assign the correct one.
+  Future<List<Song>> _download(String urlQuery,
+      {String elementName = 'song'}) async {
+    var response = await ServerProvider().fetchXml(urlQuery);
+    if (response.hasData) {
+      var elements = response.document.findAllElements(elementName).toList();
+      await _database.insertElements(elements);
+      return _database.idList(elements.map((e) {
+        return int.parse(e.getAttribute('id'));
+      }).toList());
+    } else {
+      return [];
+    }
+  }
+}
+
+extension SimpleQueries on SongRepository {
   /// Returns a song by id.
   Future<SingleResponse<Song>> byId(int id) async {
     var song = await _database.id(id);
@@ -72,7 +117,9 @@ class SongRepository {
       return ListResponse(data: songs);
     }
   }
+}
 
+extension ComplexQueries on SongRepository {
   /// Returns "top" songs of a given artist.
   Future<ListResponse<Song>> topSongs(
     Artist artist, {
@@ -129,37 +176,68 @@ class SongRepository {
       return ListResponse<Song>(data: songs);
     }
   }
+}
 
-  /// ========== COMMON ==========
+extension AudioFileManagement on SongRepository {
+  /// Returns the file (is it exists) associated with a song id.
+  Future<String> filePath(Song song) => _fileDatabase.filePath(song.id);
 
-  /// Returns an error message with possible solutions instead of an empty list.
-  ListResponse<Song> _removeEmptyLists(List<Song> songs) {
-    if (songs.isEmpty) {
-      return const ListResponse<Song>(
-          error: "No songs found in database.",
-          solutions: [
-            AirstreamSolutions.network,
-          ]);
-    } else {
-      return ListResponse<Song>(data: songs);
-    }
+  /// Deletes the file associated with a song.
+  Future<void> deleteFile(Song song) async {
+    final audioFile = await _fileDatabase.query(song.id);
+    assert(audioFile != null);
+
+    return Future.wait([
+      _fileDatabase.deleteEntry(song.id),
+      File(audioFile.path).delete(),
+    ]);
   }
 
-  /// Downloads, inserts (into the local database) and returns songs from a given url query.
-  ///
-  /// If the element within the XmlDocument to be parsed as a song object is not
-  /// 'song' then use [elementName] to assign the correct one.
-  Future<List<Song>> _download(String urlQuery,
-      {String elementName = 'song'}) async {
-    var response = await ServerProvider().fetchXml(urlQuery);
-    if (response.hasData) {
-      var elements = response.document.findAllElements(elementName).toList();
-      await _database.insertElements(elements);
-      return _database.idList(elements.map((e) {
-        return int.parse(e.getAttribute('id'));
-      }).toList());
-    } else {
-      return [];
-    }
+  /// Moves a given file into the cache folder and inserts it's existence into the database.
+  Future<void> cacheFile({Song song, File file}) async {
+    // Create a filename from song information.
+    final path = Path.join(_cacheFolder, '${song.id}.${song.title.hashCode}');
+    await _fileDatabase.insertCompanion(AudioFilesCompanion.insert(
+      songId: Value(song.id),
+      path: path,
+      size: (await file.stat()).size,
+      created: DateTime.now(),
+    ));
+    // After inserting the file record, ensure that the cache is still size compliant.
+    _cacheSizeCheck();
+    await File(path).create(recursive: true);
+    return file.copy(path);
+  }
+
+  /// Deletes the cache folder and clears the file database.
+  Future<void> clearCache() async {
+    return Future.wait([
+      Directory(_cacheFolder).delete(),
+      _fileDatabase.clear(),
+    ]);
+  }
+
+  void _cacheSizeCheck() async {
+    await _cacheCheckLocker.protect(() async {
+      final maxSize = Repository().settings.maxAudioCacheSize;
+      var currentSize = await _fileDatabase.cacheSize();
+
+      if (currentSize > maxSize) {
+        var futures = <Future>[];
+        var offset = 0;
+
+        while (currentSize > maxSize) {
+          final fileEntry = await _fileDatabase.oldestFile(offset);
+          currentSize -= fileEntry.size;
+          futures.addAll([
+            _fileDatabase.deleteEntry(fileEntry.songId),
+            File(fileEntry.path).delete(),
+          ]);
+          offset++;
+        }
+
+        await Future.wait(futures);
+      }
+    });
   }
 }

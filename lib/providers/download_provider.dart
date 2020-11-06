@@ -2,6 +2,8 @@ import 'dart:math' as Math;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:airstream/repository/song_repository.dart';
+
 /// External Packages
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
@@ -9,14 +11,12 @@ import 'package:path_provider/path_provider.dart';
 
 /// Internal Links
 import 'moor_database.dart';
-import 'repository/repository.dart';
 import '../models/percentage_model.dart';
 import '../repository/image_repository.dart';
 import 'server_provider.dart';
 import 'audio_provider.dart';
 import 'settings_provider.dart';
 import '../repository/communication.dart';
-
 
 class DownloadProvider {
   /// Global functions
@@ -59,8 +59,11 @@ class DownloadProvider {
       });
 
       _downloadSS.onDone(() async {
-				_closeSinks();
-        await Repository().audioCache.cache(await _tempFile, song);
+        _closeSinks();
+        await GetIt.I.get<SongRepository>().cacheFile(
+              song: song,
+              file: await _tempFile,
+            );
         _songPlayable.add(song);
         whenComplete.complete();
       });
@@ -82,14 +85,14 @@ class DownloadProvider {
     final songsToFetch = Math.min(prefetch, maxNextSongs);
 
     for (var index = currentIndex + 1;
-    index < currentIndex + songsToFetch + 1;
-    index++) {
-			if (provider.currentSong.id != initialSong.id) break;
+        index < currentIndex + songsToFetch + 1;
+        index++) {
+      if (provider.currentSong.id != initialSong.id) break;
       if (provider.songQueue.length != initialQueue.length) break;
 
       final song = initialQueue[index];
-      final songPath = await Repository().audioCache.pathOf(song);
-      if (songPath.hasNoData) await downloadSong(song);
+      final songPath = await GetIt.I.get<SongRepository>().filePath(song);
+      if (songPath == null) await downloadSong(song);
       await GetIt.I.get<ImageRepository>().highDefinition(song.art);
     }
   }

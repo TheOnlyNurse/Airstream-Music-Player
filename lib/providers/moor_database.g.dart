@@ -1476,6 +1476,291 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, Song> {
   }
 }
 
+class AudioFile extends DataClass implements Insertable<AudioFile> {
+  final int songId;
+  final String path;
+  final int size;
+  final DateTime created;
+  AudioFile(
+      {@required this.songId,
+      @required this.path,
+      @required this.size,
+      @required this.created});
+  factory AudioFile.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    return AudioFile(
+      songId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}song_id']),
+      path: stringType.mapFromDatabaseResponse(data['${effectivePrefix}path']),
+      size: intType.mapFromDatabaseResponse(data['${effectivePrefix}size']),
+      created: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}created']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || songId != null) {
+      map['song_id'] = Variable<int>(songId);
+    }
+    if (!nullToAbsent || path != null) {
+      map['path'] = Variable<String>(path);
+    }
+    if (!nullToAbsent || size != null) {
+      map['size'] = Variable<int>(size);
+    }
+    if (!nullToAbsent || created != null) {
+      map['created'] = Variable<DateTime>(created);
+    }
+    return map;
+  }
+
+  AudioFilesCompanion toCompanion(bool nullToAbsent) {
+    return AudioFilesCompanion(
+      songId:
+          songId == null && nullToAbsent ? const Value.absent() : Value(songId),
+      path: path == null && nullToAbsent ? const Value.absent() : Value(path),
+      size: size == null && nullToAbsent ? const Value.absent() : Value(size),
+      created: created == null && nullToAbsent
+          ? const Value.absent()
+          : Value(created),
+    );
+  }
+
+  factory AudioFile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return AudioFile(
+      songId: serializer.fromJson<int>(json['songId']),
+      path: serializer.fromJson<String>(json['path']),
+      size: serializer.fromJson<int>(json['size']),
+      created: serializer.fromJson<DateTime>(json['created']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'songId': serializer.toJson<int>(songId),
+      'path': serializer.toJson<String>(path),
+      'size': serializer.toJson<int>(size),
+      'created': serializer.toJson<DateTime>(created),
+    };
+  }
+
+  AudioFile copyWith({int songId, String path, int size, DateTime created}) =>
+      AudioFile(
+        songId: songId ?? this.songId,
+        path: path ?? this.path,
+        size: size ?? this.size,
+        created: created ?? this.created,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('AudioFile(')
+          ..write('songId: $songId, ')
+          ..write('path: $path, ')
+          ..write('size: $size, ')
+          ..write('created: $created')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(songId.hashCode,
+      $mrjc(path.hashCode, $mrjc(size.hashCode, created.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is AudioFile &&
+          other.songId == this.songId &&
+          other.path == this.path &&
+          other.size == this.size &&
+          other.created == this.created);
+}
+
+class AudioFilesCompanion extends UpdateCompanion<AudioFile> {
+  final Value<int> songId;
+  final Value<String> path;
+  final Value<int> size;
+  final Value<DateTime> created;
+  const AudioFilesCompanion({
+    this.songId = const Value.absent(),
+    this.path = const Value.absent(),
+    this.size = const Value.absent(),
+    this.created = const Value.absent(),
+  });
+  AudioFilesCompanion.insert({
+    this.songId = const Value.absent(),
+    @required String path,
+    @required int size,
+    @required DateTime created,
+  })  : path = Value(path),
+        size = Value(size),
+        created = Value(created);
+  static Insertable<AudioFile> custom({
+    Expression<int> songId,
+    Expression<String> path,
+    Expression<int> size,
+    Expression<DateTime> created,
+  }) {
+    return RawValuesInsertable({
+      if (songId != null) 'song_id': songId,
+      if (path != null) 'path': path,
+      if (size != null) 'size': size,
+      if (created != null) 'created': created,
+    });
+  }
+
+  AudioFilesCompanion copyWith(
+      {Value<int> songId,
+      Value<String> path,
+      Value<int> size,
+      Value<DateTime> created}) {
+    return AudioFilesCompanion(
+      songId: songId ?? this.songId,
+      path: path ?? this.path,
+      size: size ?? this.size,
+      created: created ?? this.created,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (songId.present) {
+      map['song_id'] = Variable<int>(songId.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
+    if (created.present) {
+      map['created'] = Variable<DateTime>(created.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AudioFilesCompanion(')
+          ..write('songId: $songId, ')
+          ..write('path: $path, ')
+          ..write('size: $size, ')
+          ..write('created: $created')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AudioFilesTable extends AudioFiles
+    with TableInfo<$AudioFilesTable, AudioFile> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $AudioFilesTable(this._db, [this._alias]);
+  final VerificationMeta _songIdMeta = const VerificationMeta('songId');
+  GeneratedIntColumn _songId;
+  @override
+  GeneratedIntColumn get songId => _songId ??= _constructSongId();
+  GeneratedIntColumn _constructSongId() {
+    return GeneratedIntColumn('song_id', $tableName, false,
+        $customConstraints: 'REFERENCES songs(id)');
+  }
+
+  final VerificationMeta _pathMeta = const VerificationMeta('path');
+  GeneratedTextColumn _path;
+  @override
+  GeneratedTextColumn get path => _path ??= _constructPath();
+  GeneratedTextColumn _constructPath() {
+    return GeneratedTextColumn(
+      'path',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _sizeMeta = const VerificationMeta('size');
+  GeneratedIntColumn _size;
+  @override
+  GeneratedIntColumn get size => _size ??= _constructSize();
+  GeneratedIntColumn _constructSize() {
+    return GeneratedIntColumn(
+      'size',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _createdMeta = const VerificationMeta('created');
+  GeneratedDateTimeColumn _created;
+  @override
+  GeneratedDateTimeColumn get created => _created ??= _constructCreated();
+  GeneratedDateTimeColumn _constructCreated() {
+    return GeneratedDateTimeColumn(
+      'created',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [songId, path, size, created];
+  @override
+  $AudioFilesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'audio_files';
+  @override
+  final String actualTableName = 'audio_files';
+  @override
+  VerificationContext validateIntegrity(Insertable<AudioFile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('song_id')) {
+      context.handle(_songIdMeta,
+          songId.isAcceptableOrUnknown(data['song_id'], _songIdMeta));
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+          _pathMeta, path.isAcceptableOrUnknown(data['path'], _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+          _sizeMeta, size.isAcceptableOrUnknown(data['size'], _sizeMeta));
+    } else if (isInserting) {
+      context.missing(_sizeMeta);
+    }
+    if (data.containsKey('created')) {
+      context.handle(_createdMeta,
+          created.isAcceptableOrUnknown(data['created'], _createdMeta));
+    } else if (isInserting) {
+      context.missing(_createdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {songId};
+  @override
+  AudioFile map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return AudioFile.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $AudioFilesTable createAlias(String alias) {
+    return $AudioFilesTable(_db, alias);
+  }
+}
+
 abstract class _$MoorDatabase extends GeneratedDatabase {
   _$MoorDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   _$MoorDatabase.connect(DatabaseConnection c) : super.connect(c);
@@ -1485,14 +1770,20 @@ abstract class _$MoorDatabase extends GeneratedDatabase {
   $ArtistsTable get artists => _artists ??= $ArtistsTable(this);
   $SongsTable _songs;
   $SongsTable get songs => _songs ??= $SongsTable(this);
+  $AudioFilesTable _audioFiles;
+  $AudioFilesTable get audioFiles => _audioFiles ??= $AudioFilesTable(this);
   AlbumsDao _albumsDao;
   AlbumsDao get albumsDao => _albumsDao ??= AlbumsDao(this as MoorDatabase);
   ArtistsDao _artistsDao;
   ArtistsDao get artistsDao => _artistsDao ??= ArtistsDao(this as MoorDatabase);
   SongsDao _songsDao;
   SongsDao get songsDao => _songsDao ??= SongsDao(this as MoorDatabase);
+  AudioFilesDao _audioFilesDao;
+  AudioFilesDao get audioFilesDao =>
+      _audioFilesDao ??= AudioFilesDao(this as MoorDatabase);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [albums, artists, songs];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [albums, artists, songs, audioFiles];
 }

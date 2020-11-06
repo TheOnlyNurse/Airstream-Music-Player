@@ -1,43 +1,37 @@
 import 'dart:collection';
 import 'dart:io';
 
-/// External Packages
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:uuid/uuid.dart';
 
 /// Internal Links
 import 'moor_database.dart';
 import '../repository/communication.dart';
-import '../providers/moor_cache.dart';
 import '../models/response/audio_cache_response.dart';
 import 'settings_provider.dart';
 
 part 'audio_files_dao.g.dart';
 
 class AudioFiles extends Table {
+  IntColumn get songId => integer().customConstraint('REFERENCES songs(id)')();
+
   TextColumn get path => text()();
 
-  IntColumn get songId => integer()();
-
-  IntColumn get albumId => integer()();
-
   IntColumn get size => integer()();
+
+  DateTimeColumn get created => dateTime()();
 
   @override
   Set<Column> get primaryKey => {songId};
 }
 
 @UseDao(tables: [AudioFiles])
-class AudioFilesDao extends DatabaseAccessor<MoorCache>
+class AudioFilesDao extends DatabaseAccessor<MoorDatabase>
     with _$AudioFilesDaoMixin {
   /// So that the main database can create an instance of this dao
-  AudioFilesDao(MoorCache db) : super(db);
-
-  /// Used to generate unique names for cache files
-  final Uuid _idGenerator = Uuid();
+  AudioFilesDao(MoorDatabase db) : super(db);
 
   /// Mutex to "queue" cache size checks to stop incorrect multiple deletes
   final _sizeLocker = Mutex();
@@ -53,17 +47,51 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
     return p.join((await getTemporaryDirectory()).path, 'audio/');
   }
 
-  /// Returns a file path given a song id
-  Future<AudioCacheResponse> pathOf(int songId) async {
-    final query = select(audioFiles);
-    query.where((tbl) => tbl.songId.equals(songId));
-    final result = await query.getSingle();
-    if (result == null) {
-      return AudioCacheResponse(error: 'Failed to find song in cache');
-    } else {
-      return AudioCacheResponse(hasData: true, path: result.path);
-    }
+  /// ========== QUERYING ==========
+
+  /// Returns a file path (if it exists) given a song id.
+  Future<String> filePath(int songId) {
+    final query = select(audioFiles)..where((tbl) => tbl.songId.equals(songId));
+    return query.map((row) => row.path).getSingle();
   }
+
+  /// Returns the AudioFile entry associated with a song id.
+  Future<AudioFile> query(int songId) {
+    final query = select(audioFiles)..where((tbl) => tbl.songId.equals(songId));
+    return query.getSingle();
+  }
+
+  Future<int> cacheSize() {
+    final sum = audioFiles.size.sum();
+    final query = selectOnly(audioFiles)..addColumns([sum]);
+    return query.map((row) => row.read(sum)).getSingle();
+  }
+
+  Future<AudioFile> oldestFile(int offset) {
+    return (select(audioFiles)
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.created)])
+          ..limit(1, offset: offset))
+        .getSingle();
+  }
+
+  /// ========== DB MANAGEMENT ==========
+
+  /// Delete a table entry given a song id.
+  ///
+  /// Do note that this does not remove the underlying file, only the database entry.
+  Future<void> deleteEntry(int songId) {
+    return (delete(audioFiles)..where((tbl) => tbl.songId.equals(songId))).go();
+  }
+
+  /// Insert a companion into the database.
+  Future<void> insertCompanion(AudioFilesCompanion entry) {
+    return into(audioFiles).insert(entry);
+  }
+
+  /// Removes all entries in database.
+  ///
+  /// This does not alter/delete the referenced files.
+  Future<void> clear() => delete(audioFiles).go();
 
   /// Returns a list of cached album or song ids
   Future<AudioCacheResponse> cachedIds(String request) async {
@@ -72,9 +100,6 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
     GeneratedIntColumn expression;
     if (request == 'songs') {
       expression = audioFiles.songId;
-    }
-    if (request == 'albums') {
-      expression = audioFiles.albumId;
     }
     query.addColumns([expression]);
     final result = (await query.get()).map((row) => row.read(expression));
@@ -89,11 +114,11 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
   /// Cache file and insert into database, returning the generated new path
   Future<AudioCacheResponse> cache(File audioFile, Song song) async {
     // Generator random filename and write file to cache
-    final name = _idGenerator.v4();
+    final name = '${song.id}.${song.title.hashCode}';
     final path = p.join(await _cacheFolder, name);
     final cacheFile = await File(path).create(recursive: true);
     cacheFile.writeAsBytesSync(audioFile.readAsBytesSync());
-    await _insertCompanion(_getCompanion(cacheFile, song));
+    await insertCompanion(await _getCompanion(cacheFile, song));
     return AudioCacheResponse(hasData: true, path: path);
   }
 
@@ -118,7 +143,7 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Delete cached file and row by song id
-  Future<Null> deleteSong(int songId) async {
+  Future<void> deleteSong(int songId) async {
     final query = select(audioFiles);
     query.where((tbl) => tbl.songId.equals(songId));
     final file = File((await query.getSingle()).path);
@@ -127,32 +152,27 @@ class AudioFilesDao extends DatabaseAccessor<MoorCache>
   }
 
   /// Deletes row by song id (the primary key)
-  Future<Null> _deleteRow(int songId) {
+  Future<void> _deleteRow(int songId) {
     final deleteRow = delete(audioFiles);
     deleteRow.where((tbl) => tbl.songId.equals(songId));
     return deleteRow.go();
   }
 
   /// Delete the oldest file (which would be the first entry) in the database
-  Future<Null> _deleteOldestFile() async {
+  Future<void> _deleteOldestFile() async {
     final query = await select(audioFiles).getSingle();
     final file = File(query.path);
     file.deleteSync();
     return _deleteRow(query.songId);
   }
 
-  /// Inserts companion into the cache
-  Future<int> _insertCompanion(AudioFilesCompanion entry) {
-    return into(audioFiles).insert(entry);
-  }
-
   /// Returns a properly distributed companion
-  AudioFilesCompanion _getCompanion(File file, Song song) {
-    return AudioFilesCompanion(
-      path: Value(file.path),
+  Future<AudioFilesCompanion> _getCompanion(File file, Song song) async {
+    return AudioFilesCompanion.insert(
+      path: file.path,
       songId: Value(song.id),
-      albumId: Value(song.albumId),
-      size: Value(file.statSync().size),
+      size: (await file.stat()).size,
+      created: DateTime.now(),
     );
   }
 }

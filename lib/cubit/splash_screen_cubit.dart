@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:airstream/providers/audio_files_dao.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as Path;
 
 /// Internal links
 import '../providers/moor_database.dart';
@@ -24,58 +25,62 @@ class SplashScreenCubit extends Cubit<SplashScreenState> {
 
   void loadDatabases() async {
     emit(SplashScreenLoading());
-    final dbDirectory = await getApplicationDocumentsDirectory();
-    final cacheDirectory = await getTemporaryDirectory();
-    await _initHive(dbDirectory.path);
-    await Repository().init(dbDirectory.path);
-    _initGetIt(cacheDirectory.path);
+    final databasePath = (await getApplicationDocumentsDirectory()).path;
+    final cachePath = (await getTemporaryDirectory()).path;
+    await Future.wait([
+      _initHive(databasePath),
+      _initMoor(databasePath),
+    ]);
+    _initGetIt(cachePath);
     emit(SplashScreenSuccess());
   }
 
   void animationEnded() => emit(SplashScreenSuccess(shouldReplace: true));
+}
 
-  Future<void> _initHive(String dbPath) async {
-    // Hive database location
-    Hive.init(dbPath);
+Future<void> _initMoor(String databasePath) async {
+  final dbIsolate = await createMoorDatabase(databasePath);
+  final database = MoorDatabase.connect(await dbIsolate.connect());
+  GetIt.I.registerSingleton<MoorDatabase>(database);
+}
 
-    // Register adapters
-    Hive.registerAdapter(PlaylistAdapter());
+Future<void> _initHive(String databasePath) async {
+  // Hive database location
+  Hive.init(databasePath);
 
-    // Open required boxes
-    await Hive.openBox<Playlist>('playlists');
-    await Hive.openBox('settings');
-    await Hive.openBox<String>('scheduler');
-    await Hive.openBox('topSongs');
-    await Hive.openBox('similarArtists');
-    await Hive.openBox('cache');
-    await Hive.openBox<int>('images');
+  // Register adapters
+  Hive.registerAdapter(PlaylistAdapter());
 
-    return;
-  }
+  // Open required boxes
+  return Future.wait([
+    Hive.openBox<Playlist>('playlists'),
+    Hive.openBox('settings'),
+    Hive.openBox<String>('scheduler'),
+    Hive.openBox('topSongs'),
+    Hive.openBox('similarArtists'),
+    Hive.openBox('cache'),
+    Hive.openBox<int>('images'),
+  ]);
+}
 
-  void _initGetIt(String cachePath) {
-    final getIt = GetIt.I;
-    final moorDb = GetIt.I.get<MoorDatabase>();
+void _initGetIt(String cachePath) {
+  // Assistant function to ease lazy singleton registration.
+  void lazy<T>(T repo) => GetIt.I.registerLazySingleton<T>(() => repo);
+  // Many providers require access to the Moor Database isolate.
+  final moorDb = GetIt.I.get<MoorDatabase>();
 
-    // Providers for repositories.
-    final imageFiles = ImageFileProvider(
-      hive: Hive.box<int>('images'),
-      cacheFolder: p.join(cachePath, 'image/'),
-    );
-
-    // Registering repositories for use.
-    getIt.registerSingleton<ImageRepository>(ImageRepository(imageFiles));
-    getIt.registerLazySingleton<AlbumRepository>(() {
-      return AlbumRepository(albumsDao: AlbumsDao(moorDb));
-    });
-    getIt.registerLazySingleton<ArtistRepository>(() {
-      return ArtistRepository(artistsDao: ArtistsDao(moorDb));
-    });
-
-    getIt.registerLazySingleton<SongRepository>(() {
-      return SongRepository(songsDao: SongsDao(moorDb));
-    });
-  }
+  // Registering repositories for use.
+  lazy<ImageRepository>(ImageRepository(ImageFileProvider(
+    hive: Hive.box<int>('images'),
+    cacheFolder: Path.join(cachePath, 'image/'),
+  )));
+  lazy<AlbumRepository>(AlbumRepository(albumsDao: AlbumsDao(moorDb)));
+  lazy<ArtistRepository>(ArtistRepository(artistsDao: ArtistsDao(moorDb)));
+  lazy<SongRepository>(SongRepository(
+    songsDao: SongsDao(moorDb),
+    audioFilesDao: AudioFilesDao(moorDb),
+    cacheFolder: Path.join(cachePath, 'audio/'),
+  ));
 }
 
 abstract class SplashScreenState {

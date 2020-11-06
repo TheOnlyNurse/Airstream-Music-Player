@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:airstream/repository/song_repository.dart';
+import 'package:get_it/get_it.dart';
+
 /// External Packages
 import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
@@ -44,8 +47,8 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
     final currentState = state;
     if (event is SongListTileFetch) {
-      final response = await _repository.audioCache.pathOf(tileSong);
-      if (response.hasData) {
+      final response = await GetIt.I.get<SongRepository>().filePath(tileSong);
+      if (response != null) {
         yield SongListTileSuccess(cachePercent: 100);
       } else {
         yield SongListTileSuccess(cachePercent: 0);

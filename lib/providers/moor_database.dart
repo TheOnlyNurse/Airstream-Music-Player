@@ -1,4 +1,3 @@
-/// External Packages
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 
@@ -6,12 +5,13 @@ import 'package:moor/moor.dart';
 import 'albums_dao.dart';
 import 'artists_dao.dart';
 import 'songs_dao.dart';
+import 'audio_files_dao.dart';
 
 part 'moor_database.g.dart';
 
 @UseMoor(
-  tables: [Albums, Artists, Songs],
-  daos: [AlbumsDao, ArtistsDao, SongsDao],
+  tables: [Albums, Artists, Songs, AudioFiles],
+  daos: [AlbumsDao, ArtistsDao, SongsDao, AudioFilesDao],
 )
 class MoorDatabase extends _$MoorDatabase {
   /// Load into memory if not opened in isolate
@@ -23,4 +23,11 @@ class MoorDatabase extends _$MoorDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  MigrationStrategy get migration => MigrationStrategy(
+    // Enable foreign key support to link audio files to song objects.
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    }
+  );
 }

@@ -2,9 +2,6 @@
 import 'package:hive/hive.dart';
 import 'package:xml/xml.dart' as xml;
 
-/// Internal Links
-import 'repository/repository.dart';
-import '../providers/repository/repository.dart';
 import '../models/playlist_model.dart';
 import '../models/response/playlist_response.dart';
 import 'scheduler.dart';
@@ -56,6 +53,9 @@ class PlaylistProvider {
   }
 
   Future<PlaylistResponse> _checkIfOnline(PlaylistResponse input) async {
+    return input;
+
+    /*
     if (Repository().settings.isOffline) {
 			if (!input.hasData) return input;
 			final availableList = <Playlist>[];
@@ -80,6 +80,8 @@ class PlaylistProvider {
     }
 
     return input;
+
+     */
   }
 
   Future<PlaylistResponse> _downloadPlaylists() async {
