@@ -39,7 +39,7 @@ class SongRepository {
       return const ListResponse<Song>(
           error: "No songs found in database.",
           solutions: [
-            AirstreamSolutions.network,
+            ErrorSolutions.network,
           ]);
     } else {
       return ListResponse<Song>(data: songs);

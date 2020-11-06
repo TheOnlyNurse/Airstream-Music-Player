@@ -37,7 +37,7 @@ class ArtistsScreen extends StatelessWidget {
                     controller: _scrollController,
                     padding: const EdgeInsets.only(
                         left: 16.0, right: 16.0, bottom: 30.0),
-                    gridDelegate: airstreamArtistsDelegate,
+                    gridDelegate: WidgetProperties.artistsDelegate,
                     itemCount: response.data.length,
                     itemBuilder: (context, int index) {
                       return ArtistCircle(artist: response.data[index]);

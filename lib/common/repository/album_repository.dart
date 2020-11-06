@@ -108,7 +108,7 @@ class AlbumRepository {
     if (album == null) {
       return SingleResponse<Album>(
         error: 'Failed to find album.',
-        solutions: [errorSolution(ErrorSolution.database)],
+        solutions: [ErrorSolutions.database],
       );
     } else {
       return SingleResponse<Album>(data: album);
@@ -187,10 +187,7 @@ class AlbumRepository {
   ListResponse<E> _errorResponse<E>(String error) {
     return ListResponse<E>(
       error: error,
-      solutions: [
-        errorSolution(ErrorSolution.database),
-        errorSolution(ErrorSolution.network),
-      ],
+      solutions: [ErrorSolutions.database, ErrorSolutions.network],
     );
   }
 

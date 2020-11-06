@@ -37,7 +37,7 @@ class SingleArtistScreen extends StatelessWidget {
           builder: (context, state) {
             if (state is SingleArtistSuccess) {
               return CustomScrollView(
-                physics: airstreamScrollPhysics,
+                physics: WidgetProperties.scrollPhysics,
                 slivers: [
                   _AppBar(artist: artist),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),

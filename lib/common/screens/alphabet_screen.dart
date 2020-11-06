@@ -35,7 +35,7 @@ class AlphabetScreen extends StatelessWidget {
                   cacheKey: 'albumHeaders',
                   builder: GridView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    gridDelegate: airstreamAlbumsDelegate,
+                    gridDelegate: WidgetProperties.albumsDelegate,
                     itemBuilder: (context, index) {
                       return AlbumCard(album: response.data[index]);
                     },

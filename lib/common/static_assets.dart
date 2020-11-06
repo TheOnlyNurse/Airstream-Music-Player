@@ -1,45 +1,38 @@
 import 'package:flutter/material.dart';
 
-const airstreamAlbumsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-  maxCrossAxisExtent: 250,
-  mainAxisSpacing: 12,
-  crossAxisSpacing: 12,
-  childAspectRatio: 1 / 1.25,
-);
+class ErrorSolutions {
+  // This class is not meant to be instantiated or extended.
+  // ignore: unused_element
+  ErrorSolutions._();
 
-const airstreamArtistsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-  maxCrossAxisExtent: 250,
-  mainAxisSpacing: 20,
-  crossAxisSpacing: 20,
-  childAspectRatio: 1 / 1.2,
-);
-
-const airstreamScrollPhysics = BouncingScrollPhysics(
-  parent: AlwaysScrollableScrollPhysics(),
-);
-
-enum ErrorSolution { network, database, report, }
-
-String errorSolution(ErrorSolution type) {
-  switch(type){
-    case ErrorSolution.network:
-      return 'Network status could be offline. Check if this app has network access.';
-      break;
-    case ErrorSolution.database:
-      return 'The local database could be out-of-date. Try refreshing it.';
-      break;
-    case ErrorSolution.report:
-      return 'This isn\'t an unusual error. Please contact the developer.';
-      break;
-    default:
-      throw UnimplementedError('No solution of type: $type');
-  }
+  static const network =
+      'Network status could be offline. Check if this app has network access.';
+  static const database =
+      'The local database could be out-of-date. Try refreshing it.';
+  static const report =
+      "This isn't a unusual error. Please contact the developer.";
 }
 
-class AirstreamSolutions {
-  const AirstreamSolutions();
+class WidgetProperties {
+  // This class is not meant to be instantiated or extended.
+  // ignore: unused_element
+  WidgetProperties._();
 
-  static const network = 'Network status could be offline. Check if this app has network access.';
-  static const database = 'The local database could be out-of-date. Try refreshing it.';
-  static const report = "This isn't a unusual error. Please contact the developer.";
+  static const albumsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 250,
+    mainAxisSpacing: 12,
+    crossAxisSpacing: 12,
+    childAspectRatio: 1 / 1.25,
+  );
+
+  static const artistsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+    maxCrossAxisExtent: 250,
+    mainAxisSpacing: 20,
+    crossAxisSpacing: 20,
+    childAspectRatio: 1 / 1.2,
+  );
+
+  static const scrollPhysics = BouncingScrollPhysics(
+    parent: AlwaysScrollableScrollPhysics(),
+  );
 }

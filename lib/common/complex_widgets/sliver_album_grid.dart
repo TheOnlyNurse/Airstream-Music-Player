@@ -18,7 +18,7 @@ class SliverAlbumGrid extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 30.0),
       sliver: SliverGrid(
-        gridDelegate: airstreamAlbumsDelegate,
+        gridDelegate: WidgetProperties.albumsDelegate,
         delegate: SliverChildBuilderDelegate(
           (context, int index) => AlbumCard(
             album: albumList[index],

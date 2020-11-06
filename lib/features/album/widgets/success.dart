@@ -9,7 +9,7 @@ class _Success extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      physics: airstreamScrollPhysics,
+      physics: WidgetProperties.scrollPhysics,
       slivers: [
         SliverAppBar(
           expandedHeight: 400,

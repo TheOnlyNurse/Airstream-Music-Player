@@ -44,7 +44,7 @@ class ArtistRepository {
     if (artist == null) {
       return SingleResponse<Artist>(
         error: 'Failed to find artist.',
-        solutions: [errorSolution(ErrorSolution.database)],
+        solutions: [ErrorSolutions.database],
       );
     } else {
       return SingleResponse<Artist>(data: artist);
@@ -82,10 +82,7 @@ class ArtistRepository {
     if (artists.isEmpty) {
       return ListResponse<Artist>(
         error: 'No artists found within database.',
-        solutions: [
-          errorSolution(ErrorSolution.database),
-          errorSolution(ErrorSolution.network),
-        ],
+        solutions: [ErrorSolutions.database, ErrorSolutions.network],
       );
     } else {
       return ListResponse<Artist>(data: artists);
