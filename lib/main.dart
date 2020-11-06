@@ -1,8 +1,8 @@
-import 'package:airstream/screens/library_foundation.dart';
-import 'package:airstream/screens/player_screen.dart';
-import 'package:airstream/screens/search_screen.dart';
-import 'package:airstream/screens/settings_screen.dart';
-import 'package:airstream/screens/splash_screen.dart';
+import 'features/library_foundation/foundation.dart';
+import 'common/screens/player_screen.dart';
+import 'common/screens/search_screen.dart';
+import 'features/settings/settings_screen.dart';
+import 'features/loading_splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(_Foundation(libraryNavigator: GlobalKey()));

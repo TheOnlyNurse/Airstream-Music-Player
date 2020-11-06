@@ -7,7 +7,7 @@ This app is still in early development and as such there will be regular breakin
 ## File Structure
 
 The project started out by organising folders and files according to their functionality (e.g.
-screen, bloc, widgets, states). However the growth of the project (as functionality was added to
+screen, common.bloc, common.widgets, common.states). However the growth of the project (as functionality was added to
 the app) has made it increasingly difficult to locate files quickly and more importantly
 intuitively. Thus the folder structure will now slowly change to one oriented around the feature it
 implements rather than the superficial function/type.
@@ -15,11 +15,11 @@ implements rather than the superficial function/type.
 Here's an example:
 
 ```
-|-- album
-|   |-- bloc
-|   |   |-- cubit.dart
+|-- features.album
+|   |-- common.bloc
+|   |   |-- common.cubit.dart
 |   |   |-- state.dart
-|   |-- widgets
+|   |-- common.widgets
 |   |   |-- more_options.dart
 |   |   |-- shuffle_button.dart
 |   |   |-- star_button.dart
