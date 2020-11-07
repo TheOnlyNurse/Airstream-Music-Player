@@ -1,126 +1,76 @@
-/// External Packages
+import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';
-import 'package:xml/xml.dart' as xml;
+import 'package:xml/xml.dart';
 
+/// Internal
 import '../models/playlist_model.dart';
-import '../models/response/playlist_response.dart';
-import 'scheduler.dart';
-import 'server_provider.dart';
 
 class PlaylistProvider {
-  /// Private Variables
-  Box<Playlist> get _hiveBox => Hive.box('playlists');
+  const PlaylistProvider({@required Box<Playlist> hive})
+      : assert(hive != null),
+        _hive = hive;
 
-  /// Global Functions
-  Future<PlaylistResponse> library({bool force = false}) async {
-    if (force) await _downloadPlaylists();
-    final playlists = _hiveBox.values.toList();
-    if (playlists.isEmpty) {
-      return _checkIfOnline(await _downloadPlaylists());
-    } else {
-      playlists.sort((a, b) => a.name.compareTo(b.name));
-      return _checkIfOnline(
-        PlaylistResponse(hasData: true, playlists: playlists),
-      );
-    }
+  /// Hive box used as to store and retrieve [Playlist] objects.
+  final Box<Playlist> _hive;
+
+  /// ========== QUERIES ==========
+
+  /// Returns all playlists in alphabetical order.
+  List<Playlist> byAlphabet() {
+    final unsorted = _hive.values?.toList() ?? [];
+    return unsorted..sort((a, b) => a.name.compareTo(b.name));
   }
 
-  void removeSongs(int id, List<int> removeIndexes) {
-    final playlist = _hiveBox.get(id);
+  /// Returns a playlist by it's name.
+  Playlist byName(String name) {
+    return _hive.values.firstWhere(
+      (playlist) => playlist.name == name,
+      orElse: null,
+    );
+  }
+
+  /// ========== DB MANAGEMENT ==========
+
+  /// Decode a playlist xml document and insert as a [Playlist] into the database.
+  void insertElement(XmlDocument document) {
+    final songIds = document
+        .findAllElements('entry')
+        .map((e) => int.parse(e.getAttribute('id')))
+        .toList();
+
+    final element = document.findAllElements('playlist').first;
+
+    final playlist = Playlist(
+      id: int.parse(element.getAttribute('id')),
+      name: element.getAttribute('name'),
+      comment: element.getAttribute('comment'),
+      songIds: songIds,
+    );
+    _hive.put(playlist.id, playlist);
+  }
+
+  /// Clears the database of all playlists.
+  Future<void> clear() => _hive.clear();
+
+  /// Removes the song ids in the given indexes from a playlist.
+  Future<void> removeSongs(int id, List<int> removeIndexes) {
+    final playlist = _hive.get(id);
     for (int index in removeIndexes) {
       playlist.songIds.removeAt(index);
     }
-    _update(playlist);
+    return _hive.put(id, playlist);
   }
 
-  void addSongs(int id, List<int> songIdList) {
-    final playlist = _hiveBox.get(id);
+  /// Adds songs to an existing playlist.
+  Future<void> addSongs(int id, List<int> songIdList) {
+    final playlist = _hive.get(id);
     playlist.songIds.addAll(songIdList);
-    _update(playlist);
+    return _hive.put(id, playlist);
   }
 
-  Future<PlaylistResponse> changeComment(int id, String comment) async {
-    final newPlaylist = _hiveBox.get(id).copyWith(comment: comment);
-    Scheduler().schedule('updatePlaylist?playlistId=$id&comment=$comment');
-    _update(newPlaylist);
-    return PlaylistResponse(hasData: true, playlist: newPlaylist);
+  /// Replace a comment on a playlist.
+  Future<void> changeComment(int id, String comment) async {
+    final playlist = _hive.get(id).copyWith(comment: comment);
+    return _hive.put(id, playlist);
   }
-
-  /// Private Functions
-  void _update(Playlist playlist) {
-    _hiveBox.delete(playlist.id);
-    _hiveBox.put(playlist.id, playlist);
-  }
-
-  Future<PlaylistResponse> _checkIfOnline(PlaylistResponse input) async {
-    return input;
-
-    /*
-    if (Repository().settings.isOffline) {
-			if (!input.hasData) return input;
-			final availableList = <Playlist>[];
-			final cache = await Repository().audioCache.cachedSongs();
-
-			if (cache.hasNoData) return PlaylistResponse(passOn: cache);
-
-			// If a playlist has at least one cached song, then add it to return list
-			for (var playlist in input.playlists) {
-				for (var songId in cache.idList) {
-					if (playlist.songIds.contains(songId)) {
-						availableList.add(playlist);
-						break;
-					}
-				}
-			}
-
-      if (availableList.isEmpty) {
-        return PlaylistResponse(error: 'No cached playlists');
-      }
-			return PlaylistResponse(hasData: true, playlists: availableList);
-    }
-
-    return input;
-
-     */
-  }
-
-  Future<PlaylistResponse> _downloadPlaylists() async {
-    final response = await ServerProvider().fetchXml('getPlaylists?');
-    if (!response.hasData) return PlaylistResponse(passOn: response);
-    _hiveBox.clear();
-    final playlistArray = <Playlist>[];
-    final idList = response.document
-        .findAllElements('playlist')
-        .map((element) => element.getAttribute('id'));
-
-    for (var id in idList) {
-      final playlist = await ServerProvider().fetchXml('getPlaylist?id=$id');
-      if (!playlist.hasData) break;
-      playlistArray.add(_updateWithXml(playlist.document));
-    }
-
-    if (playlistArray.isEmpty) {
-      return PlaylistResponse(error: 'found no playlists on server');
-    }
-
-		return PlaylistResponse(hasData: true, playlists: playlistArray);
-  }
-
-  /// Update one playlist from a json map
-  ///
-  /// The information required to make a playlist class requires going through each
-  /// playlist individually and the acquiring the song ids. Therefore, you can only "update"
-  /// one playlist at a time.
-  Playlist _updateWithXml(xml.XmlDocument playlistXml) {
-    final playlist = Playlist.fromServer(playlistXml);
-    _update(playlist);
-    return playlist;
-  }
-
-  /// Singleton Boilerplate
-  PlaylistProvider._internal();
-
-  static final PlaylistProvider _instance = PlaylistProvider._internal();
-
-  factory PlaylistProvider() => _instance;
 }

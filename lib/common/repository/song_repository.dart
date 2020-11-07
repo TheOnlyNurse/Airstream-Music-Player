@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
 import 'package:xml/xml.dart';

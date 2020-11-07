@@ -1,38 +1,43 @@
 import 'dart:async';
 
+
+import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
 import '../../../common/repository/communication.dart';
-import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/playlist_repository.dart';
 import '../../../common/models/playlist_model.dart';
+import '../../../common/providers/repository/repository.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
-  final _repository = Repository();
-  StreamSubscription onNetworkChange;
-  StreamSubscription onPlaylistChange;
-
-  PlaylistsLibraryBloc() : super(PlaylistsLibraryInitial()) {
-    onNetworkChange = _repository.settings.onChange.listen((type) {
+  PlaylistsLibraryBloc({@required this.playlistRepository})
+      : assert(playlistRepository != null),
+        super(PlaylistsLibraryInitial()) {
+    onNetworkChange = Repository().settings.onChange.listen((type) {
       if (type == SettingType.isOffline) this.add(PlaylistsLibraryEvent.fetch);
     });
-    onPlaylistChange = _repository.playlist.changed.listen((event) {
+    onPlaylistChange = playlistRepository.changed.listen((event) {
       this.add(PlaylistsLibraryEvent.fetch);
     });
   }
+
+  final PlaylistRepository playlistRepository;
+  StreamSubscription onNetworkChange;
+  StreamSubscription onPlaylistChange;
 
   @override
   Stream<PlaylistsLibraryState> mapEventToState(
       PlaylistsLibraryEvent event) async* {
     switch (event) {
       case PlaylistsLibraryEvent.fetch:
-        final response = await _repository.playlist.library();
+        final response = playlistRepository.byAlphabet();
         if (response.hasData) {
-          yield PlaylistsLibrarySuccess(response.playlists);
+          yield PlaylistsLibrarySuccess(response.data);
         } else {
-          yield PlaylistsLibraryFailure(response.error);
+          yield PlaylistsLibraryFailure(response);
         }
     }
   }
@@ -58,7 +63,7 @@ class PlaylistsLibrarySuccess extends PlaylistsLibraryState {
 class PlaylistsLibraryInitial extends PlaylistsLibraryState {}
 
 class PlaylistsLibraryFailure extends PlaylistsLibraryState {
-  final Widget error;
+  final RepositoryResponse response;
 
-  PlaylistsLibraryFailure(this.error);
+  PlaylistsLibraryFailure(this.response);
 }

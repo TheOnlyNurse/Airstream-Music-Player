@@ -1,9 +1,11 @@
+import 'package:airstream/common/repository/playlist_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 /// Internal
-import '../bloc/playlist_dialog.dart';
+import '../bloc/playlist_dialog_bloc.dart';
 import '../../models/playlist_model.dart';
 
 class PlaylistDialog extends StatelessWidget {
@@ -17,8 +19,9 @@ class PlaylistDialog extends StatelessWidget {
           height: 250,
           width: 50,
           child: BlocProvider(
-            create: (context) =>
-                PlaylistDialogBloc()..add(PlaylistDialogFetch()),
+            create: (context) => PlaylistDialogBloc(
+              playlistRepository: GetIt.I.get<PlaylistRepository>(),
+            )..add(PlaylistDialogFetch()),
             child: BlocBuilder<PlaylistDialogBloc, PlaylistDialogState>(
               builder: (context, state) {
                 if (state is PlaylistDialogSuccess) {
@@ -44,7 +47,7 @@ class PlaylistDialog extends StatelessWidget {
                 }
 
                 if (state is PlaylistDialogFailure) {
-                  return Center(child: state.message);
+                  return Center(child: Text(state.response.error));
                 }
 
                 if (state is PlaylistDialogInitial) {

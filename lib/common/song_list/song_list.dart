@@ -1,3 +1,4 @@
+
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,7 @@ import '../providers/moor_database.dart';
 import '../providers/repository/repository.dart';
 import '../models/song_list_delegate.dart';
 import '../repository/song_repository.dart';
+import '../repository/playlist_repository.dart';
 
 // Barrelling
 export '../models/song_list_delegate.dart';
@@ -93,6 +95,7 @@ class SongList extends StatelessWidget {
     return BlocProvider(
       create: (context) => SongListBloc(
         songRepository: GetIt.I.get<SongRepository>(),
+        playlistRepository: GetIt.I.get<PlaylistRepository>(),
       )..add(SongListFetch(delegate)),
       child: BlocConsumer<SongListBloc, SongListState>(
         listener: (context, state) {

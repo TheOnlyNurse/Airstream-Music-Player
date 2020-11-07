@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 
 /// Internal
-import '../../common/providers/repository/repository.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
+import '../../common/repository/playlist_repository.dart';
 import '../../common/widgets/refresh_button.dart';
 import 'widgets/search_bar.dart';
 import 'widgets/collections.dart';
 import 'widgets/playlists.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen(
-      {Key key,
-      @required this.albumRepository,
-      @required this.artistRepository})
-      : assert(albumRepository != null),
+  const HomeScreen({
+    Key key,
+    @required this.albumRepository,
+    @required this.artistRepository,
+    @required this.playlistRepository,
+  })  : assert(albumRepository != null),
         assert(artistRepository != null),
+        assert(playlistRepository != null),
         super(key: key);
 
   final AlbumRepository albumRepository;
   final ArtistRepository artistRepository;
+  final PlaylistRepository playlistRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +48,7 @@ class HomeScreen extends StatelessWidget {
           )),
           _SliverTitle(
             title: 'Playlist',
-            onRefresh: () async {
-              await Repository().playlist.library(force: true);
-            },
+            onRefresh: () async => await playlistRepository.forceSync(),
           ),
           Playlists(),
           SliverToBoxAdapter(child: SizedBox(height: 30)),

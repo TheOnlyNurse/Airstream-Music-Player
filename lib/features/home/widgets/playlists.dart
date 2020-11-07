@@ -1,5 +1,8 @@
+import 'package:airstream/common/repository/playlist_repository.dart';
+import 'package:airstream/common/widgets/error_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 /// Internal
 import '../bloc/playlists_library_bloc.dart';
@@ -9,8 +12,9 @@ class Playlists extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          PlaylistsLibraryBloc()..add(PlaylistsLibraryEvent.fetch),
+      create: (context) => PlaylistsLibraryBloc(
+        playlistRepository: GetIt.I.get<PlaylistRepository>(),
+      )..add(PlaylistsLibraryEvent.fetch),
       child: BlocBuilder<PlaylistsLibraryBloc, PlaylistsLibraryState>(
         builder: (context, state) {
           if (state is PlaylistsLibrarySuccess) {
@@ -28,7 +32,9 @@ class Playlists extends StatelessWidget {
                 child: Center(child: CircularProgressIndicator()));
           }
           if (state is PlaylistsLibraryFailure) {
-            return SliverToBoxAdapter(child: Center(child: state.error));
+            return SliverToBoxAdapter(
+              child: ErrorText(error: state.response.error),
+            );
           }
           return SliverToBoxAdapter(
               child: Center(child: Text('Error reading state')));

@@ -1,11 +1,7 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-
-/// Internal
-import '../../models/playlist_model.dart';
+part of 'playlist_dialog_bloc.dart';
 
 abstract class PlaylistDialogState extends Equatable {
-  const PlaylistDialogState();
+  const PlaylistDialogState() : super();
 
   @override
   List<Object> get props => [];
@@ -33,9 +29,9 @@ class PlaylistDialogSuccess extends PlaylistDialogState {
 }
 
 class PlaylistDialogFailure extends PlaylistDialogState {
-  final Widget message;
+  final RepositoryResponse response;
 
-  const PlaylistDialogFailure(this.message);
+  const PlaylistDialogFailure(this.response);
 }
 
 class PlaylistDialogComplete extends PlaylistDialogState {

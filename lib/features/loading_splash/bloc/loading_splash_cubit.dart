@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:airstream/common/providers/server_provider.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -19,6 +20,10 @@ import '../../../common/providers/artists_dao.dart';
 import '../../../common/providers/songs_dao.dart';
 import '../../../common/repository/song_repository.dart';
 import '../../../common/providers/audio_files_dao.dart';
+import '../../../common/providers/playlist_provider.dart';
+import '../../../common/providers/scheduler.dart';
+import '../../../common/repository/playlist_repository.dart';
+
 
 part 'loading_splash_state.dart';
 
@@ -82,5 +87,10 @@ void _initGetIt(String cachePath) {
     songsDao: SongsDao(moorDb),
     audioFilesDao: AudioFilesDao(moorDb),
     cacheFolder: Path.join(cachePath, 'audio/'),
+  ));
+  lazy<PlaylistRepository>(PlaylistRepository(
+    provider: PlaylistProvider(hive: Hive.box('playlists')),
+    scheduler: Scheduler(),
+    server: ServerProvider(),
   ));
 }

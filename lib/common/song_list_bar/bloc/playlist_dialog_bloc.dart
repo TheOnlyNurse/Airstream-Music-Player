@@ -1,20 +1,26 @@
 import 'dart:async';
 
+
+import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
 /// Internal links
-import '../../providers/repository/repository.dart';
-import 'playlist_dialog_event.dart';
-import 'playlist_dialog_state.dart';
+import '../../repository/playlist_repository.dart';
+import '../../models/playlist_model.dart';
 
-// Ease of use barreling
-export 'playlist_dialog_event.dart';
-export 'playlist_dialog_state.dart';
+part 'playlist_dialog_event.dart';
+
+part 'playlist_dialog_state.dart';
 
 class PlaylistDialogBloc
     extends Bloc<PlaylistDialogEvent, PlaylistDialogState> {
+  PlaylistDialogBloc({@required this.playlistRepository})
+      : assert(playlistRepository != null),
+        super(PlaylistDialogInitial());
 
-  PlaylistDialogBloc() : super(PlaylistDialogInitial());
+  final PlaylistRepository playlistRepository;
 
   @override
   Stream<PlaylistDialogState> mapEventToState(
@@ -22,11 +28,11 @@ class PlaylistDialogBloc
     final currentState = state;
 
     if (event is PlaylistDialogFetch) {
-      final response = await Repository().playlist.library();
+      final response = playlistRepository.byAlphabet();
       if (response.hasData) {
-        yield PlaylistDialogSuccess(response.playlists);
+        yield PlaylistDialogSuccess(response.data);
       } else {
-        yield PlaylistDialogFailure(response.error);
+        yield PlaylistDialogFailure(response);
       }
     }
 
@@ -41,14 +47,14 @@ class PlaylistDialogBloc
 
     if (event is PlaylistDialogCreate) {
       yield PlaylistDialogInitial();
-      final newPlaylist = await Repository().playlist.createPlaylist(
+      final newPlaylist = await playlistRepository.create(
             event.name,
             event.comment,
           );
       if (newPlaylist.hasData) {
-        this.add(PlaylistDialogChosen(newPlaylist.playlist));
+        this.add(PlaylistDialogChosen(newPlaylist.data));
       } else {
-        yield PlaylistDialogFailure(newPlaylist.error);
+        yield PlaylistDialogFailure(newPlaylist);
       }
     }
   }

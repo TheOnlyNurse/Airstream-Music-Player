@@ -10,6 +10,7 @@ class _Pages extends StatelessWidget {
             return HomeScreen(
               albumRepository: GetIt.I.get<AlbumRepository>(),
               artistRepository: GetIt.I.get<ArtistRepository>(),
+              playlistRepository: GetIt.I.get<PlaylistRepository>(),
             );
             break;
           case 1:

@@ -1,23 +1,30 @@
 import 'dart:async';
 
+
 import 'package:flutter/widgets.dart';
 import 'package:bloc/bloc.dart';
 
-/// Internal links
-import '../../providers/repository/repository.dart';
 import '../../models/playlist_model.dart';
 import '../../models/repository_response.dart';
 import '../../models/song_list_delegate.dart';
 import '../../repository/song_repository.dart';
 import '../../providers/moor_database.dart';
+import '../../repository/playlist_repository.dart';
 
 part 'song_list_event.dart';
+
 part 'song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
-  SongListBloc({@required this.songRepository}) : super(SongListInitial());
+  SongListBloc({
+    @required this.songRepository,
+    @required this.playlistRepository,
+  })  : assert(songRepository != null),
+        assert(playlistRepository != null),
+        super(SongListInitial());
 
   final SongRepository songRepository;
+  final PlaylistRepository playlistRepository;
   Playlist playlist;
 
   SongListState _successOrFailure(ListResponse<Song> response) {
@@ -73,7 +80,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
           addedSongs.add(currentState.songList[index]);
         }
 
-        Repository().playlist.addSongs(event.playlist, addedSongs);
+        playlistRepository.addSongs(event.playlist, addedSongs);
         this.add(SongListClearSelection());
       }
 
@@ -88,7 +95,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
         }
 
         if (playlist != null) {
-          Repository().playlist.removeSongs(playlist, currentState.selected);
+          playlistRepository.removeSongs(playlist, currentState.selected);
         }
 
         yield currentState.copyWith(

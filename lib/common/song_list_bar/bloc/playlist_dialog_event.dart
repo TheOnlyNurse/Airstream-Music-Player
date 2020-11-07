@@ -1,8 +1,4 @@
-/// External Packages
-import 'package:equatable/equatable.dart';
-
-/// Internal Links
-import '../../models/playlist_model.dart';
+part of 'playlist_dialog_bloc.dart';
 
 
 abstract class PlaylistDialogEvent extends Equatable {

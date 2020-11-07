@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
-import 'package:xml/xml.dart' as xml;
 
 part 'playlist_model.g.dart';
 
@@ -19,19 +18,6 @@ class Playlist extends Equatable {
 
   @override
   List<Object> get props => [id, name, songIds];
-
-  factory Playlist.fromServer(xml.XmlDocument doc) {
-    final songIds = doc.findAllElements('entry').map((e) {
-      return int.parse(e.getAttribute('id'));
-    }).toList();
-    final element = doc.findAllElements('playlist').first;
-    return Playlist(
-      id: int.parse(element.getAttribute('id')),
-      name: element.getAttribute('name'),
-      comment: element.getAttribute('comment'),
-      songIds: songIds,
-    );
-  }
 
   Playlist copyWith({int id, String name, String comment}) => Playlist(
         id: id ?? this.id,
