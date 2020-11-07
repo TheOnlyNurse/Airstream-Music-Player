@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of 'song_list_tile_bloc.dart';
 
 abstract class SongListTileEvent extends Equatable {
   const SongListTileEvent();

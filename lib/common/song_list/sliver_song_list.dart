@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 /// Internal
-import '../../providers/moor_database.dart';
-import '../../providers/repository/repository.dart';
-import '../../complex_widgets/song_tile.dart';
+import '../providers/moor_database.dart';
+import '../providers/repository/repository.dart';
+import '../widgets/song_tile.dart';
 
 class SliverSongList extends StatelessWidget {
   final List<Song> songs;

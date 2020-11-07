@@ -1,4 +1,3 @@
-import 'package:airstream/common/complex_widgets/error_widgets.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,10 +11,11 @@ import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/static_assets.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
-import '../../common/complex_widgets/sliver_album_grid.dart';
-import '../../common/complex_widgets/song_list/sliver_song_list.dart';
+import '../../common/widgets/sliver_album_grid.dart';
+import '../../common/song_list/sliver_song_list.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/repository/song_repository.dart';
+import '../../common/widgets/error_widgets.dart';
 
 class SingleArtistScreen extends StatelessWidget {
   final Artist artist;

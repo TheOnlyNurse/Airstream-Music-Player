@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 
 /// Internal links
-import '../providers/repository/repository.dart';
-import '../events/playlist_dialog_event.dart';
-import '../states/playlist_dialog_state.dart';
+import '../../providers/repository/repository.dart';
+import 'playlist_dialog_event.dart';
+import 'playlist_dialog_state.dart';
 
 // Ease of use barreling
-export '../events/playlist_dialog_event.dart';
-export '../states/playlist_dialog_state.dart';
+export 'playlist_dialog_event.dart';
+export 'playlist_dialog_state.dart';
 
 class PlaylistDialogBloc
     extends Bloc<PlaylistDialogEvent, PlaylistDialogState> {

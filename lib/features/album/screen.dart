@@ -6,11 +6,11 @@ import 'package:get_it/get_it.dart';
 /// Internal
 import '../../common/models/image_adapter.dart';
 import 'bloc/album_cubit.dart';
-import '../../common/complex_widgets/error_widgets.dart';
+import '../../common/widgets/error_widgets.dart';
 import '../../common/static_assets.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/circle_close_button.dart';
-import '../../common/complex_widgets/song_list/sliver_song_list.dart';
+import '../../common/song_list/sliver_song_list.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/widgets/future_button.dart';

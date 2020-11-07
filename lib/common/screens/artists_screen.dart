@@ -5,9 +5,9 @@ import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
 import '../static_assets.dart';
 import '../repository/artist_repository.dart';
-import '../complex_widgets/alpha_grid_view.dart';
+import '../widgets/alpha_grid_view.dart';
 import '../widgets/artist_circle.dart';
-import '../complex_widgets/error_widgets.dart';
+import '../widgets/error_widgets.dart';
 
 class ArtistsScreen extends StatelessWidget {
   const ArtistsScreen({Key key, @required this.artistRepository})

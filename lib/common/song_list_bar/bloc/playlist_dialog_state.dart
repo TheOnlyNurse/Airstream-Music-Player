@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 /// Internal
-import '../models/playlist_model.dart';
+import '../../models/playlist_model.dart';
 
 abstract class PlaylistDialogState extends Equatable {
   const PlaylistDialogState();

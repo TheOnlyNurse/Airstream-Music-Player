@@ -19,7 +19,7 @@ import '../navigation_bar/navigation_bar.dart';
 // Screens that can be navigated from the library
 import '../../common/screens/album_list_screen.dart';
 import '../home/home_screen.dart';
-import '../../common/screens/single_playlist_screen.dart';
+import '../playlist/playlist_screen.dart';
 import '../starred/starred_screen.dart';
 import '../artist/artist_screen.dart';
 import '../../common/repository/song_repository.dart';

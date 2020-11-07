@@ -1,4 +1,4 @@
-import '../models/playlist_model.dart';
+part of 'song_list_bloc.dart';
 
 abstract class SongListEvent {}
 

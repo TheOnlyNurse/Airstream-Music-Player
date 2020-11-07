@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Internal
 import '../models/repository_response.dart';
 import '../repository/album_repository.dart';
-import '../complex_widgets/error_widgets.dart';
+import '../widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';
 
 class DecadeScreen extends StatelessWidget {

@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Internal
-import '../../bloc/song_list_bloc.dart';
-import '../../events/song_list_event.dart';
-import '../../models/playlist_model.dart';
-import '../../complex_widgets/song_list/playlist_dialog.dart';
+import '../song_list/bloc/song_list_bloc.dart';
+import '../models/playlist_model.dart';
+import 'widgets/playlist_dialog.dart';
 
 class SongListBar extends StatelessWidget {
   final int selectedNumber;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../common/providers/repository/repository.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
-import '../../common/complex_widgets/refresh_button.dart';
+import '../../common/widgets/refresh_button.dart';
 import 'widgets/search_bar.dart';
 import 'widgets/collections.dart';
 import 'widgets/playlists.dart';

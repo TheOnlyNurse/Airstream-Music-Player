@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Internal
-import '../../bloc/playlist_dialog.dart';
+import '../bloc/playlist_dialog.dart';
 import '../../models/playlist_model.dart';
 
 class PlaylistDialog extends StatelessWidget {

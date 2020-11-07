@@ -11,7 +11,7 @@ import '../../common/repository/artist_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
-import '../../common/complex_widgets/song_tile.dart';
+import '../../common/widgets/song_tile.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({

@@ -4,18 +4,15 @@ import 'package:flutter/widgets.dart';
 import 'package:bloc/bloc.dart';
 
 /// Internal links
-import '../providers/repository/repository.dart';
-import '../events/song_list_event.dart';
-import '../models/playlist_model.dart';
-import '../models/repository_response.dart';
-import '../models/song_list_delegate.dart';
-import '../states/song_list_state.dart';
-import '../repository/song_repository.dart';
-import '../providers/moor_database.dart';
+import '../../providers/repository/repository.dart';
+import '../../models/playlist_model.dart';
+import '../../models/repository_response.dart';
+import '../../models/song_list_delegate.dart';
+import '../../repository/song_repository.dart';
+import '../../providers/moor_database.dart';
 
-// Barrelling
-export '../events/song_list_event.dart';
-export '../states/song_list_state.dart';
+part 'song_list_event.dart';
+part 'song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
   SongListBloc({@required this.songRepository}) : super(SongListInitial());

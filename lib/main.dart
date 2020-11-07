@@ -1,7 +1,7 @@
 import 'features/library_foundation/foundation.dart';
 import 'features/player/player_screen.dart';
 import 'features/search/search_screen.dart';
-import 'features/settings/settings_screen.dart';
+import 'features/settings/settings_foundation.dart';
 import 'features/loading_splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 

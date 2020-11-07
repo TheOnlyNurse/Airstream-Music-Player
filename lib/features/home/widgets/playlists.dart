@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Internal
-import '../../../common/bloc/playlists_library_bloc.dart';
+import '../bloc/playlists_library_bloc.dart';
 import 'playlist_tile.dart';
 
 class Playlists extends StatelessWidget {

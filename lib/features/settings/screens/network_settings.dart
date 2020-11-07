@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import '../../../common/repository/image_repository.dart';
 import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
-import '../../../common/complex_widgets/custom_alert_dialog.dart';
+import '../../../common/widgets/custom_alert_dialog.dart';
 import '../widgets/switch.dart';
 import '../widgets/slider.dart';
 import '../../../common/repository/song_repository.dart';

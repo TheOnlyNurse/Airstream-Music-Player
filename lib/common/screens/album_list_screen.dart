@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 /// Internal
 import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
-import '../complex_widgets/error_widgets.dart';
-import '../complex_widgets/sliver_album_grid.dart';
+import '../widgets/error_widgets.dart';
+import '../widgets/sliver_album_grid.dart';
 import '../widgets/sliver_close_bar.dart';
 
 class AlbumListScreen extends StatelessWidget {

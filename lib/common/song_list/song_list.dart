@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Internal
-import '../../complex_widgets/song_list/song_list_bar.dart';
-import '../../complex_widgets/song_list/song_list_tile.dart';
-import '../../bloc/song_list_bloc.dart';
-import '../../providers/moor_database.dart';
-import '../../providers/repository/repository.dart';
-import '../../models/song_list_delegate.dart';
-import '../../repository/song_repository.dart';
+import '../song_list_bar/song_list_bar.dart';
+import 'widgets/song_list_tile.dart';
+import 'bloc/song_list_bloc.dart';
+import '../providers/moor_database.dart';
+import '../providers/repository/repository.dart';
+import '../models/song_list_delegate.dart';
+import '../repository/song_repository.dart';
 
 // Barrelling
-export '../../models/song_list_delegate.dart';
+export '../models/song_list_delegate.dart';
 
 class SongList extends StatelessWidget {
   const SongList(

@@ -4,15 +4,15 @@ import 'package:get_it/get_it.dart';
 
 /// Internal
 import 'bloc/starred_bloc.dart';
-import '../../common/complex_widgets/error_widgets.dart';
+import '../../common/widgets/error_widgets.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/models/song_list_delegate.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
-import '../../common/complex_widgets/refresh_button.dart';
-import '../../common/complex_widgets/sliver_album_grid.dart';
-import '../../common/complex_widgets/song_list/song_list.dart';
+import '../../common/widgets/refresh_button.dart';
+import '../../common/widgets/sliver_album_grid.dart';
+import '../../common/song_list/song_list.dart';
 
 class StarredScreen extends StatelessWidget {
   const StarredScreen({Key key}) : super(key: key);
@@ -115,7 +115,7 @@ class _MoreAlbumsButton extends StatelessWidget {
           Navigator.pushNamed(
             context,
             'library/albumList',
-            arguments: albumRepository.starred(),
+            arguments: () => albumRepository.starred(),
           );
         },
       ),

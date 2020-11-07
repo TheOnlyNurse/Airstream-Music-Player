@@ -1,17 +1,19 @@
 import 'dart:async';
 
-
+import 'package:equatable/equatable.dart';
 import 'package:get_it/get_it.dart';
-import '../providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
-import '../repository/communication.dart';
-import '../providers/repository/repository.dart';
-import '../events/song_list_tile_event.dart';
-import '../states/song_list_tile_state.dart';
-import '../repository/song_repository.dart';
+import '../../repository/communication.dart';
+import '../../providers/repository/repository.dart';
+import '../../repository/song_repository.dart';
+import '../../providers/moor_database.dart';
+
+part 'song_list_tile_event.dart';
+
+part 'song_list_tile_state.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   final Song tileSong;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Internal Links
 import '../models/repository_response.dart';
-import '../widgets/circle_close_button.dart';
+import 'circle_close_button.dart';
 
 class ErrorText extends StatelessWidget {
   const ErrorText({Key key, this.error}) : super(key: key);

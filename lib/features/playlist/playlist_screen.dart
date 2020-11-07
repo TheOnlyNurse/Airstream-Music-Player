@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 /// Internal
-import '../models/playlist_model.dart';
-import '../models/song_list_delegate.dart';
-import '../complex_widgets/song_list/song_list.dart';
+import '../../common/models/playlist_model.dart';
+import '../../common/models/song_list_delegate.dart';
+import '../../common/song_list//song_list.dart';
 
 class SinglePlaylistScreen extends StatelessWidget {
   final Playlist playlist;

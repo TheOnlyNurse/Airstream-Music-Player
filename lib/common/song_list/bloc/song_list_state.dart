@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-
-/// Internal
-import '../providers/moor_database.dart';
+part of 'song_list_bloc.dart';
 
 abstract class SongListState {}
 

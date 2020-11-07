@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Internal Links
-import '../complex_widgets/airstream_image.dart';
+import 'airstream_image.dart';
 import '../models/image_adapter.dart';
 
 class FlexibleImageWithTitle extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Internal
 import '../../../common/models/playlist_model.dart';
-import '../../../common/complex_widgets/airstream_collage.dart';
+import '../../../common/widgets/airstream_collage.dart';
 
 class PlaylistTile extends StatelessWidget {
   final Playlist playlist;

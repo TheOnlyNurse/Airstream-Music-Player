@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Internal Links
 import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/repository/repository.dart';
-import '../../../common/complex_widgets/song_tile.dart';
+import '../../../common/widgets/song_tile.dart';
 
 class PlayerQueue extends StatefulWidget {
   @override

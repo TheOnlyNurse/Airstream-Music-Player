@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Internal
-import '../../bloc/song_list_tile_bloc.dart';
+import '../bloc/song_list_tile_bloc.dart';
 import '../../providers/moor_database.dart';
-import '../../events/song_list_tile_event.dart';
-import '../../states/song_list_tile_state.dart';
-import '../../complex_widgets/song_tile.dart';
+import '../../widgets/song_tile.dart';
 
 class SongListTile extends StatelessWidget {
   const SongListTile({
