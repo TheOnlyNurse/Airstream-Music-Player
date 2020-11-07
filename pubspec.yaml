@@ -67,8 +67,6 @@ dev_dependencies:
   hive_generator: ^0.7.3
   moor_generator: ^3.3.1
   analyzer: ^0.39.11
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:

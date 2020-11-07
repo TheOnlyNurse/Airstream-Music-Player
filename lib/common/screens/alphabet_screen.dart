@@ -49,7 +49,7 @@ class AlphabetScreen extends StatelessWidget {
                 );
               }
 
-              return ErrorText(error: response.error);
+              return ErrorScreen(response: response);
             }
 
             return Center(child: CircularProgressIndicator());
