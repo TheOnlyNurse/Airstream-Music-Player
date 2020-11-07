@@ -54,7 +54,7 @@ class SongRepository {
       {String elementName = 'song'}) async {
     var response = await ServerProvider().fetchXml(urlQuery);
     if (response.hasData) {
-      var elements = response.document.findAllElements(elementName).toList();
+      var elements = response.data.findAllElements(elementName).toList();
       await _database.insertElements(elements);
       return _database.idList(elements.map((e) {
         return int.parse(e.getAttribute('id'));

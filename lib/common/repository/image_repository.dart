@@ -76,7 +76,7 @@ class ImageRepository {
     final response = await ServerProvider().fetchImage(url);
     if (response.hasData) {
       _queueSizeCheck();
-      return _provider.addBytes(response.bytes, id, type);
+      return _provider.addBytes(response.data, id, type);
     } else {
       return null;
     }
@@ -86,7 +86,7 @@ class ImageRepository {
     final response = await ServerProvider().fetchArtistImage(name);
     if (response.hasData) {
       _queueSizeCheck();
-      return _provider.addBytes(response.bytes, id, type);
+      return _provider.addBytes(response.data, id, type);
     } else {
       _provider.setNull(id, type);
       return null;

@@ -104,16 +104,16 @@ class PlaylistRepository {
   /// one playlist at a time.
   Future<void> forceSync() async {
     final allPlaylists = await _server.fetchXml('getPlaylists?');
-    if (allPlaylists.hasNoData) throw UnimplementedError();
+    if (allPlaylists.hasError) throw UnimplementedError();
     await _database.clear();
-    final idList = allPlaylists.document
+    final idList = allPlaylists.data
         .findAllElements('playlist')
         .map((element) => element.getAttribute('id'));
 
     for (var id in idList) {
       final playlist = await ServerProvider().fetchXml('getPlaylist?id=$id');
-      if (playlist.hasNoData) break;
-      _database.insertElement(playlist.document);
+      if (playlist.hasError) break;
+      _database.insertElement(playlist.data);
     }
   }
 }

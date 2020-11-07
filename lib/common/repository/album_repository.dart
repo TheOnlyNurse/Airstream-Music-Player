@@ -8,7 +8,6 @@ import '../providers/moor_database.dart';
 import '../providers/scheduler.dart';
 import '../providers/server_provider.dart';
 import '../models/repository_response.dart';
-import '../models/response/server_response.dart';
 import '../static_assets.dart';
 
 class AlbumRepository {
@@ -140,7 +139,7 @@ class AlbumRepository {
   Future<void> forceSyncStarred() async {
     final response = await ServerProvider().fetchXml('getStarred2?');
     if (response.hasData) {
-      final elements = response.document.findAllElements('album').toList();
+      final elements = response.data.findAllElements('album').toList();
       final idList = elements.map((e) {
         return int.parse(e.getAttribute('id'));
       }).toList();
@@ -166,8 +165,8 @@ class AlbumRepository {
         type: 'alphabeticalByName',
         specifics: 'size=500&offset=$offset',
       );
-      if (response.hasNoData) throw UnimplementedError();
-      final elements = response.document.findAllElements('album').toList();
+      if (response.hasError) throw UnimplementedError();
+      final elements = response.data.findAllElements('album').toList();
       if (elements.isEmpty) break;
       allElements.addAll(elements);
       offset += 500;
@@ -240,13 +239,13 @@ class AlbumRepository {
     int idFromElement(e) => int.parse(e.getAttribute('id'));
 
     final response = await _fetch(type: type, specifics: 'size=50');
-    if (response.hasNoData) return null;
-    final elements = response.document.findAllElements('album').toList();
+    if (response.hasError) return null;
+    final elements = response.data.findAllElements('album').toList();
     return elements.isEmpty ? null : elements.map(idFromElement).toList();
   }
 
   /// Fetch information from the server
-  Future<ServerResponse> _fetch({@required String type, String specifics}) {
+  Future<SingleResponse<XmlDocument>> _fetch({@required String type, String specifics}) {
     assert(type != null);
     final request = specifics == null
         ? 'getAlbumList2?type=$type'

@@ -32,9 +32,9 @@ class ArtistRepository {
   /// Clears the local database in favour for one from the server.
   Future<void> forceSync() async {
     final response = await ServerProvider().fetchXml('getArtists?');
-    if (response.hasNoData) throw UnimplementedError();
+    if (response.hasError) throw UnimplementedError();
     await _database.clear();
-    final elements = response.document.findAllElements('artist').toList();
+    final elements = response.data.findAllElements('artist').toList();
     return _database.insertElements(elements);
   }
 
@@ -63,7 +63,7 @@ class ArtistRepository {
       );
 
       if (response.hasData) {
-        final elements = response.document.findAllElements('similarArtist');
+        final elements = response.data.findAllElements('similarArtist');
         cachedIds = elements.map((e) {
           return int.parse(e.getAttribute('id'));
         }).toList();

@@ -46,7 +46,7 @@ class DownloadProvider {
     var current = PercentageModel(hasData: true, songId: song.id);
 
     if (response.hasData) {
-      current = current.update(total: response.contentSize);
+      current = current.update(total: response.data);
 
       _downloadSS = fileBytes.stream.listen((bytes) {
         _startTimer(whenComplete, current);
