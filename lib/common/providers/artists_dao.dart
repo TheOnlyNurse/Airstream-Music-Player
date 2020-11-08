@@ -1,10 +1,9 @@
-/// External Packages
+
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
 
-/// Internal Links
-import 'moor_database.dart';
 import '../providers/moor_database.dart';
+import 'moor_database.dart';
 
 part 'artists_dao.g.dart';
 

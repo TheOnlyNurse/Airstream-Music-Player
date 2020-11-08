@@ -18,17 +18,17 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
     @required this.navigatorKey,
   })  : assert(playerBloc != null),
         assert(navigatorKey != null),
-        super(NavigationBarState()) {
+        super(const NavigationBarState()) {
     _buttonState = playerBloc.listen((state) {
       if (state is MiniPlayerHidden) {
-        this.add(NavigationBarNotch(false));
+        add(const NavigationBarNotch(isNotched: false));
       } else {
-        this.add(NavigationBarNotch(true));
+        add(const NavigationBarNotch(isNotched: true));
       }
     });
 
     _offlineState = _repository.settings.onChange.listen((hasChanged) {
-      this.add(NavigationBarNetworkChange());
+      add(NavigationBarNetworkChange());
     });
   }
 
@@ -40,7 +40,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   @override
   Stream<NavigationBarState> mapEventToState(NavigationBarEvent event) async* {
     if (event is NavigationBarTapped) {
-      var navigatorState = navigatorKey.currentState;
+      final navigatorState = navigatorKey.currentState;
       if (navigatorState.canPop()) {
         navigatorState.popUntil((route) => route.isFirst);
       } else {

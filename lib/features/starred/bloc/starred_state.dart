@@ -12,14 +12,14 @@ class StarredInitial extends StarredState {}
 class StarredFailure extends StarredState {
   final String message;
 
-  StarredFailure(this.message);
+  const StarredFailure(this.message);
 }
 
 class StarredSuccess extends StarredState {
   final List<Album> albums;
   final List<Song> songs;
 
-  StarredSuccess({this.albums, this.songs});
+  const StarredSuccess({this.albums, this.songs});
 
   StarredSuccess copyWith({
     List<Album> albums,

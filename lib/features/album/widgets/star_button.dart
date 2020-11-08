@@ -24,11 +24,11 @@ class __StarButtonState extends State<_StarButton> {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      constraints: BoxConstraints.tightFor(height: 55, width: 55),
-      shape: CircleBorder(),
+      constraints: const BoxConstraints.tightFor(height: 55, width: 55),
+      shape: const CircleBorder(),
       onPressed: () {
-        var newStarred = !isStarred;
-        widget.cubit.change(newStarred);
+        final newStarred = !isStarred;
+        widget.cubit.change(isStarred: newStarred);
         setState(() => isStarred = newStarred);
       },
       child: Icon(isStarred ? Icons.star : Icons.star_border),

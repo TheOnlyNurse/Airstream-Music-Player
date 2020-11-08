@@ -1,19 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'dart:async';
 
-import 'package:airstream/common/models/repository_response.dart';
-
-/// External Packages
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:moor/moor.dart';
-import 'package:xml/xml.dart';
 import 'package:mutex/mutex.dart';
+import 'package:xml/xml.dart';
 
-/// Internal Links
-import 'repository/repository.dart';
 import '../../temp_password_holder.dart';
+import '../models/repository_response.dart';
+import 'repository/repository.dart';
 import 'scheduler.dart';
 
 class ServerProvider {
@@ -36,7 +33,7 @@ class ServerProvider {
     StreamController<List<int>> controller,
   ) async {
     if (Repository().settings.isOffline) {
-      return SingleResponse<int>(error: 'App is offline');
+      return const SingleResponse<int>(error: 'App is offline');
     }
 
     await _streamLocker.acquire();
@@ -47,8 +44,7 @@ class ServerProvider {
       response.stream.pipe(controller);
       return SingleResponse<int>(data: response.contentLength);
     } catch (e) {
-      print('streaming error: $e');
-      return SingleResponse<int>(error: 'Failed to reach server');
+      return const SingleResponse<int>(error: 'Failed to reach server.');
     } finally {
       _streamLocker.release();
     }
@@ -63,7 +59,7 @@ class ServerProvider {
     // Wait for any scheduled jobs to complete first before fetching anything
     // If jobs still exist, don't fetch anything
     if (await Scheduler().hasJobs) {
-      return SingleResponse<XmlDocument>(
+      return const SingleResponse<XmlDocument>(
         error: 'Scheduler has jobs, unable to fetch.',
       );
     }
@@ -78,9 +74,6 @@ class ServerProvider {
           .getAttribute('status');
       if (status != 'ok') {
         final error = xmlDoc.findAllElements('error').first;
-        print('Server Provider. Url: ${response.request.url}\n'
-            'Code: ${error.getAttribute('code')}\n'
-            'Message: ${error.getAttribute('message')}');
         return SingleResponse<XmlDocument>(
           error: error.getAttribute('message'),
         );
@@ -96,7 +89,7 @@ class ServerProvider {
   Future<SingleResponse<Uint8List>> fetchImage(String request) async {
     final response = await _fetch(_constructUrl(request));
     if (response == null) {
-      return SingleResponse<Uint8List>(error: 'Failed to fetch');
+      return const SingleResponse<Uint8List>(error: 'Failed to fetch');
     } else {
       return SingleResponse<Uint8List>(data: response.bodyBytes);
     }
@@ -108,21 +101,22 @@ class ServerProvider {
     final response = await _fetchDiscogs(query);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-
-      if (json['results'].length < 1) {
-        return SingleResponse<Uint8List>(error: ('Failed to fetch image'));
+      final results = json['results'] as List<dynamic>;
+      if (results.isEmpty) {
+        return const SingleResponse<Uint8List>(error: 'Failed to fetch image');
       }
 
-      final imageUrl = json['results'].first['cover_image'];
+      final imageUrl = results.first['cover_image'];
       final discogsImage = await _httpClient.get(imageUrl);
       if (discogsImage.statusCode == 200) {
         return SingleResponse<Uint8List>(data: discogsImage.bodyBytes);
       } else {
-        return SingleResponse<Uint8List>(error: ('Failed to fetch image'));
+        return const SingleResponse<Uint8List>(error: 'Failed to fetch image');
       }
     } else {
-      print(response.body);
-      return SingleResponse<Uint8List>(error: ('Failed to fetch artist information'));
+      return const SingleResponse<Uint8List>(
+        error: 'Failed to fetch artist information',
+      );
     }
   }
 
@@ -182,13 +176,12 @@ class ServerProvider {
     await _fetchLocker.acquire();
     try {
       final response = await _httpClient.get(url).timeout(
-            Duration(seconds: 2),
+            const Duration(seconds: 2),
             onTimeout: () => null,
           );
       _fetchLocker.release();
       return response;
     } catch (error) {
-      print('Can\'t reach server: $error');
       return null;
     }
   }
@@ -197,8 +190,8 @@ class ServerProvider {
   Future<http.Response> _fetchDiscogs(String query) async {
     if (Repository().settings.isOffline) return null;
 
-    final key = 'jQAdutNleiRcSyAKdvdU';
-    final secret = 'ZbUjUUiQiGUxDSOHmNusBWrLSGbAKMsz';
+    const key = 'jQAdutNleiRcSyAKdvdU';
+    const secret = 'ZbUjUUiQiGUxDSOHmNusBWrLSGbAKMsz';
     final url = 'https://api.discogs.com/database/search?'
         'q=$query'
         '&key=$key&secret=$secret'
@@ -207,34 +200,32 @@ class ServerProvider {
     await _discogsLocker.acquire();
     try {
       final response = await _httpClient.get(url).timeout(
-            Duration(seconds: 2),
+            const Duration(seconds: 2),
             onTimeout: () => null,
           );
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       _discogsLocker.release();
       return response;
     } catch (e) {
-      print('Failed to reach discogs.');
-      return null;
+      throw Exception('Failed to reach discogs.');
     }
   }
 
-  /// Generates random string
+  /// Generates random string.
+  ///
   /// Currently used to generate the 'salt' parameter in the construction of an url.
-  String _randomString(int stringLength) {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    Random rnd = Random(DateTime.now().millisecondsSinceEpoch);
-    String result = "";
-    for (var i = 0; i < stringLength; i++) {
-      result += chars[rnd.nextInt(chars.length)];
+  String _randomString(int length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random.secure();
+    final buffer = StringBuffer();
+    for (var i = 0; i < length; i++) {
+      buffer.write([random.nextInt(characters.length)]);
     }
-    return result;
+    return buffer.toString();
   }
 
   /// Singleton boilerplate
-  static final ServerProvider _instance = ServerProvider._internal();
-
-  ServerProvider._internal();
-
   factory ServerProvider() => _instance;
+  static final ServerProvider _instance = ServerProvider._internal();
+  ServerProvider._internal();
 }

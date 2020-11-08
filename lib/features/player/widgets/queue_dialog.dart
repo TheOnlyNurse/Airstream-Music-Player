@@ -1,8 +1,7 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Internal
 import 'player_queue.dart';
 
 class QueueDialog extends StatelessWidget {
@@ -15,8 +14,8 @@ class QueueDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       children: <Widget>[
         SizedBox(
-          height: Math.max(media.height - 250, 250),
-          width: Math.max(media.height - 50, 250),
+          height: math.max(media.height - 250, 250),
+          width: math.max(media.height - 50, 250),
           child: PlayerQueue(),
         )
       ],

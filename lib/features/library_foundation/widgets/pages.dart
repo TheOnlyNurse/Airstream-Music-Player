@@ -14,7 +14,7 @@ class _Pages extends StatelessWidget {
             );
             break;
           case 1:
-            return StarredScreen();
+            return const StarredScreen();
             break;
           default:
             throw UnimplementedError('Page index: ${state.pageIndex}');

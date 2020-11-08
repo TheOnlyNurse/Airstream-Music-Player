@@ -28,7 +28,7 @@ class Playlists extends StatelessWidget {
             );
           }
           if (state is PlaylistsLibraryInitial) {
-            return SliverToBoxAdapter(
+            return const SliverToBoxAdapter(
                 child: Center(child: CircularProgressIndicator()));
           }
           if (state is PlaylistsLibraryFailure) {
@@ -36,7 +36,7 @@ class Playlists extends StatelessWidget {
               child: ErrorText(error: state.response.error),
             );
           }
-          return SliverToBoxAdapter(
+          return const SliverToBoxAdapter(
               child: Center(child: Text('Error reading state')));
         },
       ),

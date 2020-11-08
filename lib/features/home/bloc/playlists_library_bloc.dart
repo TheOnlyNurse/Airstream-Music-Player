@@ -1,15 +1,13 @@
 import 'dart:async';
 
-
 import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
-import '../../../common/repository/playlist_repository.dart';
 import '../../../common/models/playlist_model.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
+import '../../../common/repository/playlist_repository.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
@@ -17,10 +15,10 @@ class PlaylistsLibraryBloc
       : assert(playlistRepository != null),
         super(PlaylistsLibraryInitial()) {
     onNetworkChange = Repository().settings.onChange.listen((type) {
-      if (type == SettingType.isOffline) this.add(PlaylistsLibraryEvent.fetch);
+      if (type == SettingType.isOffline) add(PlaylistsLibraryEvent.fetch);
     });
     onPlaylistChange = playlistRepository.changed.listen((event) {
-      this.add(PlaylistsLibraryEvent.fetch);
+      add(PlaylistsLibraryEvent.fetch);
     });
   }
 

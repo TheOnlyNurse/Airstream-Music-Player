@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Internal
-import '../bloc/song_list_tile_bloc.dart';
 import '../../providers/moor_database.dart';
 import '../../widgets/song_tile.dart';
+import '../bloc/song_list_tile_bloc.dart';
 
 class SongListTile extends StatelessWidget {
   const SongListTile({
@@ -18,8 +17,8 @@ class SongListTile extends StatelessWidget {
 
   final Song song;
   final Animation<double> animation;
-  final Function onLongPress;
-  final Function onTap;
+  final void Function() onLongPress;
+  final void Function() onTap;
   final bool isSelected;
 
   @override
@@ -34,7 +33,7 @@ class SongListTile extends StatelessWidget {
     }
 
     bool _getPlaying(SongListTileState state) {
-      return state is SongListTileSuccess ? state.isPlaying : false;
+      return state is SongListTileSuccess && state.isPlaying;
     }
 
     return BlocProvider(

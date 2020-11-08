@@ -66,8 +66,8 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   /// http://blog.rodolfocarvalho.net/2012/05/how-to-select-random-rows-from-sqlite.html
   Future<List<Album>> random(int length) async {
     // k of 8 means 12.5% chance of selecting a row
-    final randomWhere = 'WHERE random() % 8 = 0';
-    final cached = ' AND is_cached = 1';
+    const randomWhere = 'WHERE random() % 8 = 0';
+    const cached = ' AND is_cached = 1';
     final queryWhere =
         Repository().settings.isOffline ? randomWhere + cached : randomWhere;
     final selectQuery = 'SELECT * FROM albums $queryWhere LIMIT $length';
@@ -104,7 +104,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   ///
   /// Note that the list will be ordered by its row index and not the given list.
   Future<List<Album>> byIdList(List<int> idList) async {
-    var query = select(albums)..where((tbl) => tbl.id.isIn(idList));
+    final query = select(albums)..where((tbl) => tbl.id.isIn(idList));
     return query.get();
   }
 
@@ -148,9 +148,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   }
 
   Future<Album> byId(int id) {
-    final query = select(albums);
-    query.where((a) => a.id.equals(id));
-    return query.getSingle();
+    return (select(albums)..where((a) => a.id.equals(id))).getSingle();
   }
 
   /// ========== DB MANAGEMENT ==========
@@ -168,13 +166,11 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   /// Updates albums that match a given id list to be starred.
   Future<void> markStarred(List<int> idList, {bool starred = true}) async {
     return batch((batch) {
-      for (var id in idList) {
-        batch.update(
-          albums,
-          AlbumsCompanion(isStarred: Value(starred)),
-          where: (t) => t.id.equals(id),
-        );
-      }
+      batch.update(
+        albums,
+        AlbumsCompanion(isStarred: Value(starred)),
+        where: ($AlbumsTable tbl) => tbl.id.isIn(idList),
+      );
     });
   }
 
@@ -183,8 +179,8 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
     return batch((batch) {
       batch.update(
         albums,
-        AlbumsCompanion(isStarred: const Value(false)),
-        where: (t) => t.isStarred.equals(true),
+        const AlbumsCompanion(isStarred: Value(false)),
+        where: ($AlbumsTable tbl) => tbl.isStarred.equals(true),
       );
     });
   }

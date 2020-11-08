@@ -1,18 +1,18 @@
 import 'package:airstream/common/repository/playlist_repository.dart';
+import 'package:airstream/common/static_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal
-import '../bloc/playlist_dialog_bloc.dart';
 import '../../models/playlist_model.dart';
+import '../bloc/playlist_dialog_bloc.dart';
 
 class PlaylistDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text('Select playlist'),
+      title: const Text('Select playlist'),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       children: [
         SizedBox(
@@ -38,10 +38,10 @@ class PlaylistDialog extends StatelessWidget {
 
                 if (state is PlaylistDialogComplete) {
                   Future.delayed(
-                    Duration(milliseconds: 500),
+                    const Duration(milliseconds: 500),
                     () => Navigator.pop(context, state.playlist),
                   );
-                  return Center(
+                  return const Center(
                     child: Icon(Icons.check, color: Colors.green, size: 60),
                   );
                 }
@@ -51,10 +51,10 @@ class PlaylistDialog extends StatelessWidget {
                 }
 
                 if (state is PlaylistDialogInitial) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
-                return Center(child: Text('Could not read state'));
+                return const Center(child: Text('Could not read state'));
               },
             ),
           ),
@@ -85,13 +85,13 @@ class _PlaylistOptions extends StatelessWidget {
       onPageChanged: (index) => context.bloc<PlaylistDialogBloc>().add(
             PlaylistDialogViewChange(index),
           ),
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       children: <Widget>[
         // Current playlists
         ListView.builder(
           itemCount: playlists.length,
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          physics: BouncingScrollPhysics(),
+          physics: WidgetProperties.scrollPhysics,
           itemBuilder: (context, index) {
             return Card(
               color: Theme.of(context).primaryColor,
@@ -112,30 +112,29 @@ class _PlaylistOptions extends StatelessWidget {
                 controller: _nameController,
                 maxLength: 50,
                 inputFormatters: _allowedText,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Name',
                   counterText: '',
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextField(
                 controller: _commentController,
-                maxLines: 1,
                 inputFormatters: _allowedText,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Comment',
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               RawMaterialButton(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4)),
                 fillColor: Theme.of(context).primaryColor,
-                child: Text('Create'),
                 onPressed: () => dialogBloc(PlaylistDialogCreate(
                   _nameController.value.text,
                   _commentController.value.text,
                 )),
+                child: const Text('Create'),
               ),
             ],
           ),
@@ -152,16 +151,16 @@ class _Indicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget circle(bool isActive) {
+    Widget circle({bool isActive}) {
       final theme = Theme.of(context);
       return AnimatedContainer(
-        duration: Duration(milliseconds: 150),
-        margin: EdgeInsets.symmetric(horizontal: 8),
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
         height: isActive ? 12 : 8,
         width: isActive ? 12 : 8,
         decoration: BoxDecoration(
             color: isActive ? theme.accentColor : theme.disabledColor,
-            borderRadius: BorderRadius.all(Radius.circular(12))),
+            borderRadius: const BorderRadius.all(Radius.circular(12))),
       );
     }
 
@@ -170,8 +169,8 @@ class _Indicator extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          circle(currentIndex == 0),
-          circle(currentIndex == 1),
+          circle(isActive: currentIndex == 0),
+          circle(isActive: currentIndex == 1),
         ],
       ),
     );

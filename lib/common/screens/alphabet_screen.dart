@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Internal
-import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
-import '../static_assets.dart';
+import '../providers/moor_database.dart';
 import '../repository/album_repository.dart';
+import '../static_assets.dart';
 import '../widgets/album_card.dart';
 import '../widgets/alpha_grid_view.dart';
 import '../widgets/error_widgets.dart';
@@ -27,7 +26,7 @@ class AlphabetScreen extends StatelessWidget {
           future: albumRepository.byAlphabet(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              final ListResponse<Album> response = snapshot.data;
+              final response = snapshot.data as ListResponse<Album>;
 
               if (response.hasData) {
                 return AlphabeticalGridView(
@@ -52,7 +51,7 @@ class AlphabetScreen extends StatelessWidget {
               return ErrorScreen(response: response);
             }
 
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),

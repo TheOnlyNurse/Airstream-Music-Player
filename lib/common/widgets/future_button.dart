@@ -23,7 +23,7 @@ class FutureButton<T> extends StatelessWidget {
       future: future,
       builder: (_, snapshot) {
         if (snapshot.hasData) {
-          var response = snapshot.data;
+          final response = snapshot.data;
           if (response.hasError) {
             throw Exception(
               'FutureButton received future with error: ${response.error}',

@@ -1,3 +1,4 @@
+import 'package:airstream/common/static_assets.dart';
 import 'package:flutter/material.dart';
 
 /// Internal
@@ -69,9 +70,9 @@ class Collections extends StatelessWidget {
       height: 280,
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
+        physics: WidgetProperties.scrollPhysics,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 12,
           childAspectRatio: 1 / 1.2,
@@ -114,13 +115,13 @@ class _CollectionCard extends StatelessWidget {
               ),
               Material(
                 color: Colors.transparent,
-                elevation: 0.0,
                 child: Ink(
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
-                      if (details.page != null)
+                      if (details.page != null) {
                         Navigator.push(context, details.route());
+                      }
                     },
                   ),
                 ),
@@ -128,7 +129,7 @@ class _CollectionCard extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(details.title, style: Theme.of(context).textTheme.subtitle1),
       ],
     );
@@ -143,21 +144,21 @@ class _CollectionDetails {
   const _CollectionDetails(this.title, this.asset, {this.page});
 
   PageRouteBuilder route() => PageRouteBuilder(
-    opaque: false,
-    pageBuilder: (BuildContext context, _, __) {
-      return page;
-    },
-    transitionsBuilder: (___, animation, ____, child) {
-      return FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-0.5, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        ),
+        opaque: false,
+        pageBuilder: (BuildContext context, _, __) {
+          return page;
+        },
+        transitionsBuilder: (___, animation, ____, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(-0.5, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
       );
-    },
-  );
 }

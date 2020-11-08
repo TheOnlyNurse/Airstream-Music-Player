@@ -67,7 +67,7 @@ class ImageFileProvider {
 
   /// Checks to make sure cache still adheres to the user set max size
   Future<void> checkSize() async {
-    final maxSize = 1000;
+    const maxSize = 1000;
     int cacheSize = _hive.length;
     while (cacheSize > maxSize) {
       await _deleteOldestFiles();
@@ -79,9 +79,9 @@ class ImageFileProvider {
   /// Deletes the first row and thus the oldest cached file
   /// • Index 1 is the first image path because index 0 holds cache size
   Future<void> _deleteOldestFiles() async {
-    final id = _hive.keyAt(0);
+    final id = _hive.keyAt(0) as String;
     final crypticValue = _hive.getAt(0);
-    for (var type in ImageType.values) {
+    for (final type in ImageType.values) {
       if (_checkCipherForFile(crypticValue, type)) {
         await getFile(id, type).delete();
       }

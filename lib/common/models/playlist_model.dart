@@ -23,6 +23,6 @@ class Playlist extends Equatable {
         id: id ?? this.id,
         name: name ?? this.name,
         comment: comment ?? this.comment,
-        songIds: this.songIds,
+        songIds: songIds,
       );
 }

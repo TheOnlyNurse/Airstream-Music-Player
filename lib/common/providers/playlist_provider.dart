@@ -25,7 +25,7 @@ class PlaylistProvider {
   Playlist byName(String name) {
     return _hive.values.firstWhere(
       (playlist) => playlist.name == name,
-      orElse: null,
+      orElse: () => null,
     );
   }
 
@@ -55,7 +55,7 @@ class PlaylistProvider {
   /// Removes the song ids in the given indexes from a playlist.
   Future<void> removeSongs(int id, List<int> removeIndexes) {
     final playlist = _hive.get(id);
-    for (int index in removeIndexes) {
+    for (final index in removeIndexes) {
       playlist.songIds.removeAt(index);
     }
     return _hive.put(id, playlist);

@@ -10,7 +10,7 @@ class NavigationBar extends StatelessWidget {
     return BlocBuilder<NavigationBarBloc, NavigationBarState>(
       builder: (context, state) {
         return BottomAppBar(
-          shape: state.isNotched ? CircularNotchedRectangle() : null,
+          shape: state.isNotched ? const CircularNotchedRectangle() : null,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -24,7 +24,7 @@ class NavigationBar extends StatelessWidget {
                     currentIndex: state.pageIndex,
                   ),
                   AnimatedContainer(
-                    duration: Duration(seconds: 1),
+                    duration: const Duration(seconds: 1),
                     curve: Curves.bounceOut,
                     width: state.isNotched ? 100 : 0,
                   ),
@@ -55,10 +55,10 @@ class _IconButton extends StatelessWidget {
 
   const _IconButton({
     Key key,
-    this.iconData,
-    this.caption,
+    @required this.iconData,
+    @required this.caption,
     this.height = 60,
-    this.assignedIndex = 0,
+    this.assignedIndex,
     this.currentIndex = 1,
     this.onTap,
   })  : assert(iconData != null),
@@ -73,6 +73,7 @@ class _IconButton extends StatelessWidget {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return Expanded(
       child: SizedBox(

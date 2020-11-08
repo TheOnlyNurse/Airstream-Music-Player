@@ -5,13 +5,12 @@ import 'package:airstream/common/static_assets.dart';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
-/// Internal
-import '../providers/playlist_provider.dart';
-import 'communication.dart';
 import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
+import '../providers/playlist_provider.dart';
 import '../providers/scheduler.dart';
+import 'communication.dart';
 
 class PlaylistRepository {
   PlaylistRepository({
@@ -37,7 +36,7 @@ class PlaylistRepository {
   ListResponse<Playlist> byAlphabet() {
     final playlists = _database.byAlphabet();
     if (playlists.isEmpty) {
-      return ListResponse<Playlist>(
+      return const ListResponse<Playlist>(
         error: 'No playlists found in local database.',
         solutions: [ErrorSolutions.database, ErrorSolutions.network],
       );
@@ -50,23 +49,25 @@ class PlaylistRepository {
   ///
   /// Songs removed are also scheduled to update the server.
   Future<void> removeSongs(Playlist playlist, List<int> indexList) async {
-    var request = 'updatePlaylist?playlistId=${playlist.id}';
-    for (var index in indexList) {
-      request += '&songIndexToRemove=$index';
+    final baseUrl = 'updatePlaylist?playlistId=${playlist.id}';
+    final urlArguments = StringBuffer();
+    for (final index in indexList) {
+      urlArguments.write('&songIndexToRemove=$index');
     }
     await _database.removeSongs(playlist.id, indexList);
-    _scheduler.schedule(request);
+    _scheduler.schedule('$baseUrl${urlArguments.toString()}');
     _onChange.add(PlaylistChange.songsRemoved);
   }
 
   /// Adds songs to an existing playlist.
   Future<void> addSongs(Playlist playlist, List<Song> songList) async {
-    var request = 'updatePlaylist?playlistId=${playlist.id}';
-    for (var song in songList) {
-      request += '&songIdToAdd=${song.id}';
+    final baseUrl = 'updatePlaylist?playlistId=${playlist.id}';
+    final urlArguments = StringBuffer();
+    for (final song in songList) {
+      urlArguments.write('&songIdToAdd=${song.id}');
     }
     await _database.addSongs(playlist.id, songList.map((e) => e.id).toList());
-    _scheduler.schedule(request);
+    _scheduler.schedule('$baseUrl${urlArguments.toString()}');
     _onChange.add(PlaylistChange.songsAdded);
   }
 
@@ -80,7 +81,7 @@ class PlaylistRepository {
     // Since we don't have the id, we have to get a playlist by it's name.
     final created = _database.byName(name);
     if (created == null) {
-      return SingleResponse(error: 'Creation failed.');
+      return const SingleResponse(error: 'Creation failed.');
     }
 
     if (comment != null) {
@@ -110,7 +111,7 @@ class PlaylistRepository {
         .findAllElements('playlist')
         .map((element) => element.getAttribute('id'));
 
-    for (var id in idList) {
+    for (final id in idList) {
       final playlist = await ServerProvider().fetchXml('getPlaylist?id=$id');
       if (playlist.hasError) break;
       _database.insertElement(playlist.data);

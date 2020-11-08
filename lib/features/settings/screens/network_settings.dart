@@ -1,56 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal Links
-import '../../../common/repository/image_repository.dart';
 import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
-import '../../../common/widgets/custom_alert_dialog.dart';
-import '../widgets/switch.dart';
-import '../widgets/slider.dart';
+import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/song_repository.dart';
+import '../../../common/static_assets.dart';
+import '../../../common/widgets/custom_alert_dialog.dart';
+import '../widgets/slider.dart';
+import '../widgets/switch.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: <Widget>[
-            _Title(title: 'Offline Mode'),
+            const _Title(title: 'Offline Mode'),
             CustomSwitch(
-              title: Text('Go offline?'),
-              leading: Icon(Icons.cloud_off),
-              initial: Repository().settings.query(SettingType.isOffline),
+              title: const Text('Go offline?'),
+              leading: const Icon(Icons.cloud_off),
+              initial: Repository().settings.isOffline,
               onChanged: (value) {
                 Repository().settings.change(SettingType.isOffline, value);
               },
             ),
             CustomSwitch(
-              title: Text('Auto offline on mobile data'),
-              leading: Icon(Icons.signal_cellular_connected_no_internet_4_bar),
-              initial: Repository().settings.query(SettingType.mobileOffline),
+              title: const Text('Auto offline on mobile data'),
+              leading: const Icon(Icons.signal_cellular_connected_no_internet_4_bar),
+              initial: Repository().settings.autoOffline,
               onChanged: (value) {
-                Repository().settings.change(SettingType.mobileOffline, value);
+                Repository().settings.change(SettingType.autoOffline, value);
               },
             ),
-            _Title(title: 'Cache'),
-            SettingsSlider(title: 'Prefetch', type: SettingType.prefetch),
-            SettingsSlider(title: 'Music Cache', type: SettingType.musicCache),
-            SettingsSlider(title: 'Image Cache', type: SettingType.imageCache),
-            SizedBox(height: 16),
+            const _Title(title: 'Cache'),
+            const SettingsSlider(title: 'Prefetch', type: SettingType.prefetch),
+            const SettingsSlider(
+                title: 'Music Cache', type: SettingType.musicCache),
+            const SettingsSlider(
+                title: 'Image Cache', type: SettingType.imageCache),
+            const SizedBox(height: 16),
             _ClearCache(
               imageRepository: GetIt.I.get<ImageRepository>(),
               songRepository: GetIt.I.get<SongRepository>(),
             ),
-            _Title(title: 'Bitrate'),
-            SettingsSlider(
+            const _Title(title: 'Bitrate'),
+            const SettingsSlider(
               title: 'Wifi Bitrate',
               type: SettingType.wifiBitrate,
             ),
-            SettingsSlider(
+            const SettingsSlider(
               title: 'Mobile Bitrate',
               type: SettingType.mobileBitrate,
             ),
@@ -100,7 +102,7 @@ class _ClearCache extends StatelessWidget {
               context: context,
               barrierDismissible: false,
               builder: (context) {
-                return CustomAlertDialog(title: 'Clear cache?');
+                return const CustomAlertDialog(title: 'Clear cache?');
               });
           if (shouldClear) {
             songRepository.clearCache();

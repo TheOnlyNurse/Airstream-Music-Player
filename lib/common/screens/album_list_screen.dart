@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Internal
-import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
+import '../providers/moor_database.dart';
 import '../widgets/error_widgets.dart';
 import '../widgets/sliver_album_grid.dart';
 import '../widgets/sliver_close_bar.dart';
@@ -27,11 +26,11 @@ class AlbumListScreen extends StatelessWidget {
               }
 
               return CustomScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 slivers: <Widget>[
                   SliverCloseBar(),
                   if (title == null)
-                    SliverToBoxAdapter(child: SizedBox(height: 12)),
+                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
                   if (title != null) _Title(title: title),
                   SliverAlbumGrid(albumList: response.data),
                 ],
@@ -41,7 +40,7 @@ class AlbumListScreen extends StatelessWidget {
             return Column(
               children: <Widget>[
                 _CloseButton(),
-                Expanded(child: Center(child: CircularProgressIndicator())),
+                const Expanded(child: Center(child: CircularProgressIndicator())),
               ],
             );
           },
@@ -57,12 +56,12 @@ class _CloseButton extends StatelessWidget {
     return Align(
       alignment: Alignment.topLeft,
       child: RawMaterialButton(
-        constraints: BoxConstraints.tightFor(
+        constraints: const BoxConstraints.tightFor(
           width: 60,
           height: 60,
         ),
         onPressed: () => Navigator.pop(context),
-        child: Icon(Icons.close),
+        child: const Icon(Icons.close),
       ),
     );
   }

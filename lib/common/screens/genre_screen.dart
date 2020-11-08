@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Internal
 import '../models/repository_response.dart';
 import '../repository/album_repository.dart';
+import '../static_assets.dart';
 import '../widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';
 
@@ -17,11 +17,11 @@ class GenreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
+        child: FutureBuilder<ListResponse<String>>(
           future: albumRepository.allGenres(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              final ListResponse<String> response = snapshot.data;
+              final response = snapshot.data;
 
               if (response.hasData) {
                 return _GenreSuccess(
@@ -37,7 +37,7 @@ class GenreScreen extends StatelessWidget {
               return ErrorText(error: snapshot.error.toString());
             }
 
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),
@@ -58,7 +58,7 @@ class _GenreSuccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
         SliverCloseBar(),
         SliverToBoxAdapter(
@@ -76,7 +76,7 @@ class _GenreSuccess extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 30.0),
           sliver: SliverGrid(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 250,
               childAspectRatio: 2 / 1,
             ),
@@ -113,7 +113,7 @@ class _GenreRectangle extends StatelessWidget {
 
   final String genre;
   final int index;
-  final Function onTap;
+  final void Function() onTap;
 
   Color _iterateThroughColors() {
     final colors = Colors.primaries;

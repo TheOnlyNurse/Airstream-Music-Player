@@ -1,17 +1,17 @@
 
-import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
-/// Internal
-import '../song_list_bar/song_list_bar.dart';
-import 'widgets/song_list_tile.dart';
-import 'bloc/song_list_bloc.dart';
+import '../models/song_list_delegate.dart';
 import '../providers/moor_database.dart';
 import '../providers/repository/repository.dart';
-import '../models/song_list_delegate.dart';
-import '../repository/song_repository.dart';
 import '../repository/playlist_repository.dart';
+import '../repository/song_repository.dart';
+import '../song_list_bar/song_list_bar.dart';
+import '../static_assets.dart';
+import 'bloc/song_list_bloc.dart';
+import 'widgets/song_list_tile.dart';
 
 // Barrelling
 export '../models/song_list_delegate.dart';
@@ -39,12 +39,12 @@ class SongList extends StatelessWidget {
 
     /// Return if this song list is able to un-star songs
     bool _canRemoveStar(SongListDelegate delegate) {
-      return delegate is SimpleSongList ? delegate.canRemoveStar : false;
+      return delegate is SimpleSongList && delegate.canRemoveStar;
     }
 
     /// Animated removal of songs
     void _removeSongs(Map<int, Song> removeMap) {
-      for (int index in removeMap.keys) {
+      for (final index in removeMap.keys) {
         animatedListKey.currentState.removeItem(index, (context, animation) {
           return SongListTile(animation: animation, song: removeMap[index]);
         });
@@ -87,9 +87,9 @@ class SongList extends StatelessWidget {
 
     /// Widget based on states that isn't a success state
     Widget _processOtherStates(SongListState state) {
-      if (state is SongListInitial) return CircularProgressIndicator();
+      if (state is SongListInitial) return const CircularProgressIndicator();
       if (state is SongListFailure) return state.errorMessage;
-      return Text('Failed to read state.');
+      return const Text('Failed to read state.');
     }
 
     return BlocProvider(
@@ -106,7 +106,7 @@ class SongList extends StatelessWidget {
         builder: (context, state) {
           if (state is SongListSuccess) {
             return CustomScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: WidgetProperties.scrollPhysics,
               controller: controller,
               slivers: _createSlivers(state),
             );
@@ -129,7 +129,7 @@ class _SliverSongList extends StatelessWidget {
     @required this.songs,
     this.animatedListKey,
     List<int> selectedIndexes,
-  })  : this.selectedIndexes = selectedIndexes ?? const <int>[],
+  })  : selectedIndexes = selectedIndexes ?? const <int>[],
         assert(songs != null),
         super(key: key);
 

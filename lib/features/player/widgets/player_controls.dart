@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Internal
-import '../bloc/player_controls_bloc.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../bloc/player_controls_bloc.dart';
 import '../widgets/play_button.dart';
 
 class PlayerControls extends StatelessWidget {
@@ -47,30 +46,39 @@ class PlayerControls extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              RawMaterialButton(
-                shape: CircleBorder(),
-                child: Icon(
-                  Icons.skip_previous,
-                  size: 40.0,
-                  color: isPrevious ? enabledColor : disabledColor,
-                ),
+              _Button(
                 onPressed:
                     isPrevious ? () => Repository().audio.previous() : null,
+                iconData: Icons.skip_previous,
+                isEnabled: isPrevious ? enabledColor : disabledColor,
               ),
               PlayButton(),
-              RawMaterialButton(
-                shape: CircleBorder(),
-                child: Icon(
-                  Icons.skip_next,
-                  size: 40.0,
-                  color: isNext ? enabledColor : disabledColor,
-                ),
+              _Button(
                 onPressed: isNext ? () => Repository().audio.next() : null,
+                iconData: Icons.skip_next,
+                isEnabled: isNext ? enabledColor : disabledColor,
               ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _Button extends StatelessWidget {
+  const _Button({Key key, this.onPressed, this.isEnabled, this.iconData})
+      : super(key: key);
+  final void Function() onPressed;
+  final Color isEnabled;
+  final IconData iconData;
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      shape: const CircleBorder(),
+      onPressed: onPressed,
+      child: Icon(iconData, size: 40.0, color: isEnabled),
     );
   }
 }

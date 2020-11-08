@@ -1,13 +1,12 @@
-import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';
+import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
-/// Internal
+import '../models/repository_response.dart';
 import '../providers/albums_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/scheduler.dart';
 import '../providers/server_provider.dart';
-import '../models/repository_response.dart';
 import '../static_assets.dart';
 
 class AlbumRepository {
@@ -105,7 +104,7 @@ class AlbumRepository {
   Future<SingleResponse<Album>> byId(int id) async {
     final album = await _database.byId(id);
     if (album == null) {
-      return SingleResponse<Album>(
+      return const SingleResponse<Album>(
         error: 'Failed to find album.',
         solutions: [ErrorSolutions.database],
       );
@@ -128,7 +127,7 @@ class AlbumRepository {
   Future<ListResponse<Album>> search(String request) async {
     final results = await _database.search(request);
     if (results.isEmpty) {
-      return ListResponse<Album>(error: 'Nothing found.');
+      return const ListResponse<Album>(error: 'Nothing found.');
     } else {
       return ListResponse<Album>(data: results);
     }
@@ -149,9 +148,9 @@ class AlbumRepository {
     return;
   }
 
-  Future<void> updateStarred(Album album, bool starred) async {
+  Future<void> updateStarred(Album album, {@required bool starred}) async {
     await _database.markStarred([album.id], starred: starred);
-    var request = starred ? 'star' : 'unstar';
+    final request = starred ? 'star' : 'unstar';
     Scheduler().schedule('$request?albumId=${album.id}');
   }
 
@@ -203,16 +202,16 @@ class AlbumRepository {
   /// Album ids are stored in the cache and are converted to album objects.
   /// Does not return null objects, only empty lists.
   Future<List<Album>> _albumsFromCache({
-    String cacheKey,
-    String type,
-    bool forceFetch,
+    @required String cacheKey,
+    @required String type,
+    @required bool forceFetch,
   }) async {
     assert(cacheKey != null);
     assert(type != null);
     assert(forceFetch != null);
 
     final cache = Hive.box('cache');
-    List<int> idList = cache.get(cacheKey);
+    var idList = cache.get(cacheKey) as List<int>;
 
     if (idList == null || forceFetch) {
       final idsFromServer = await _idsFromType(type);
@@ -236,7 +235,7 @@ class AlbumRepository {
 
   /// Returns a list of ids given an album fetch type
   Future<List<int>> _idsFromType(String type) async {
-    int idFromElement(e) => int.parse(e.getAttribute('id'));
+    int idFromElement(e) => int.parse(e.getAttribute('id') as String);
 
     final response = await _fetch(type: type, specifics: 'size=50');
     if (response.hasError) return null;

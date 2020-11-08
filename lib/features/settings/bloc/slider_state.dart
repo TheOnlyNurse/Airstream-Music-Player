@@ -22,8 +22,8 @@ class SliderSuccess extends SliderState {
 
   SliderSuccess copyWith({double value}) => SliderSuccess(
         value ?? this.value,
-        this.min,
-        this.max,
-        this.divisions,
+        min,
+        max,
+        divisions,
       );
 }

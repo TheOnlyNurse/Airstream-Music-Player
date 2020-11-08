@@ -14,7 +14,7 @@ class _ShuffleButton extends StatelessWidget {
       child: Center(
         child: RawMaterialButton(
           fillColor: Theme.of(context).buttonColor,
-          constraints: BoxConstraints.tightFor(width: 200, height: 50),
+          constraints: const BoxConstraints.tightFor(width: 200, height: 50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),

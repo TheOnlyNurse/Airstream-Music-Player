@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Internal
-import '../song_list/bloc/song_list_bloc.dart';
 import '../models/playlist_model.dart';
+import '../song_list/bloc/song_list_bloc.dart';
 import 'widgets/playlist_dialog.dart';
 
 class SongListBar extends StatelessWidget {
@@ -23,7 +22,7 @@ class SongListBar extends StatelessWidget {
       pinned: true,
       title: selectedNumber != null ? Text('$selectedNumber selected') : null,
       leading: IconButton(
-        icon: Icon(Icons.close),
+        icon: const Icon(Icons.close),
         onPressed: () {
           context.bloc<SongListBloc>().add(SongListClearSelection());
         },
@@ -40,16 +39,14 @@ class _AddToPlaylist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.add_circle_outline),
+      icon: const Icon(Icons.add_circle_outline),
       tooltip: 'Add to playlist',
       onPressed: () async {
         final response = await showDialog(
           context: context,
-          builder: (context) {
-            return PlaylistDialog();
-          },
-        );
-        assert(response is Playlist || response == null);
+          builder: (_) => PlaylistDialog(),
+        ) as Playlist;
+
         if (response != null) {
           context.bloc<SongListBloc>().add(SongListPlaylistSelection(response));
         }

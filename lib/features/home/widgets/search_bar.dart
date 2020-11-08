@@ -8,16 +8,16 @@ class SearchBarLink extends StatelessWidget {
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: ListTile(
-          leading: Icon(Icons.search),
-          title: Text('Search'),
+          leading: const Icon(Icons.search),
+          title: const Text('Search'),
           onTap: () =>
               Navigator.of(context, rootNavigator: true).pushNamed('/search'),
           trailing: RawMaterialButton(
-            shape: CircleBorder(),
-            constraints: BoxConstraints.tightFor(width: 50, height: 50),
-            child: Icon(Icons.settings),
+            shape: const CircleBorder(),
+            constraints: const BoxConstraints.tightFor(width: 50, height: 50),
             onPressed: () => Navigator.of(context, rootNavigator: true)
                 .pushNamed('/settings'),
+            child: const Icon(Icons.settings),
           ),
         ),
       ),

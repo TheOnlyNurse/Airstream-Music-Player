@@ -19,9 +19,9 @@ class SongListSuccess extends SongListState {
     List<Song> songList,
     List<int> selected,
     Map<int, Song> removeMap,
-  })  : this.songList = songList ?? <Song>[],
-        this.selected = selected ?? <int>[],
-        this.removeMap = removeMap ?? <int, Song>{};
+  })  : songList = songList ?? <Song>[],
+        selected = selected ?? <int>[],
+        removeMap = removeMap ?? <int, Song>{};
 
   SongListSuccess copyWith({
     List<Song> songList,

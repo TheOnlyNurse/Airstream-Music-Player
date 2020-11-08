@@ -40,7 +40,7 @@ class ImageRepository {
       type: type,
       onNone: _fromServer(artId, type),
     );
-    return query != null ? query : preview(artId);
+    return query ?? await preview(artId);
   }
 
   /// Returns an artist's image and fetches from discogs if prompted.
@@ -98,14 +98,14 @@ class ImageRepository {
   /// Size checks once initiated ensures that the cache stays within user set
   /// limits. Therefore, only one check should be submitted, this "queues" up
   /// the calls with a timer.
-  void _queueSizeCheck() async {
+  void _queueSizeCheck() {
     if (_cacheCheckTimer != null) {
       _cacheCheckTimer.cancel();
     }
-    _cacheCheckTimer = Timer(Duration(seconds: 5), _initiateSizeCheck);
+    _cacheCheckTimer = Timer(const Duration(seconds: 5), _initiateSizeCheck);
   }
 
-  void _initiateSizeCheck() async {
+  Future<void> _initiateSizeCheck() async {
     if (!_sizeLocker.isLocked) {
       await _sizeLocker.protect(() => _provider.checkSize());
     }

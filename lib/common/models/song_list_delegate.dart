@@ -1,5 +1,5 @@
-import '../providers/moor_database.dart';
 import '../models/playlist_model.dart';
+import '../providers/moor_database.dart';
 
 abstract class SongListDelegate {
   const SongListDelegate();

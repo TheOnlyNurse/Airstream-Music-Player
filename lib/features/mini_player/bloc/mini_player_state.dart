@@ -10,7 +10,7 @@ abstract class MiniPlayerState extends Equatable {
 class MiniPlayerHidden extends MiniPlayerState {}
 
 class MiniPlayerShown extends MiniPlayerState {
-  const MiniPlayerShown(this.isPlaying, {this.isMoving = false});
+  const MiniPlayerShown({this.isPlaying, this.isMoving = false});
 
   final bool isPlaying;
   final bool isMoving;
@@ -20,7 +20,7 @@ class MiniPlayerShown extends MiniPlayerState {
 
   MiniPlayerShown copyWith({bool isPlaying, bool isMoving}) =>
       MiniPlayerShown(
-        isPlaying ?? this.isPlaying,
+        isPlaying: isPlaying ?? this.isPlaying,
         isMoving: isMoving ?? false,
       );
 }

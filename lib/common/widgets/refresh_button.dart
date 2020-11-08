@@ -17,12 +17,8 @@ class _RefreshButtonState extends State<RefreshButton> {
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: RawMaterialButton(
-        child: _isRefreshing ? _RefreshingIndicator() : Icon(Icons.refresh),
-        shape: CircleBorder(),
-        constraints: BoxConstraints.tightFor(
-          width: 50,
-          height: 50,
-        ),
+        shape: const CircleBorder(),
+        constraints: const BoxConstraints.tightFor(width: 50, height: 50),
         onPressed: () async {
           final _isNotRefreshing = !_isRefreshing;
 
@@ -41,13 +37,14 @@ class _RefreshButtonState extends State<RefreshButton> {
             return null;
           }
         },
+        child:
+            _isRefreshing ? _RefreshingIndicator() : const Icon(Icons.refresh),
       ),
     );
   }
 }
 
 class _RefreshingIndicator extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Padding(

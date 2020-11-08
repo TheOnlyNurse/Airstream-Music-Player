@@ -1,17 +1,14 @@
 import 'dart:async';
 
-
-import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-/// Internal links
-import '../../repository/playlist_repository.dart';
 import '../../models/playlist_model.dart';
+import '../../models/repository_response.dart';
+import '../../repository/playlist_repository.dart';
 
 part 'playlist_dialog_event.dart';
-
 part 'playlist_dialog_state.dart';
 
 class PlaylistDialogBloc
@@ -52,7 +49,7 @@ class PlaylistDialogBloc
             event.comment,
           );
       if (newPlaylist.hasData) {
-        this.add(PlaylistDialogChosen(newPlaylist.data));
+        add(PlaylistDialogChosen(newPlaylist.data));
       } else {
         yield PlaylistDialogFailure(newPlaylist);
       }

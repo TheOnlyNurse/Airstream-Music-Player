@@ -4,12 +4,11 @@ import 'package:assets_audio_player/assets_audio_player.dart' as assets;
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// Internal Links
-import 'moor_database.dart';
-import '../repository/image_repository.dart';
 import '../repository/communication.dart';
-import 'download_provider.dart';
+import '../repository/image_repository.dart';
 import '../repository/song_repository.dart';
+import 'download_provider.dart';
+import 'moor_database.dart';
 
 class AudioProvider {
   /// Globally Accessible
@@ -50,22 +49,21 @@ class AudioProvider {
   }
 
   void reorderQueue(int oldIndex, int newIndex) {
+    int adjustedIndex = newIndex;
     if (oldIndex < newIndex) {
       // removing the item at oldIndex will shorten the list by 1.
-      newIndex--;
+      adjustedIndex--;
     }
     // Adjust the current index to properly align with new list order
     if (oldIndex == _currentIndex) {
-      _currentIndex = newIndex;
-    } else if (oldIndex < _currentIndex && newIndex >= _currentIndex) {
-      print('Reducing by 1');
+      _currentIndex = adjustedIndex;
+    } else if (oldIndex < _currentIndex && adjustedIndex >= _currentIndex) {
       _currentIndex--;
-    } else if (newIndex <= _currentIndex && oldIndex > _currentIndex) {
-      print('Adding by 1');
+    } else if (adjustedIndex <= _currentIndex && oldIndex > _currentIndex) {
       _currentIndex++;
     }
     final element = _songQueue.removeAt(oldIndex);
-    _songQueue.insert(newIndex, element);
+    _songQueue.insert(adjustedIndex, element);
   }
 
   void playFromQueue(int index) {
@@ -91,16 +89,16 @@ class AudioProvider {
         break;
       case ChangePlayerState.next:
         if (_currentIndex + 1 < _songQueue.length) {
-          this._currentIndex++;
-          this._playCurrent();
+          _currentIndex++;
+          _playCurrent();
         }
         break;
       case ChangePlayerState.previous:
-        if (_audioPlayer.currentPosition.value > Duration(seconds: 5)) {
-          _audioPlayer.seek(Duration(seconds: 0), force: true);
+        if (_audioPlayer.currentPosition.value > const Duration(seconds: 5)) {
+          _audioPlayer.seek(const Duration(), force: true);
         } else {
-          this._currentIndex--;
-          this._playCurrent();
+          _currentIndex--;
+          _playCurrent();
         }
         break;
     }
@@ -121,16 +119,14 @@ class AudioProvider {
   var _currentIndex = 0;
 
   /// Open the given path and song with the audio player
-  void _play(String songPath, Song song) async {
+  Future<void> _play(String songPath, Song song) async {
     final audio = assets.Audio.file(songPath, metas: _toMetas(song));
     final notificationSettings = assets.NotificationSettings(
       customPrevAction: (player) {
-        this.changePlayerState(ChangePlayerState.previous);
+        changePlayerState(ChangePlayerState.previous);
       },
-      customNextAction: (player) =>
-          this.changePlayerState(ChangePlayerState.next),
-      customStopAction: (player) =>
-          this.changePlayerState(ChangePlayerState.stop),
+      customNextAction: (player) => changePlayerState(ChangePlayerState.next),
+      customStopAction: (player) => changePlayerState(ChangePlayerState.stop),
     );
 
     try {
@@ -165,13 +161,13 @@ class AudioProvider {
   }
 
   /// Prepare the current song to be played
-  void _playCurrent() async {
-    final song = this.currentSong;
+  Future<void> _playCurrent() async {
+    final song = currentSong;
     // Notify new song is loading
     _songState.add(AudioPlayerSongState.newSong);
     final filePath = await GetIt.I.get<SongRepository>().filePath(song);
     if (filePath != null) {
-      this._play(filePath, song);
+      _play(filePath, song);
     } else {
       if (_audioPlayer.current.value != null) _audioPlayer.pause();
       DownloadProvider().downloadSong(song);
@@ -182,8 +178,8 @@ class AudioProvider {
   void _whenAudioFinished(bool isFinished) {
     if (_audioPlayer.current.value != null) {
       final currentPosition = _audioPlayer.currentPosition.value;
-      final maxDuration =
-          _audioPlayer.current.value.audio.duration - Duration(seconds: 2);
+      final maxDuration = _audioPlayer.current.value.audio.duration -
+          const Duration(seconds: 2);
       final hasNext = _currentIndex + 1 < _songQueue.length - 1;
       if (currentPosition >= maxDuration) {
         if (hasNext) {
@@ -201,14 +197,13 @@ class AudioProvider {
   }
 
   /// Singleton boilerplate code
+  factory AudioProvider() => _instance;
   static final AudioProvider _instance = AudioProvider._internal();
 
   AudioProvider._internal() {
     _audioPlayer.playlistFinished.listen(_whenAudioFinished);
     DownloadProvider().songPlayable.listen(_whenSongIsPlayable);
   }
-
-  factory AudioProvider() => _instance;
 }
 
 enum ChangePlayerState { stop, play, pause, next, previous }

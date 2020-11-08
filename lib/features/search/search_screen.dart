@@ -3,15 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal
-import 'bloc/search_bloc.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/song_repository.dart';
+import '../../common/static_assets.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/song_tile.dart';
+import 'bloc/search_bloc.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({
@@ -96,8 +96,8 @@ class _SearchBar extends StatelessWidget {
         ),
         child: Row(
           children: <Widget>[
-            Icon(Icons.search),
-            SizedBox(width: 35),
+            const Icon(Icons.search),
+            const SizedBox(width: 35),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -111,10 +111,9 @@ class _SearchBar extends StatelessWidget {
                   ],
                   onChanged: (query) =>
                       context.bloc<SearchBloc>().add(SearchQuery(query)),
-                  autofocus:
-                      textController.value.text.length == 0 ? true : false,
+                  autofocus: textController.value.text.isEmpty,
                   maxLength: 25,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     counterText: '',
                     border: InputBorder.none,
                     hintText: 'Search',
@@ -123,17 +122,17 @@ class _SearchBar extends StatelessWidget {
               ),
             ),
             RawMaterialButton(
-              child: Icon(Icons.clear, color: Colors.white),
-              shape: CircleBorder(),
-              constraints: BoxConstraints.tightFor(width: 35, height: 35),
+              shape: const CircleBorder(),
+              constraints: const BoxConstraints.tightFor(width: 35, height: 35),
               onPressed: () {
-                if (textController.value.text.length == 0) {
+                if (textController.value.text.isEmpty) {
                   Navigator.pop(context);
                 } else {
                   textController.clear();
-                  context.bloc<SearchBloc>().add(SearchQuery(''));
+                  context.bloc<SearchBloc>().add(const SearchQuery(''));
                 }
               },
+              child: const Icon(Icons.clear, color: Colors.white),
             ),
           ],
         ),
@@ -217,7 +216,7 @@ class _OnSearchSuccess extends StatelessWidget {
     }
 
     return CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       slivers: _slivers(),
     );
   }
@@ -232,17 +231,17 @@ class _OtherSearchStates extends StatelessWidget {
 
   Widget _getStateText() {
     final currentState = state;
-    if (currentState is SearchInitial) return Text('Here to serve!');
+    if (currentState is SearchInitial) return const Text('Here to serve!');
     if (currentState is SearchLoading) {
-      return SizedBox(
+      return const  SizedBox(
         height: 60,
         width: 60,
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    if (currentState is SearchFailure) return Text('Found no results.');
+    if (currentState is SearchFailure) return const Text('Found no results.');
     // If no state could be found
-    return Text('Could not read state.');
+    return const Text('Could not read state.');
   }
 
   @override

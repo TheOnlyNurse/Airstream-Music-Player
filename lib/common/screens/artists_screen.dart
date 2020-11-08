@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Internal
-import '../providers/moor_database.dart';
 import '../models/repository_response.dart';
-import '../static_assets.dart';
+import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
+import '../static_assets.dart';
 import '../widgets/alpha_grid_view.dart';
 import '../widgets/artist_circle.dart';
 import '../widgets/error_widgets.dart';
@@ -22,11 +21,11 @@ class ArtistsScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
+        child: FutureBuilder<ListResponse<Artist>>(
           future: artistRepository.byAlphabet(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              final ListResponse<Artist> response = snapshot.data;
+              final response = snapshot.data;
 
               if (response.hasData) {
                 return AlphabeticalGridView(
@@ -50,10 +49,10 @@ class ArtistsScreen extends StatelessWidget {
                 return ErrorScreen(response: response);
               }
 
-              return Center(child: ErrorText(error: snapshot.error));
+              return Center(child: ErrorText(error: snapshot.error.toString()));
             }
 
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),

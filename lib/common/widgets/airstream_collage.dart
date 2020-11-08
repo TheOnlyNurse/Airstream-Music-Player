@@ -23,11 +23,11 @@ class AirstreamCollage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<List<File>>(
       future: GetIt.I.get<ImageRepository>().collage(songIds),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final List<File> images = snapshot.data;
+          final images = snapshot.data;
           if (images != null) {
             return LayoutBuilder(
               builder: (context, constraints) {
@@ -46,7 +46,7 @@ class AirstreamCollage extends StatelessWidget {
             );
           }
         } else {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }

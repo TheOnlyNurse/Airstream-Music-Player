@@ -31,8 +31,8 @@ class _CustomSwitchState extends State<CustomSwitch> {
   @override
   Widget build(BuildContext context) {
     return SwitchListTile(
-      secondary: widget.leading != null ? widget.leading : null,
-      title: widget.title != null ? widget.title : null,
+      secondary: widget.leading,
+      title: widget.title,
       value: value,
       activeColor: Theme.of(context).accentColor,
       onChanged: (newValue) {

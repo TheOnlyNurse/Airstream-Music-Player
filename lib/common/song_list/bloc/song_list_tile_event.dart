@@ -21,7 +21,7 @@ class SongListTileDownload extends SongListTileEvent {
 class SongListTilePlaying extends SongListTileEvent {
   final bool isPlaying;
 
-  const SongListTilePlaying(this.isPlaying);
+  const SongListTilePlaying({this.isPlaying});
 
   @override
   List<Object> get props => [isPlaying];

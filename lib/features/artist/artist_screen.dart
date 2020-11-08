@@ -3,24 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal Links
-import 'bloc/artist_bloc.dart';
-import '../../common/providers/moor_database.dart';
 import '../../common/models/image_adapter.dart';
+import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
+import '../../common/repository/song_repository.dart';
+import '../../common/song_list/sliver_song_list.dart';
 import '../../common/static_assets.dart';
+import '../../common/widgets/error_widgets.dart';
+import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/sliver_album_grid.dart';
-import '../../common/song_list/sliver_song_list.dart';
-import '../../common/widgets/flexible_image_with_title.dart';
-import '../../common/repository/song_repository.dart';
-import '../../common/widgets/error_widgets.dart';
+import 'bloc/artist_bloc.dart';
 
 class SingleArtistScreen extends StatelessWidget {
   final Artist artist;
 
-  SingleArtistScreen({this.artist});
+  const SingleArtistScreen({this.artist});
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +40,13 @@ class SingleArtistScreen extends StatelessWidget {
                 physics: WidgetProperties.scrollPhysics,
                 slivers: [
                   _AppBar(artist: artist),
-                  SliverToBoxAdapter(child: SizedBox(height: 8)),
-                  if (state.songs != null) _SliverTitle(title: 'Top Songs'),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  if (state.songs != null)
+                    const _SliverTitle(title: 'Top Songs'),
                   if (state.songs != null) SliverSongList(songs: state.songs),
-                  SliverToBoxAdapter(child: SizedBox(height: 8)),
-                  _SliverTitle(title: 'Albums'),
-                  SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  const _SliverTitle(title: 'Albums'),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   SliverAlbumGrid(
                     albumList: state.albums,
                     onTap: (album) => Navigator.pushReplacementNamed(
@@ -56,8 +56,8 @@ class SingleArtistScreen extends StatelessWidget {
                     ),
                   ),
                   if (state.similarArtists != null)
-                    _SliverTitle(title: 'Similar'),
-                  SliverToBoxAdapter(child: SizedBox(height: 8)),
+                    const _SliverTitle(title: 'Similar'),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   if (state.similarArtists != null)
                     _SimilarArtists(artists: state.similarArtists),
                 ],
@@ -151,7 +151,7 @@ class _OtherStates extends StatelessWidget {
     if (state is SingleArtistFailure) {
       return ErrorScreen(response: state.response);
     }
-    if (state is SingleArtistInitial) return CircularProgressIndicator();
+    if (state is SingleArtistInitial) return const CircularProgressIndicator();
     return Text('Failed to read state: $state');
   }
 
@@ -170,10 +170,10 @@ class _CloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RawMaterialButton(
-      constraints: BoxConstraints.tightFor(width: 60, height: 60),
+      constraints: const BoxConstraints.tightFor(width: 60, height: 60),
       onPressed: () => Navigator.pop(context),
-      shape: CircleBorder(),
-      child: Icon(Icons.close),
+      shape: const CircleBorder(),
+      child: const Icon(Icons.close),
     );
   }
 }

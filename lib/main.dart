@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'features/library_foundation/foundation.dart';
+import 'features/loading_splash/splash_screen.dart';
 import 'features/player/player_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/settings/settings_foundation.dart';
-import 'features/loading_splash/splash_screen.dart';
-import 'package:flutter/material.dart';
 
 void main() => runApp(_Foundation(libraryNavigator: GlobalKey()));
 
@@ -26,15 +27,15 @@ class _Foundation extends StatelessWidget {
         cardColor: const Color(0xFF32407b),
         bottomAppBarColor: const Color(0xFF13175B),
         dialogBackgroundColor: const Color(0xFF32407b),
-        textTheme: TextTheme().copyWith(
-          headline4: TextStyle().copyWith(
+        textTheme: const TextTheme().copyWith(
+          headline4: const TextStyle().copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        sliderTheme: SliderThemeData().copyWith(
+        sliderTheme: const SliderThemeData().copyWith(
           tickMarkShape: SliderTickMarkShape.noTickMark,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
         ),
       ),
       routes: <String, WidgetBuilder>{

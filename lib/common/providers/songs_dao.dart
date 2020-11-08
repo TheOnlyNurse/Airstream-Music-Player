@@ -1,9 +1,8 @@
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
 
-/// Internal Links
-import 'moor_database.dart';
 import '../providers/moor_database.dart';
+import 'moor_database.dart';
 
 part 'songs_dao.g.dart';
 
@@ -69,14 +68,13 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
   /// Returns songs that are marked as isStarred: true.
   Future<List<Song>> starred() {
-    var query = select(songs)..where((tbl) => tbl.isStarred.equals(true));
-    return query.get();
+    return (select(songs)..where((tbl) => tbl.isStarred.equals(true))).get();
   }
 
   /// Returns top songs of a given artist name.
   Future<List<Song>> topSongs(String artistName) {
-    var keys = List.generate(5, (index) => '$index.$artistName');
-    var query = select(songs)..where((tbl) => tbl.topSongKey.isIn(keys));
+    final keys = List.generate(5, (index) => '$index.$artistName');
+    final query = select(songs)..where((tbl) => tbl.topSongKey.isIn(keys));
     query.orderBy([(t) => OrderingTerm(expression: t.topSongKey)]);
     return query.get();
   }
@@ -85,7 +83,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
 
   Future<void> insertElements(List<XmlElement> elements) {
     return batch((batch) {
-      var companions = elements.map(_elementToCompanion).toList();
+      final companions = elements.map(_elementToCompanion).toList();
       batch.insertAll(songs, companions, mode: InsertMode.insertOrIgnore);
     });
   }
@@ -95,19 +93,19 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
     return batch((batch) {
       batch.update(
         songs,
-        SongsCompanion(isStarred: const Value(false)),
-        where: (t) => t.isStarred.equals(true),
+        const SongsCompanion(isStarred: Value(false)),
+        where: ($SongsTable tbl) => tbl.isStarred.equals(true),
       );
     });
   }
 
   /// Updates songs (by a given id list) to have given a isStarred value.
-  Future<void> updateStarred(List<int> idList, {isStarred = true}) {
+  Future<void> updateStarred(List<int> idList, {bool isStarred = true}) {
     return batch((batch) {
       batch.update(
         songs,
         SongsCompanion(isStarred: Value(isStarred)),
-        where: (t) => t.id.isIn(idList),
+        where: ($SongsTable tbl) => tbl.id.isIn(idList),
       );
     });
   }
@@ -121,7 +119,7 @@ class SongsDao extends DatabaseAccessor<MoorDatabase> with _$SongsDaoMixin {
         batch.update(
           songs,
           SongsCompanion(topSongKey: Value(key)),
-          where: (t) => t.id.equals(id),
+          where: ($SongsTable tbl) => tbl.id.equals(id),
         );
       }
     });

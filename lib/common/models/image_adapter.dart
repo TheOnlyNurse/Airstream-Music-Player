@@ -31,7 +31,7 @@ class ImageAdapter {
       if (id == null) {
         // A future must be returned for a future builder, else connection state
         // is rendered as "none".
-        return Future.delayed(Duration(milliseconds: 100), null);
+        return Future.delayed(const Duration(milliseconds: 100));
       }
       return _isHiDef ? repository.highDefinition(id) : repository.preview(id);
     }

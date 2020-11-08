@@ -1,22 +1,23 @@
+import 'package:airstream/common/static_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal
-import 'bloc/starred_bloc.dart';
-import '../../common/widgets/error_widgets.dart';
-import '../../common/providers/moor_database.dart';
 import '../../common/models/song_list_delegate.dart';
+import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
+import '../../common/song_list/song_list.dart';
+import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/refresh_button.dart';
 import '../../common/widgets/sliver_album_grid.dart';
-import '../../common/song_list/song_list.dart';
+import 'bloc/starred_bloc.dart';
 
 class StarredScreen extends StatelessWidget {
   const StarredScreen({Key key}) : super(key: key);
 
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => StarredBloc(
@@ -48,7 +49,7 @@ class _OnAlbumsOnly extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
         SliverToBoxAdapter(child: _Heading()),
         SliverAlbumGrid(albumList: albums),
@@ -94,15 +95,22 @@ class _MoreAlbumsButton extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: RawMaterialButton(
+        onPressed: () {
+          Navigator.pushNamed(
+            context,
+            'library/albumList',
+            arguments: () => albumRepository.starred(),
+          );
+        },
         child: SizedBox(
           width: 90,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: const <Widget>[
               SizedBox(width: 12),
               Text('Albums'),
               Padding(
-                padding: const EdgeInsets.only(top: 1),
+                padding: EdgeInsets.only(top: 1),
                 child: Icon(
                   Icons.arrow_forward_ios,
                   size: 18,
@@ -111,13 +119,6 @@ class _MoreAlbumsButton extends StatelessWidget {
             ],
           ),
         ),
-        onPressed: () {
-          Navigator.pushNamed(
-            context,
-            'library/albumList',
-            arguments: () => albumRepository.starred(),
-          );
-        },
       ),
     );
   }
@@ -156,7 +157,7 @@ class _OtherStarredStates extends StatelessWidget {
         super(key: key);
 
   Widget _stateBasedWidget(StarredState state) {
-    if (state is StarredInitial) return CircularProgressIndicator();
+    if (state is StarredInitial) return const  CircularProgressIndicator();
     if (state is StarredFailure) return ErrorText(error: state.message);
     return Text('Failed to read state: $state');
   }

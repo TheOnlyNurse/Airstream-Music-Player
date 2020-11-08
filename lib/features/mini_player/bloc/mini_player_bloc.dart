@@ -5,12 +5,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
 
 part 'mini_player_event.dart';
-
 part 'mini_player_state.dart';
 
 class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
@@ -25,13 +23,13 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
     _audioEvents = _repository.audio.playerState.listen((state) {
       switch (state) {
         case AudioPlayerState.playing:
-          this.add(MiniPlayerPlaying());
+          add(MiniPlayerPlaying());
           break;
         case AudioPlayerState.paused:
-          this.add(MiniPlayerPaused());
+          add(MiniPlayerPaused());
           break;
         case AudioPlayerState.stopped:
-          this.add(MiniPlayerStopped());
+          add(MiniPlayerStopped());
           break;
       }
     });
@@ -71,10 +69,10 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
       yield MiniPlayerHidden();
     }
     if (event is MiniPlayerPlaying) {
-      yield MiniPlayerShown(true);
+      yield const MiniPlayerShown(isPlaying: true);
     }
     if (event is MiniPlayerPaused) {
-      yield MiniPlayerShown(false);
+      yield const MiniPlayerShown(isPlaying: false);
     }
   }
 

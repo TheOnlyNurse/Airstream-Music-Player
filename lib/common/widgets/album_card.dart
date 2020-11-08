@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// Internal Links
-import 'airstream_image.dart';
-import '../providers/moor_database.dart';
 import '../models/image_adapter.dart';
+import '../providers/moor_database.dart';
+import 'airstream_image.dart';
 
 class AlbumCard extends StatelessWidget {
   final Album album;
   final void Function(Album) onTap;
 
-  AlbumCard({@required this.album, this.onTap});
+  const AlbumCard({@required this.album, this.onTap});
 
   void _defaultOnTap(BuildContext context) {
     Navigator.pushNamed(
@@ -28,7 +27,6 @@ class AlbumCard extends StatelessWidget {
         decoration: BoxDecoration(color: Theme.of(context).cardColor),
         child: Stack(
           fit: StackFit.expand,
-          clipBehavior: Clip.hardEdge,
           children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -36,15 +34,14 @@ class AlbumCard extends StatelessWidget {
                 Expanded(
                   child: AirstreamImage(adapter: ImageAdapter(album: album)),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _Titles(title: album.title, isSubtitle: false),
                 _Titles(title: album.artist, isSubtitle: true),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
               ],
             ),
             Material(
               color: Colors.transparent,
-              elevation: 0.0,
               child: Ink(
                 child: InkWell(onTap: () {
                   onTap == null ? _defaultOnTap(context) : onTap(album);

@@ -11,6 +11,8 @@ class _SettingsRepository {
 
   bool get isOnline => !isOffline;
 
+  bool get autoOffline => _provider.query<bool>(SettingType.autoOffline);
+
   /// Returns the max audio cache size in bytes.
   int get maxAudioCacheSize {
     return _provider.query<int>(SettingType.musicCache) * 1024 * 1024;

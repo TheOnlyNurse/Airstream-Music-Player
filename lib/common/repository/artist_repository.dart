@@ -1,11 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
-/// Internal
+import '../models/repository_response.dart';
 import '../providers/artists_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/server_provider.dart';
-import '../models/repository_response.dart';
 import '../static_assets.dart';
 
 class ArtistRepository {
@@ -23,7 +22,7 @@ class ArtistRepository {
   Future<ListResponse<Artist>> search(String name) async {
     final artists = await _database.search(name);
     if (artists.isEmpty) {
-      return ListResponse<Artist>(error: 'Nothing found.');
+      return const ListResponse<Artist>(error: 'Nothing found.');
     } else {
       return ListResponse<Artist>(data: artists);
     }
@@ -42,7 +41,7 @@ class ArtistRepository {
   Future<SingleResponse<Artist>> byId(int id) async {
     final artist = await _database.byId(id);
     if (artist == null) {
-      return SingleResponse<Artist>(
+      return const SingleResponse<Artist>(
         error: 'Failed to find artist.',
         solutions: [ErrorSolutions.database],
       );
@@ -80,7 +79,7 @@ class ArtistRepository {
 
   ListResponse<Artist> _removeEmptyLists(List<Artist> artists) {
     if (artists.isEmpty) {
-      return ListResponse<Artist>(
+      return const ListResponse<Artist>(
         error: 'No artists found within database.',
         solutions: [ErrorSolutions.database, ErrorSolutions.network],
       );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Internal Links
 import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/repository/repository.dart';
 import '../../../common/widgets/song_tile.dart';
@@ -19,7 +18,7 @@ class _PlayerQueueState extends State<PlayerQueue> {
       tiles.add(
         SongTile(
           key: ValueKey(songs[i].id),
-          leading: Icon(Icons.reorder),
+          leading: const Icon(Icons.reorder),
           song: songs[i],
           onTap: () => Repository().audio.playIndex(i),
         ),
@@ -31,13 +30,13 @@ class _PlayerQueueState extends State<PlayerQueue> {
   @override
   Widget build(BuildContext context) {
     return ReorderableListView(
-      children: _songTiles(),
       onReorder: (oldIndex, newIndex) async {
         Repository().audio.reorder(oldIndex, newIndex);
         setState(() {
           songs = Repository().audio.queue;
         });
       },
+      children: _songTiles(),
     );
   }
 }

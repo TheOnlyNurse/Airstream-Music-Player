@@ -7,11 +7,12 @@ Future<MoorIsolate> createMoorDatabase(String dbPath) async {
     _startDatabase,
     _IsolateRequest(receivePort.sendPort, path),
   );
-  return (await receivePort.first as MoorIsolate);
+  return await receivePort.first as MoorIsolate;
 }
 
 void _startDatabase(_IsolateRequest request) {
-  final executor = VmDatabase(File(request.path), logStatements: false);
+  // Add "logStatements: true" to add logging support.
+  final executor = VmDatabase(File(request.path));
   final moorIsolate = MoorIsolate.inCurrent(
     () => DatabaseConnection.fromExecutor(executor),
   );

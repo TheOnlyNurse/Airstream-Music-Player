@@ -31,7 +31,7 @@ class SingleArtistSuccess extends SingleArtistState {
     File image,
   }) =>
       SingleArtistSuccess(
-        this.artist,
+        artist,
         songs: songs ?? this.songs,
         albums: albums ?? this.albums,
         similarArtists: similarArtists ?? this.similarArtists,

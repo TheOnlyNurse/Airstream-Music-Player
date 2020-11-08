@@ -35,16 +35,16 @@ class ErrorScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RawMaterialButton(
-          constraints: BoxConstraints.tightFor(width: 60, height: 60),
-          child: Icon(Icons.clear),
+          constraints: const BoxConstraints.tightFor(width: 60, height: 60),
           onPressed: () => Navigator.pop(context),
+          child: const Icon(Icons.clear),
         ),
-        Spacer(),
+        const Spacer(),
         ErrorText(error: response.error),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         for (var solution in response.solutions)
           _SolutionText(solution: solution),
-        Spacer(),
+        const Spacer(),
       ],
     );
   }
@@ -63,10 +63,9 @@ class _SolutionText extends StatelessWidget {
         height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.lightbulb),
-            SizedBox(width: 15),
+            const Icon(Icons.lightbulb),
+            const SizedBox(width: 15),
             SizedBox(
               width: MediaQuery.of(context).size.width - 100,
               child: Text(

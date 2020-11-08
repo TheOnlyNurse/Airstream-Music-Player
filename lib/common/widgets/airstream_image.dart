@@ -43,7 +43,7 @@ class AirstreamImage extends StatelessWidget {
           }
         }
 
-        return SizedBox.expand(
+        return const SizedBox.expand(
           child: Center(child: CircularProgressIndicator()),
         );
       },

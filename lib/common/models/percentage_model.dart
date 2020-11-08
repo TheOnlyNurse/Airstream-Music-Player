@@ -22,8 +22,8 @@ class PercentageModel extends Equatable {
   PercentageModel update({bool hasData, int increment, int total}) =>
       PercentageModel(
         hasData: hasData ?? this.hasData,
-        songId: this.songId,
-        current: increment != null ? this.current + increment : this.current,
+        songId: songId,
+        current: increment != null ? current + increment : current,
         total: total ?? this.total,
       );
 }

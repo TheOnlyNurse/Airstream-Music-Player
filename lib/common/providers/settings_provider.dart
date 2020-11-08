@@ -18,15 +18,15 @@ class SettingsProvider {
 
   /// Query a setting in box or return default
   T query<T>(SettingType type) {
-    final response = _hiveBox.get(type.index);
-    return response == null ? _defaults[type] : response;
+    final response = _hiveBox.get(type.index) as T;
+    return response ?? _defaults[type] as T;
   }
 
   /// Validate a given value before setting it as the new value
-  void change<T>(SettingType type, T newValue) async {
+  void change<T>(SettingType type, T newValue) {
     assert(newValue.runtimeType == query(type).runtimeType);
     if (_range.containsKey(type)) {
-      final int number = newValue as int;
+      final number = newValue as int;
       assert(number > _range[type][0] - 1);
       assert(number < _range[type][1] + 1);
     }
@@ -37,8 +37,8 @@ class SettingsProvider {
 
   List<int> range(SettingType type) => _range[type];
 
-  /// Defaults
-  final _range = <SettingType, dynamic>{
+  /// Permitted range for defaults.
+  final _range = <SettingType, List<int>>{
     SettingType.prefetch: [0, 3],
     SettingType.imageCache: [20, 200],
     SettingType.musicCache: [100, 3000],
@@ -46,6 +46,7 @@ class SettingsProvider {
     SettingType.wifiBitrate: [32, 320],
   };
 
+  /// Default values for setting options.
   final _defaults = <SettingType, dynamic>{
     SettingType.isOffline: false,
     SettingType.prefetch: 1,
@@ -53,18 +54,18 @@ class SettingsProvider {
     SettingType.musicCache: 1000,
     SettingType.mobileBitrate: 256,
     SettingType.wifiBitrate: 320,
-    SettingType.mobileOffline: false,
+    SettingType.autoOffline: false,
   };
 
   /// Change to offline mode when in aeroplane or similar mode
-  void _onConnectivityChange(ConnectivityResult result) async {
+  void _onConnectivityChange(ConnectivityResult result) {
     void onWifi() {
-      final mobileOffline = query<bool>(SettingType.mobileOffline);
+      final mobileOffline = query<bool>(SettingType.autoOffline);
       if (mobileOffline) change(SettingType.isOffline, false);
     }
 
     void onMobile() {
-      final mobileOffline = query<bool>(SettingType.mobileOffline);
+      final mobileOffline = query<bool>(SettingType.autoOffline);
       if (mobileOffline) change(SettingType.isOffline, true);
     }
 
@@ -87,11 +88,12 @@ class SettingsProvider {
   }
 
   /// Singleton boilerplate code
+  factory SettingsProvider() => _instance;
   static final SettingsProvider _instance = SettingsProvider._internal();
 
   SettingsProvider._internal() {
     Connectivity().onConnectivityChanged.listen(_onConnectivityChange);
   }
 
-  factory SettingsProvider() => _instance;
+
 }

@@ -36,17 +36,17 @@ class PlaylistTile extends StatelessWidget {
                   height: 100,
                   width: 100,
                   clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(4)),
                   ),
                   child: _getImage(playlist.songIds),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       playlist.name,
                       style: Theme.of(context).textTheme.headline5,
@@ -61,7 +61,6 @@ class PlaylistTile extends StatelessWidget {
               ],
             ),
             Material(
-              elevation: 0,
               color: Colors.transparent,
               child: Ink(
                 child: InkWell(

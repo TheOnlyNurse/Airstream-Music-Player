@@ -1,19 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
+import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/album_repository.dart';
+import '../../../common/repository/communication.dart';
 import '../../../common/repository/image_repository.dart';
-import '../../../common/providers/moor_database.dart';
 
-part 'player_state.dart';
 part 'player_events.dart';
+part 'player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   final _repository = Repository();
@@ -27,12 +25,12 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
       : super(PlayerInitial(Repository().audio.current)) {
     _newSong = _repository.audio.songState.listen((state) {
       if (state == AudioPlayerSongState.newSong) {
-        this.add(PlayerFetch());
+        add(PlayerFetch());
       }
     });
     _audioStopped = _repository.audio.playerState.listen((state) {
       if (state == AudioPlayerState.stopped) {
-        this.add(PlayerStopped());
+        add(PlayerStopped());
       }
     });
   }
@@ -46,7 +44,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
       final response = await albumRepository.byId(song.albumId);
       if (response.hasData) {
         yield PlayerSuccess(song: song, album: response.data);
-        this.add(PlayerFetchArt(song.art));
+        add(PlayerFetchArt(song.art));
       }
     }
 

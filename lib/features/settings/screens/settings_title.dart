@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../common/static_assets.dart';
+
 class SettingsTitle extends StatefulWidget {
   final int current;
   final Function(int) onTap;
@@ -33,7 +35,7 @@ class _SettingsTitleState extends State<SettingsTitle> {
     if (shownIndex != widget.current) {
       controller.animateTo(
         widget.current.toDouble() * 38,
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.ease,
       );
       shownIndex = widget.current;
@@ -44,12 +46,12 @@ class _SettingsTitleState extends State<SettingsTitle> {
       child: ListView.builder(
         controller: controller,
         scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
+        physics: WidgetProperties.scrollPhysics,
         itemBuilder: (context, index) {
           return Center(
             child: AnimatedDefaultTextStyle(
               style: index == widget.current ? selected : disabled,
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               curve: Curves.ease,
               child: GestureDetector(
                 onTap: widget.onTap != null ? () => widget.onTap(index) : null,

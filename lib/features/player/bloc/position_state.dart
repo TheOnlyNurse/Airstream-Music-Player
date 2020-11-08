@@ -23,11 +23,11 @@ class PositionSuccess extends PositionState {
 
   double get currentPosition => _current.inSeconds.roundToDouble();
 
-  _formatDuration(Duration d) => d.toString().substring(2, 7);
+  String _formatDuration(Duration d) => d.toString().substring(2, 7);
 
   PositionSuccess copyWith({Duration current}) => PositionSuccess(
-        current ?? this._current,
-        this._max,
+        current ?? _current,
+        _max,
       );
 
   @override

@@ -27,7 +27,7 @@ class PlayerSuccess extends PlayerState {
 
   PlayerSuccess copyWith({Album album, File image, bool isFinished}) =>
       PlayerSuccess(
-        song: this.song,
+        song: song,
         album: album ?? this.album,
         image: image ?? this.image,
         isFinished: isFinished ?? false,

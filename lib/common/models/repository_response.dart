@@ -4,7 +4,7 @@ abstract class RepositoryResponse<T> {
   final T data;
 
   const RepositoryResponse({this.data, this.error, this.solutions})
-      : assert(error == null ? data != null : true);
+      : assert(!(error == null && data == null));
 
   bool get hasData => data != null;
 

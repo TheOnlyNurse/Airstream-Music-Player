@@ -1,20 +1,19 @@
-import 'dart:math' as math;
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
+import 'package:path/path.dart' as path;
 import 'package:xml/xml.dart';
-import 'package:path/path.dart' as Path;
 
-/// Internal
 import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
-import '../providers/moor_database.dart';
-import '../providers/songs_dao.dart';
 import '../providers/audio_files_dao.dart';
+import '../providers/moor_database.dart';
 import '../providers/repository/repository.dart';
 import '../providers/server_provider.dart';
+import '../providers/songs_dao.dart';
 import '../static_assets.dart';
 
 class SongRepository {
@@ -52,9 +51,9 @@ class SongRepository {
   /// 'song' then use [elementName] to assign the correct one.
   Future<List<Song>> _download(String urlQuery,
       {String elementName = 'song'}) async {
-    var response = await ServerProvider().fetchXml(urlQuery);
+    final response = await ServerProvider().fetchXml(urlQuery);
     if (response.hasData) {
-      var elements = response.data.findAllElements(elementName).toList();
+      final elements = response.data.findAllElements(elementName).toList();
       await _database.insertElements(elements);
       return _database.idList(elements.map((e) {
         return int.parse(e.getAttribute('id'));
@@ -68,7 +67,7 @@ class SongRepository {
 extension SimpleQueries on SongRepository {
   /// Returns a song by id.
   Future<SingleResponse<Song>> byId(int id) async {
-    var song = await _database.id(id);
+    final song = await _database.id(id);
     return song != null ? SingleResponse<Song>(data: song) : null;
   }
 
@@ -77,10 +76,10 @@ extension SimpleQueries on SongRepository {
   /// Fetches from the server if the number of songs retrieved doesn't match
   /// the songs expected in the album.
   Future<ListResponse<Song>> byAlbum(Album album) async {
-    var songs = await _database.album(album.id);
+    final songs = await _database.album(album.id);
 
     if (songs.length != album.songCount) {
-      var downloaded = await _download('getAlbum?id=${album.id}');
+      final downloaded = await _download('getAlbum?id=${album.id}');
       downloaded?.sort((a, b) => a.title.compareTo(b.title));
       return _removeEmptyLists(downloaded);
     } else {
@@ -90,9 +89,9 @@ extension SimpleQueries on SongRepository {
 
   /// Convert playlist song id list to song details from database.
   Future<ListResponse<Song>> byPlaylist(Playlist playlist) async {
-    var songs = await _database.idList(playlist.songIds);
+    final songs = await _database.idList(playlist.songIds);
     if (songs.length != playlist.songIds.length) {
-      var downloaded = await _download(
+      final downloaded = await _download(
         'getPlaylist?id=${playlist.id}',
         elementName: 'entry',
       );
@@ -104,9 +103,9 @@ extension SimpleQueries on SongRepository {
 
   /// Returns songs marked as starred, fetching from server if an empty list is received.
   Future<ListResponse<Song>> starred({bool forceSync = false}) async {
-    var songs = await _database.starred();
+    final songs = await _database.starred();
     if (songs.isEmpty || forceSync) {
-      var downloaded = await _download('getStarred2?');
+      final downloaded = await _download('getStarred2?');
       if (downloaded.isNotEmpty) {
         await _database.clearStarred();
         await _database.updateStarred(downloaded.map((e) => e.id).toList());
@@ -138,7 +137,7 @@ extension ComplexQueries on SongRepository {
 
       List<Song> merged;
       if (albumSongs.hasData) {
-        merged = [...downloaded, ...albumSongs.data].toSet().toList();
+        merged = <Song>{...downloaded, ...albumSongs.data}.toList();
         merged = merged.sublist(0, math.min(merged.length, 5));
       } else {
         merged = downloaded;
@@ -160,13 +159,13 @@ extension ComplexQueries on SongRepository {
 
   /// Searches both titles and artist names assigned to songs by a query string.
   Future<ListResponse<Song>> search(String query) async {
-    var byTitle = await _database.title(query);
-    var byName = await _database.artistName(query);
+    final byTitle = await _database.title(query);
+    final byName = await _database.artistName(query);
     // Converting to set to remove duplicates
-    var songs = [...byTitle, ...byName].toSet().toList();
+    final songs = <Song>{...byTitle, ...byName}.toList();
 
     if (songs.length < 5) {
-      var downloaded = await _download(
+      final downloaded = await _download(
         'search3?query=$query&'
         'artistCount=0&'
         'albumCount=0&'
@@ -197,17 +196,20 @@ extension AudioFileManagement on SongRepository {
   /// Moves a given file into the cache folder and inserts it's existence into the database.
   Future<void> cacheFile({Song song, File file}) async {
     // Create a filename from song information.
-    final path = Path.join(_cacheFolder, '${song.id}.${song.title.hashCode}');
+    final filePath = path.join(
+      _cacheFolder,
+      '${song.id}.${song.title.hashCode}',
+    );
     await _fileDatabase.insertCompanion(AudioFilesCompanion.insert(
       songId: Value(song.id),
-      path: path,
+      path: filePath,
       size: (await file.stat()).size,
       created: DateTime.now(),
     ));
     // After inserting the file record, ensure that the cache is still size compliant.
     _cacheSizeCheck();
-    await File(path).create(recursive: true);
-    return file.copy(path);
+    await File(filePath).create(recursive: true);
+    return file.copy(filePath);
   }
 
   /// Deletes the cache folder and clears the file database.
@@ -218,16 +220,16 @@ extension AudioFileManagement on SongRepository {
     ]);
   }
 
-  void _cacheSizeCheck() async {
+  Future<void> _cacheSizeCheck() async {
     await _cacheCheckLocker.protect(() async {
       final maxSize = Repository().settings.maxAudioCacheSize;
       var currentSize = await _fileDatabase.cacheSize();
 
       if (currentSize > maxSize) {
-        var futures = <Future>[];
+        final futures = <Future>[];
         var offset = 0;
 
-        while (currentSize > maxSize) {
+        do {
           final fileEntry = await _fileDatabase.oldestFile(offset);
           currentSize -= fileEntry.size;
           futures.addAll([
@@ -235,7 +237,8 @@ extension AudioFileManagement on SongRepository {
             File(fileEntry.path).delete(),
           ]);
           offset++;
-        }
+        // ignore: invariant_booleans
+        } while (currentSize > maxSize);
 
         await Future.wait(futures);
       }

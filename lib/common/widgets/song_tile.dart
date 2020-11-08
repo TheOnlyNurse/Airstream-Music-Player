@@ -5,8 +5,8 @@ import '../providers/moor_database.dart';
 
 class SongTile extends StatelessWidget {
   final Song song;
-  final Function onTap;
-  final Function onLongPress;
+  final void Function() onTap;
+  final void Function() onLongPress;
   final int percentage;
   final bool isPlaying;
   final double height;
@@ -38,10 +38,7 @@ class SongTile extends StatelessWidget {
           ),
           Material(
             color: Colors.transparent,
-            elevation: 0.0,
-            child: Ink(
-              child: InkWell(onTap: onTap),
-            ),
+            child: Ink(child: InkWell(onTap: onTap)),
           ),
         ],
       ),
@@ -51,8 +48,8 @@ class SongTile extends StatelessWidget {
 
 class _SongListTile extends StatelessWidget {
   final Song song;
-  final Function onTap;
-  final Function onLongPress;
+  final void Function() onTap;
+  final void Function() onLongPress;
 
   const _SongListTile({
     Key key,
@@ -122,7 +119,7 @@ class _TileStatus extends StatelessWidget {
       width: 5,
       child: Column(
         children: [
-          Spacer(),
+          const Spacer(),
           Container(
             height: _height(),
             color: _colour(context),

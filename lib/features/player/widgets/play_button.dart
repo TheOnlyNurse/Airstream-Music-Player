@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Internal
-import '../../../common/repository/communication.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
 
 class PlayButton extends StatelessWidget {
   final _repository = Repository();
@@ -18,9 +17,8 @@ class PlayButton extends StatelessWidget {
         return RawMaterialButton(
           elevation: 4.0,
           fillColor: Theme.of(context).accentColor,
-          constraints: BoxConstraints.tightFor(width: 80.0, height: 80.0),
-          shape: CircleBorder(),
-          child: Icon(isPlaying ? Icons.pause : Icons.play_arrow, size: 60.0),
+          constraints: const BoxConstraints.tightFor(width: 80.0, height: 80.0),
+          shape: const CircleBorder(),
           onPressed: () {
             if (isPlaying) {
               _repository.audio.pause();
@@ -28,6 +26,7 @@ class PlayButton extends StatelessWidget {
               _repository.audio.play();
             }
           },
+          child: Icon(isPlaying ? Icons.pause : Icons.play_arrow, size: 60.0),
         );
       },
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Internal
+import '../../common/static_assets.dart';
 import 'screens/account_settings.dart';
 import 'screens/network_settings.dart';
 import 'screens/playback_settings.dart';
@@ -28,8 +28,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: RawMaterialButton(
-          child: Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
+          child: const Icon(Icons.close),
         ),
         title: SettingsTitle(
           current: currentPage,
@@ -43,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SafeArea(
         child: PageView(
-          physics: BouncingScrollPhysics(),
+          physics: WidgetProperties.scrollPhysics,
           controller: controller,
           onPageChanged: (index) {
             setState(() {

@@ -5,16 +5,14 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-/// Internal links
-import '../../../common/repository/artist_repository.dart';
-import '../../../common/repository/album_repository.dart';
-import '../../../common/repository/song_repository.dart';
-import '../../../common/providers/moor_database.dart';
 import '../../../common/models/repository_response.dart';
-
-part 'artist_state.dart';
+import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/repository/artist_repository.dart';
+import '../../../common/repository/song_repository.dart';
 
 part 'artist_event.dart';
+part 'artist_state.dart';
 
 class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
   SingleArtistBloc({
@@ -35,7 +33,7 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
       final response = await albumRepository.fromArtist(event.artist);
       if (response.hasData) {
         yield SingleArtistSuccess(event.artist, albums: response.data);
-        this.add(SingleArtistInfo());
+        add(SingleArtistInfo());
       } else {
         yield SingleArtistFailure(response);
       }

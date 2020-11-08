@@ -4,14 +4,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-/// Internal links
-import '../../../common/repository/artist_repository.dart';
-import '../../../common/repository/album_repository.dart';
 import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'search_event.dart';
-
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
@@ -38,8 +36,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
 
       queryList.add(event.query);
-      _timer = Timer(Duration(milliseconds: 600), () {
-        this.add(SearchFetch());
+      _timer = Timer(const Duration(milliseconds: 600), () {
+        add(SearchFetch());
       });
     }
 

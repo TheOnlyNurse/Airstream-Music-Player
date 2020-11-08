@@ -19,7 +19,7 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   final AlbumRepository albumRepository;
   final SongRepository songRepository;
 
-  void fetchSongs(Album album) async {
+  Future<void> fetchSongs(Album album) async {
     final response = await songRepository.byAlbum(album);
     if (response.hasData) {
       emit(SingleAlbumSuccess(album: album, songs: response.data));
@@ -28,14 +28,14 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
     }
   }
 
-  void change(bool isStarred) async {
-    var currentState = state;
+  void change({bool isStarred}) {
+    final currentState = state;
     if (currentState is SingleAlbumSuccess) {
-      albumRepository.updateStarred(currentState.album, isStarred);
+      albumRepository.updateStarred(currentState.album, starred: isStarred);
     }
   }
 
-  void popupSelected(int index) async {
+  void popupSelected(int index) {
     switch (index) {
       case 1:
         _refreshAlbum(this);

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-
-/// Internal
-import '../providers/moor_database.dart';
 import '../models/image_adapter.dart';
+import '../providers/moor_database.dart';
 import 'airstream_image.dart';
 
 class ArtistCircle extends StatelessWidget {
   final Artist artist;
-  final Function onTap;
+  final void Function(Artist) onTap;
 
   const ArtistCircle({Key key, this.artist, this.onTap}) : super(key: key);
 
@@ -31,7 +29,7 @@ class ArtistCircle extends StatelessWidget {
                 onTap != null ? onTap(artist) : _defaultOnTap(context);
               }),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
@@ -51,14 +49,14 @@ class ArtistCircle extends StatelessWidget {
 
 class _ImageWithInk extends StatelessWidget {
   final Widget image;
-  final Function onTap;
+  final void Function() onTap;
 
   const _ImageWithInk({Key key, this.image, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(shape: BoxShape.circle),
+      decoration: const BoxDecoration(shape: BoxShape.circle),
       clipBehavior: Clip.hardEdge,
       child: Stack(
         fit: StackFit.expand,
@@ -66,7 +64,6 @@ class _ImageWithInk extends StatelessWidget {
           image,
           Material(
             color: Colors.transparent,
-            elevation: 0.0,
             child: Ink(child: InkWell(onTap: onTap)),
           ),
         ],

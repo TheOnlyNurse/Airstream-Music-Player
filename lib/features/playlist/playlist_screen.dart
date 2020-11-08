@@ -19,8 +19,8 @@ class SinglePlaylistScreen extends StatelessWidget {
         sliverAppBar: SliverAppBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           leading: RawMaterialButton(
-            child: Icon(Icons.close),
             onPressed: () => Navigator.of(context).pop(),
+            child: const Icon(Icons.close),
           ),
         ),
         sliverTitle: SliverToBoxAdapter(

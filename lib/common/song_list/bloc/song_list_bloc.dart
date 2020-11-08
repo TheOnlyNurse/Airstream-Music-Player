@@ -1,18 +1,16 @@
 import 'dart:async';
 
-
-import 'package:flutter/widgets.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../models/playlist_model.dart';
 import '../../models/repository_response.dart';
 import '../../models/song_list_delegate.dart';
-import '../../repository/song_repository.dart';
 import '../../providers/moor_database.dart';
 import '../../repository/playlist_repository.dart';
+import '../../repository/song_repository.dart';
 
 part 'song_list_event.dart';
-
 part 'song_list_state.dart';
 
 class SongListBloc extends Bloc<SongListEvent, SongListState> {
@@ -76,12 +74,12 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
       if (event is SongListPlaylistSelection) {
         final addedSongs = <Song>[];
 
-        for (int index in currentState.selected) {
+        for (final index in currentState.selected) {
           addedSongs.add(currentState.songList[index]);
         }
 
         playlistRepository.addSongs(event.playlist, addedSongs);
-        this.add(SongListClearSelection());
+        add(SongListClearSelection());
       }
 
       if (event is SongListRemoveSelection) {
@@ -89,7 +87,7 @@ class SongListBloc extends Bloc<SongListEvent, SongListState> {
         final removeMap = <int, Song>{};
         currentState.selected.sort((a, b) => b.compareTo(a));
 
-        for (int index in currentState.selected) {
+        for (final index in currentState.selected) {
           removeMap[index] = currentState.songList[index];
           songList.remove(removeMap[index]);
         }

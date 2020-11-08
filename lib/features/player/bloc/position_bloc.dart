@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
 
 part 'position_event.dart';
 part 'position_state.dart';
@@ -18,16 +17,16 @@ class PositionBloc extends Bloc<PositionEvent, PositionState> {
 
   PositionBloc() : super(PositionInitial()) {
     onPosition = _repository.audio.audioPosition.listen((duration) {
-      this.add(PositionNew(duration));
+      add(PositionNew(duration));
     });
     onDownloading = _repository.download.percentageStream.listen((event) {
       if (event.songId == _repository.audio.current.id) {
-        this.add(PositionDownload(event.percentage));
+        add(PositionDownload(event.percentage));
       }
     });
     onNewSong = _repository.audio.songState.listen((event) {
       if (event == AudioPlayerSongState.newSong) {
-        this.add(PositionRefresh());
+        add(PositionRefresh());
       }
     });
   }

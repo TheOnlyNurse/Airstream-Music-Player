@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Internal
 import '../providers/moor_database.dart';
+import '../static_assets.dart';
 import 'album_card.dart';
 
 class HorizontalAlbumGrid extends StatelessWidget {
@@ -17,7 +17,7 @@ class HorizontalAlbumGrid extends StatelessWidget {
       height: 180,
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
+        physics: WidgetProperties.scrollPhysics,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 1,

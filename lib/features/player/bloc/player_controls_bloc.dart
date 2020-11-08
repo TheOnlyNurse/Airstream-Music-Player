@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
 
 enum PlayerControlsEvent {
   firstTrack,
@@ -42,10 +41,10 @@ class PlayerControlsBloc
   void _showRewindIsPossible() {
     switch (_originalLayout) {
       case PlayerControlsEvent.firstTrack:
-        this.add(PlayerControlsEvent.middleOfPlaylist);
+        add(PlayerControlsEvent.middleOfPlaylist);
         break;
       case PlayerControlsEvent.noNavigation:
-        this.add(PlayerControlsEvent.lastTrack);
+        add(PlayerControlsEvent.lastTrack);
         break;
       default:
         break;
@@ -55,24 +54,24 @@ class PlayerControlsBloc
   PlayerControlsBloc() : super(PlayerControlsState.noControls) {
     // Load initial layout (primer)
     _originalLayout = _getControlEvent();
-    this.add(_originalLayout);
+    add(_originalLayout);
 
     _newTracks = _repository.audio.songState.listen((state) {
       if (state == AudioPlayerSongState.newSong) {
         // Get new control structure
         _originalLayout = _getControlEvent();
-        this.add(_originalLayout);
+        add(_originalLayout);
         isRewindPossible = false;
       }
     });
     _rewindPossible = _repository.audio.audioPosition.listen((position) {
-      if (position > Duration(seconds: 5) && isRewindPossible == false) {
+      if (position > const Duration(seconds: 5) && isRewindPossible == false) {
         _showRewindIsPossible();
         isRewindPossible = true;
       }
-      if (position < Duration(seconds: 5) && isRewindPossible) {
+      if (position < const Duration(seconds: 5) && isRewindPossible) {
         isRewindPossible = false;
-        this.add(_originalLayout);
+        add(_originalLayout);
       }
     });
   }

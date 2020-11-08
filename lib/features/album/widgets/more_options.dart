@@ -8,11 +8,11 @@ class _MoreOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
-      icon: Icon(Icons.more_vert),
+      icon: const Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuEntry<int>>[
         const PopupMenuItem(
-          child: Text('Reload album'),
           value: 1,
+          child: Text('Reload album'),
         ),
       ],
       onSelected: (index) => cubit.popupSelected(index),

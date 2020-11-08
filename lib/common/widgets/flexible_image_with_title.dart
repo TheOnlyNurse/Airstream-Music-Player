@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Internal Links
-import 'airstream_image.dart';
 import '../models/image_adapter.dart';
+import 'airstream_image.dart';
 
 class FlexibleImageWithTitle extends StatelessWidget {
   const FlexibleImageWithTitle({Key key, this.title, this.adapter})
@@ -22,7 +21,7 @@ class FlexibleImageWithTitle extends StatelessWidget {
         child: title,
       ),
       centerTitle: true,
-      stretchModes: [
+      stretchModes: const [
         StretchMode.zoomBackground,
         StretchMode.fadeTitle,
       ],

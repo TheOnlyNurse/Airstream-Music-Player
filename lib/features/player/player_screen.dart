@@ -3,14 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:simple_animations/simple_animations.dart';
 
-/// Internal
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/image_repository.dart';
 import 'bloc/player_bloc.dart';
 import 'widgets/player_controls.dart';
-import 'widgets/queue_dialog.dart';
 import 'widgets/position_slider.dart';
+import 'widgets/queue_dialog.dart';
 
 class PlayerScreen extends StatelessWidget {
   final GlobalKey<NavigatorState> navKey;
@@ -44,11 +43,11 @@ class PlayerScreen extends StatelessWidget {
                       _SongTitle(state: state, navKey: navKey),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   PositionSlider(),
-                  Spacer(),
+                  const Spacer(),
                   PlayerControls(),
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
             ),
@@ -63,17 +62,17 @@ class _ArtWork extends StatelessWidget {
   final List<Widget> overlay;
   final PlayerState state;
 
-  const _ArtWork({Key key, this.overlay, this.state})
+  const _ArtWork({Key key, this.overlay, @required this.state})
       : assert(state != null),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final currentState = state;
-    final animationLength = Duration(milliseconds: 300);
+    const animationLength = Duration(milliseconds: 300);
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
 
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height / 2,
       child: Stack(
         children: <Widget>[
@@ -81,7 +80,7 @@ class _ArtWork extends StatelessWidget {
             PlayAnimation(
               tween: Tween(begin: 0.0, end: 1.0),
               duration: animationLength,
-              builder: (context, child, value) {
+              builder: (context, child, double value) {
                 return AnimatedOpacity(
                   opacity: value,
                   duration: animationLength,
@@ -135,7 +134,7 @@ class _SongTitle extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Text(
               song.artist,
               style: Theme.of(context).textTheme.subtitle1,
@@ -169,7 +168,7 @@ class _SongTitle extends StatelessWidget {
       }
     }
 
-    return Text('State error');
+    return const Text('State error');
   }
 }
 
@@ -180,15 +179,14 @@ class _HeaderButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         RawMaterialButton(
-          constraints: BoxConstraints.tightFor(width: 60, height: 60),
-          shape: CircleBorder(),
-          child: Icon(Icons.close),
+          constraints: const BoxConstraints.tightFor(width: 60, height: 60),
+          shape: const CircleBorder(),
           onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+          child: const Icon(Icons.close),
         ),
         RawMaterialButton(
-          constraints: BoxConstraints.tightFor(width: 60, height: 60),
-          shape: CircleBorder(),
-          child: Icon(Icons.queue_music),
+          constraints: const BoxConstraints.tightFor(width: 60, height: 60),
+          shape: const CircleBorder(),
           onPressed: () {
             showDialog(
               context: context,
@@ -197,6 +195,7 @@ class _HeaderButtons extends StatelessWidget {
               },
             );
           },
+          child: const Icon(Icons.queue_music),
         ),
       ],
     );

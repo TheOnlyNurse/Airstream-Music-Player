@@ -1,11 +1,10 @@
-/// External Packages
+
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-/// Internal Links
+import '../repository/communication.dart';
 import 'server_provider.dart';
 import 'settings_provider.dart';
-import '../repository/communication.dart';
 
 class Scheduler {
   /// Global Variables
@@ -18,8 +17,8 @@ class Scheduler {
   /// Global functions
   ///
   /// Schedule jobs to be done
-  Future<Null> schedule(String request) async {
-    await _scheduleLocker.protect(() async {
+  Future<void> schedule(String request) async {
+    return _scheduleLocker.protect(() async {
       // If a schedule already exists, append to HiveBox
       if (await hasJobs) {
         _hiveBox.add(request);
@@ -28,7 +27,6 @@ class Scheduler {
       final notAccepted = !(await ServerProvider().upload(request));
       if (notAccepted) _hiveBox.add(request);
     });
-    return;
   }
 
   /// Private Functions
@@ -42,7 +40,7 @@ class Scheduler {
     final outstandingJobs = _hiveBox.values;
     _hiveBox.clear();
     // Add undone jobs back into box
-    for (var job in outstandingJobs) {
+    for (final job in outstandingJobs) {
       final notAccepted = !(await ServerProvider().upload(job));
       if (notAccepted) _hiveBox.add(job);
     }
@@ -58,11 +56,12 @@ class Scheduler {
   }
 
   /// Singleton boilerplate code
+  factory Scheduler() => _instance;
   static final Scheduler _instance = Scheduler._internal();
 
   Scheduler._internal() {
     _onStart();
   }
 
-  factory Scheduler() => _instance;
+
 }

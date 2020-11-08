@@ -1,11 +1,10 @@
 import 'package:moor/ffi.dart';
 import 'package:moor/moor.dart';
 
-/// Internal Links
 import 'albums_dao.dart';
 import 'artists_dao.dart';
-import 'songs_dao.dart';
 import 'audio_files_dao.dart';
+import 'songs_dao.dart';
 
 part 'moor_database.g.dart';
 
@@ -24,6 +23,7 @@ class MoorDatabase extends _$MoorDatabase {
   @override
   int get schemaVersion => 1;
 
+  @override
   MigrationStrategy get migration => MigrationStrategy(
     // Enable foreign key support to link audio files to song objects.
     beforeOpen: (details) async {

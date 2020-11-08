@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:equatable/equatable.dart';
-import 'package:get_it/get_it.dart';
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
-/// Internal links
-import '../../repository/communication.dart';
-import '../../providers/repository/repository.dart';
-import '../../repository/song_repository.dart';
 import '../../providers/moor_database.dart';
+import '../../providers/repository/repository.dart';
+import '../../repository/communication.dart';
+import '../../repository/song_repository.dart';
 
 part 'song_list_tile_event.dart';
 
@@ -23,23 +22,23 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   StreamSubscription onDownloadFinished;
   StreamSubscription onPlaying;
 
-  SongListTileBloc({@required this.tileSong}) : super(SongListTileInitial()) {
-    assert(tileSong != null);
-
+  SongListTileBloc({@required this.tileSong})
+      : assert(tileSong != null),
+        super(SongListTileInitial()) {
     onDownload = _repository.download.percentageStream.listen((event) {
       if (tileSong.id == event.songId && event.hasData) {
-        this.add(SongListTileDownload(event.percentage));
+        add(SongListTileDownload(event.percentage));
       }
     });
     onDownloadFinished = _repository.download.newPlayableSong.listen((event) {
-      if (tileSong.id == event.id) this.add(SongListTileFinished());
+      if (tileSong.id == event.id) add(SongListTileFinished());
     });
     onPlaying = _repository.audio.playerState.listen((state) {
       currentSong = _repository.audio.current;
       if (currentSong.id == tileSong.id && state == AudioPlayerState.playing) {
-        this.add(SongListTilePlaying(true));
+        add(const SongListTilePlaying(isPlaying: true));
       } else {
-        this.add(SongListTilePlaying(false));
+        add(const SongListTilePlaying(isPlaying: false));
       }
     });
   }
@@ -50,9 +49,9 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
     if (event is SongListTileFetch) {
       final response = await GetIt.I.get<SongRepository>().filePath(tileSong);
       if (response != null) {
-        yield SongListTileSuccess(cachePercent: 100);
+        yield const SongListTileSuccess(cachePercent: 100);
       } else {
-        yield SongListTileSuccess(cachePercent: 0);
+        yield const SongListTileSuccess();
       }
     }
 

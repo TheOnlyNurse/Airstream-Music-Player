@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
           }
 
           if (state is SplashScreenSuccess) {
-            return _Splash(isLoading: false);
+            return const _Splash(isLoading: false);
           }
 
           return Center(
@@ -67,8 +67,6 @@ class _Splash extends StatelessWidget {
         height: 250,
         child: FlareActor(
           "lib/common/graphics/splash-screen.flr",
-          alignment: const Alignment(0, 0),
-          fit: BoxFit.contain,
           animation: isLoading ? 'loading' : 'done',
           callback: (_) {
             if (onComplete != null) onComplete();

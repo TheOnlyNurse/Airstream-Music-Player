@@ -3,7 +3,7 @@ part of 'song_list_bloc.dart';
 abstract class SongListEvent {}
 
 class SongListFetch extends SongListEvent {
-  final delegate;
+  final SongListDelegate delegate;
 
   SongListFetch(this.delegate);
 }

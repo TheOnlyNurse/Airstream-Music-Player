@@ -8,7 +8,7 @@ abstract class NavigationBarEvent extends Equatable {
 }
 
 class NavigationBarNotch extends NavigationBarEvent {
-  const NavigationBarNotch(this.isNotched);
+  const NavigationBarNotch({this.isNotched});
 
   final bool isNotched;
 }

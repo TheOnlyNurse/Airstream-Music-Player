@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Internal
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/playlist_repository.dart';
+import '../../common/static_assets.dart';
 import '../../common/widgets/refresh_button.dart';
-import 'widgets/search_bar.dart';
 import 'widgets/collections.dart';
 import 'widgets/playlists.dart';
+import 'widgets/search_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: CustomScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: WidgetProperties.scrollPhysics,
         slivers: <Widget>[
           SliverToBoxAdapter(
             child: SearchBarLink(),
@@ -48,10 +48,10 @@ class HomeScreen extends StatelessWidget {
           )),
           _SliverTitle(
             title: 'Playlist',
-            onRefresh: () async => await playlistRepository.forceSync(),
+            onRefresh: () async => playlistRepository.forceSync(),
           ),
           Playlists(),
-          SliverToBoxAdapter(child: SizedBox(height: 30)),
+          const SliverToBoxAdapter(child: SizedBox(height: 30)),
         ],
       ),
     );
@@ -60,7 +60,7 @@ class HomeScreen extends StatelessWidget {
 
 class _SliverTitle extends StatelessWidget {
   final String title;
-  final Future<Null> Function() onRefresh;
+  final Future<void> Function() onRefresh;
 
   const _SliverTitle({Key key, this.title, this.onRefresh}) : super(key: key);
 

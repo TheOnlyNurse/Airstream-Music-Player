@@ -1,8 +1,8 @@
-
 import 'package:flutter/material.dart';
-/// Internal
+
 import '../models/repository_response.dart';
 import '../repository/album_repository.dart';
+import '../static_assets.dart';
 import '../widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';
 
@@ -19,11 +19,11 @@ class DecadeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
+        child: FutureBuilder<ListResponse<int>>(
           future: albumRepository.decades(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              final ListResponse<int> response = snapshot.data;
+              final response = snapshot.data;
 
               if (response.hasData) {
                 return _DecadesGridScreen(
@@ -39,7 +39,7 @@ class DecadeScreen extends StatelessWidget {
               return ErrorText(error: snapshot.error.toString());
             }
 
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),
@@ -62,7 +62,7 @@ class _DecadesGridScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
         SliverCloseBar(),
         SliverList(
@@ -94,7 +94,7 @@ class _DecadeCard extends StatelessWidget {
 
   final int decade;
   final int index;
-  final Function onTap;
+  final void Function() onTap;
 
   Color _iterateThroughColors() {
     final colors = Colors.primaries;
@@ -116,7 +116,7 @@ class _DecadeCard extends StatelessWidget {
           color: _iterateThroughColors(),
           child: InkWell(
             onTap: onTap,
-            child: Center(child: Text('$decade\'s', style: style)),
+            child: Center(child: Text("$decade's", style: style)),
           ),
         ),
       ),

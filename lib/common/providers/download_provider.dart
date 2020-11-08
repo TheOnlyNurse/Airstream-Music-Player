@@ -1,20 +1,19 @@
-import 'dart:math' as Math;
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as Path;
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-/// Internal Links
-import 'moor_database.dart';
 import '../models/percentage_model.dart';
-import '../repository/image_repository.dart';
-import 'server_provider.dart';
-import 'audio_provider.dart';
-import 'settings_provider.dart';
 import '../repository/communication.dart';
+import '../repository/image_repository.dart';
 import '../repository/song_repository.dart';
+import 'audio_provider.dart';
+import 'moor_database.dart';
+import 'server_provider.dart';
+import 'settings_provider.dart';
 
 class DownloadProvider {
   /// Global functions
@@ -30,13 +29,13 @@ class DownloadProvider {
   IOSink _tempSongSink;
 
   Future<File> get _tempFile async {
-    return File(Path.join((await getTemporaryDirectory()).path, 'song_file'));
+    return File(path.join((await getTemporaryDirectory()).path, 'song_file'));
   }
 
   /// Download Song, place into cache and prompt play
-  Future<Null> downloadSong(Song song) async {
+  Future<void> downloadSong(Song song) async {
     await _prepareNewDownload(song);
-    final whenComplete = Completer<Null>();
+    final whenComplete = Completer<void>();
     final fileBytes = StreamController<List<int>>();
     final response = await ServerProvider().streamFile(
       'stream?id=${song.id}',
@@ -68,11 +67,11 @@ class DownloadProvider {
       return whenComplete.future;
     } else {
       _percentage.add(current.update(hasData: false));
-      return null;
+      return;
     }
   }
 
-  void prefetch() async {
+  Future<void> prefetch() async {
     final provider = AudioProvider();
     final currentIndex = provider.currentIndex;
     final initialSong = provider.currentSong;
@@ -80,7 +79,7 @@ class DownloadProvider {
 
     final maxNextSongs = provider.songQueue.length - currentIndex - 1;
     final int prefetch = SettingsProvider().query(SettingType.prefetch);
-    final songsToFetch = Math.min(prefetch, maxNextSongs);
+    final songsToFetch = math.min(prefetch, maxNextSongs);
 
     for (var index = currentIndex + 1;
         index < currentIndex + songsToFetch + 1;
@@ -112,14 +111,14 @@ class DownloadProvider {
 
   void _startTimer(Completer downloadComplete, PercentageModel percentage) {
     _cancelTimer();
-    _timeoutTimer = Timer(Duration(seconds: 5), () {
+    _timeoutTimer = Timer(const Duration(seconds: 5), () {
       _closeSinks();
       _percentage.add(percentage.update(hasData: false));
       downloadComplete.complete();
     });
   }
 
-  Future<Null> _prepareNewDownload(Song song) async {
+  Future<void> _prepareNewDownload(Song song) async {
     // Cancel any existing downloads in favour of the new song
     if (_downloadSS != null) _closeSinks();
 
@@ -131,9 +130,8 @@ class DownloadProvider {
   }
 
   /// Singleton boilerplate
-  DownloadProvider._internal();
-
+  factory DownloadProvider() => _instance;
   static final DownloadProvider _instance = DownloadProvider._internal();
 
-  factory DownloadProvider() => _instance;
+  DownloadProvider._internal();
 }

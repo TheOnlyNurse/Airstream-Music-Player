@@ -4,33 +4,31 @@ import 'package:airstream/common/providers/server_provider.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as Path;
 
-/// Internal links
-import '../../../common/providers/moor_database.dart';
-import '../../../common/repository/artist_repository.dart';
-import '../../../common/providers/repository/repository.dart';
-import '../../../common/providers/albums_dao.dart';
-import '../../../common/providers/image_provider.dart';
 import '../../../common/models/playlist_model.dart';
-import '../../../common/repository/album_repository.dart';
-import '../../../common/repository/image_repository.dart';
+import '../../../common/providers/albums_dao.dart';
 import '../../../common/providers/artists_dao.dart';
-import '../../../common/providers/songs_dao.dart';
-import '../../../common/repository/song_repository.dart';
 import '../../../common/providers/audio_files_dao.dart';
+import '../../../common/providers/image_provider.dart';
+import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/playlist_provider.dart';
+import '../../../common/providers/repository/repository.dart';
 import '../../../common/providers/scheduler.dart';
+import '../../../common/providers/songs_dao.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/repository/artist_repository.dart';
+import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/playlist_repository.dart';
-
+import '../../../common/repository/song_repository.dart';
 
 part 'loading_splash_state.dart';
 
 class SplashScreenCubit extends Cubit<SplashScreenState> {
   SplashScreenCubit() : super(SplashScreenLoading());
 
-  void loadDatabases() async {
+  Future<void> loadDatabases() async {
     emit(SplashScreenLoading());
     final databasePath = (await getApplicationDocumentsDirectory()).path;
     final cachePath = (await getTemporaryDirectory()).path;
@@ -39,10 +37,10 @@ class SplashScreenCubit extends Cubit<SplashScreenState> {
       _initMoor(databasePath),
     ]);
     _initGetIt(cachePath);
-    emit(SplashScreenSuccess());
+    emit(const SplashScreenSuccess());
   }
 
-  void animationEnded() => emit(SplashScreenSuccess(shouldReplace: true));
+  void animationEnded() => emit(const SplashScreenSuccess(shouldReplace: true));
 }
 
 Future<void> _initMoor(String databasePath) async {
@@ -79,14 +77,14 @@ void _initGetIt(String cachePath) {
   // Registering repositories for use.
   lazy<ImageRepository>(ImageRepository(ImageFileProvider(
     hive: Hive.box<int>('images'),
-    cacheFolder: Path.join(cachePath, 'image/'),
+    cacheFolder: path.join(cachePath, 'image/'),
   )));
   lazy<AlbumRepository>(AlbumRepository(albumsDao: AlbumsDao(moorDb)));
   lazy<ArtistRepository>(ArtistRepository(artistsDao: ArtistsDao(moorDb)));
   lazy<SongRepository>(SongRepository(
     songsDao: SongsDao(moorDb),
     audioFilesDao: AudioFilesDao(moorDb),
-    cacheFolder: Path.join(cachePath, 'audio/'),
+    cacheFolder: path.join(cachePath, 'audio/'),
   ));
   lazy<PlaylistRepository>(PlaylistRepository(
     provider: PlaylistProvider(hive: Hive.box('playlists')),

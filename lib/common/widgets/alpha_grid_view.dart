@@ -1,8 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'dart:math' as Math;
 
 class AlphabeticalGridView extends StatelessWidget {
   const AlphabeticalGridView({
@@ -17,14 +18,14 @@ class AlphabeticalGridView extends StatelessWidget {
         assert(builder != null);
 
   final List<String> headerStrings;
-  final Widget builder;
+  final BoxScrollView builder;
   final String cacheKey;
   final ScrollController controller;
   final List<Widget> leading;
 
   Future<Map<int, String>> _computeHeaders() async {
     final _hiveBox = Hive.box('cache');
-    var cachedHeaders = _hiveBox.get(cacheKey);
+    var cachedHeaders = _hiveBox.get(cacheKey) as Map<int, String>;
 
     if (cachedHeaders == null) {
       cachedHeaders = await compute(getHeaders, headerStrings);
@@ -36,10 +37,10 @@ class AlphabeticalGridView extends StatelessWidget {
     return cachedHeaders;
   }
 
-  Widget _offsetToLabel(
+  Text _offsetToLabel(
       double offset, Map<int, String> headings, TextStyle style) {
-    final card = 240;
-    final current = Math.max(2, 2 + (offset ~/ card) * 2);
+    const card = 240;
+    final current = math.max(2, 2 + (offset ~/ card) * 2);
     final key = headings.keys.lastWhere((element) => current > element,
         orElse: () => headings.keys.last);
     return Text(headings[key], style: style);
@@ -70,7 +71,7 @@ class AlphabeticalGridView extends StatelessWidget {
                 ),
                 child: Center(child: labelText),
               ),
-            if (labelText != null) SizedBox(width: 20),
+            if (labelText != null) const SizedBox(width: 20),
             Container(
               height: height,
               width: 10,
@@ -84,7 +85,7 @@ class AlphabeticalGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<Map<int, String>>(
       future: _computeHeaders(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -97,13 +98,13 @@ class AlphabeticalGridView extends StatelessWidget {
             controller: controller,
             backgroundColor: Theme.of(context).accentColor,
             heightScrollThumb: 50,
-            labelConstraints: BoxConstraints.tightFor(width: 40),
-            child: builder,
+            labelConstraints: const BoxConstraints.tightFor(width: 40),
             scrollThumbBuilder: _customThumb,
+            child: builder,
           );
         }
 
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -123,6 +124,5 @@ Map<int, String> getHeaders(List<String> allTitles) {
     }
   }
 
-  print(headings);
   return headings;
 }

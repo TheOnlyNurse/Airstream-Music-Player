@@ -10,7 +10,7 @@ enum SettingType {
   musicCache,
   wifiBitrate,
   mobileBitrate,
-  mobileOffline,
+  autoOffline,
 }
 enum AlbumLibrary {
   random,

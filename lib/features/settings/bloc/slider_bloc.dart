@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-/// Internal links
-import '../../../common/repository/communication.dart';
 import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/communication.dart';
 
 part 'slider_event.dart';
-
 part 'slider_state.dart';
 
 class SliderBloc extends Bloc<SliderEvent, SliderState> {
@@ -31,8 +29,8 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
 
     if (event is SliderFetch) {
       type = event.type;
-      final int current = _repository.settings.query(type);
-      final List<int> range = _repository.settings.range(type);
+      final current = _repository.settings.query(type) as int;
+      final range = _repository.settings.range(type);
       final divisions = generatorDivisions(range);
 
       yield SliderSuccess(
@@ -48,8 +46,8 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
     }
     if (event is SliderFinished && currentState is SliderSuccess) {
       _repository.settings.change(type, event.value.floor());
-      final savedValue = _repository.settings.query(type).toDouble();
-      yield currentState.copyWith(value: savedValue);
+      final savedValue = _repository.settings.query(type) as int;
+      yield currentState.copyWith(value: savedValue.toDouble());
     }
   }
 }

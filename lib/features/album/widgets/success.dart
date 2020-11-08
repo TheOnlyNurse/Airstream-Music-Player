@@ -40,7 +40,7 @@ class _Success extends StatelessWidget {
           title: CircleCloseButton(),
           actions: [
             _StarButton(isStarred: state.album.isStarred, cubit: cubit),
-            _MoreOptions(),
+            const _MoreOptions(),
           ],
         ),
         SliverToBoxAdapter(child: _ShuffleButton(songs: state.songs)),

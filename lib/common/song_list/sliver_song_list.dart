@@ -21,7 +21,6 @@ class SliverSongList extends StatelessWidget {
           (context, index) {
             return SongTile(
               song: songs[index],
-              onLongPress: null,
               onTap: () {
                 Repository().audio.start(playlist: songs, index: index);
               },
