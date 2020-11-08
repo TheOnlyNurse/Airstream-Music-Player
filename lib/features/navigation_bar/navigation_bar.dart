@@ -11,6 +11,8 @@ class NavigationBar extends StatelessWidget {
       builder: (context, state) {
         return BottomAppBar(
           shape: state.isNotched ? const CircularNotchedRectangle() : null,
+          elevation: 0,
+          color: Theme.of(context).bottomAppBarColor.withOpacity(0.3),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
