@@ -5,9 +5,9 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../../common/providers/moor_database.dart';
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/communication.dart';
+import '../../../common/repository/repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'starred_event.dart';

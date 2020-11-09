@@ -10,7 +10,7 @@ import 'package:xml/xml.dart';
 
 import '../../temp_password_holder.dart';
 import '../models/repository_response.dart';
-import 'repository/repository.dart';
+import '../repository/repository.dart';
 import 'scheduler.dart';
 
 class ServerProvider {

@@ -9,19 +9,16 @@ import 'package:moor/moor.dart';
 import 'package:path/path.dart' as p;
 import 'package:rxdart/rxdart.dart';
 
-import '../../models/percentage_model.dart';
-import '../../repository/communication.dart';
-import '../audio_provider.dart';
-import '../download_provider.dart';
-import '../moor_database.dart';
-import '../settings_provider.dart';
+import '../models/percentage_model.dart';
+import '../providers/audio_provider.dart';
+import '../providers/download_provider.dart';
+import '../providers/moor_database.dart';
+import '../providers/settings_provider.dart';
+import 'communication.dart';
 
 part 'audio_repo.dart';
-
 part 'download_repo.dart';
-
 part 'moor_isolate.dart';
-
 part 'settings_repo.dart';
 
 /// The Repository collects data from providers and formats it easy access and use

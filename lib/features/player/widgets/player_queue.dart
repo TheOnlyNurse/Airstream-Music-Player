@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../common/providers/moor_database.dart';
-import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/repository.dart';
 import '../../../common/widgets/song_tile.dart';
 
 class PlayerQueue extends StatefulWidget {

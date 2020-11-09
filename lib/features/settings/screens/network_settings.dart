@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
 import '../../../common/repository/image_repository.dart';
+import '../../../common/repository/repository.dart';
 import '../../../common/repository/song_repository.dart';
 import '../../../common/static_assets.dart';
 import '../../../common/widgets/custom_alert_dialog.dart';

@@ -2,9 +2,9 @@
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
 
+import '../repository/repository.dart';
 /// Internal Links
 import 'moor_database.dart';
-import 'repository/repository.dart';
 
 part 'albums_dao.g.dart';
 

@@ -11,10 +11,10 @@ import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
 import '../providers/audio_files_dao.dart';
 import '../providers/moor_database.dart';
-import '../providers/repository/repository.dart';
 import '../providers/server_provider.dart';
 import '../providers/songs_dao.dart';
 import '../static_assets.dart';
+import 'repository.dart';
 
 class SongRepository {
   SongRepository({

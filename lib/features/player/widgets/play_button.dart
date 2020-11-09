@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
+import '../../../common/repository/repository.dart';
 
 class PlayButton extends StatelessWidget {
   final _repository = Repository();

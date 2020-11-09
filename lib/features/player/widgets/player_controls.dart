@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/repository.dart';
 import '../bloc/player_controls_bloc.dart';
 import '../widgets/play_button.dart';
 

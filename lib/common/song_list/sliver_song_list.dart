@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Internal
 import '../providers/moor_database.dart';
-import '../providers/repository/repository.dart';
+import '../repository/repository.dart';
 import '../widgets/song_tile.dart';
 
 class SliverSongList extends StatelessWidget {

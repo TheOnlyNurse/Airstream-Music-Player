@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
+import '../../../common/repository/repository.dart';
 
 enum PlayerControlsEvent {
   firstTrack,

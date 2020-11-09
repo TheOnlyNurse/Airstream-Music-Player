@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 
 import '../models/song_list_delegate.dart';
 import '../providers/moor_database.dart';
-import '../providers/repository/repository.dart';
 import '../repository/playlist_repository.dart';
+import '../repository/repository.dart';
 import '../repository/song_repository.dart';
 import '../song_list_bar/song_list_bar.dart';
 import '../static_assets.dart';

@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 /// Internal links
-import '../../../common/providers/repository/repository.dart';
+import '../../../common/repository/repository.dart';
 import '../../mini_player/bloc/mini_player_bloc.dart';
 
 part 'navigation_bar_state.dart';

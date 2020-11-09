@@ -5,9 +5,9 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/models/playlist_model.dart';
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
 import '../../../common/repository/playlist_repository.dart';
+import '../../../common/repository/repository.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {

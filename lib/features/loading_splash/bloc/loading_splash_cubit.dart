@@ -14,13 +14,13 @@ import '../../../common/providers/audio_files_dao.dart';
 import '../../../common/providers/image_provider.dart';
 import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/playlist_provider.dart';
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/providers/scheduler.dart';
 import '../../../common/providers/songs_dao.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/playlist_repository.dart';
+import '../../../common/repository/repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'loading_splash_state.dart';

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
+import '../../../common/repository/repository.dart';
 
 part 'position_event.dart';
 part 'position_state.dart';

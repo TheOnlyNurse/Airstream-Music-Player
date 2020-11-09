@@ -5,10 +5,10 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../common/providers/moor_database.dart';
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/communication.dart';
 import '../../../common/repository/image_repository.dart';
+import '../../../common/repository/repository.dart';
 
 part 'player_events.dart';
 part 'player_state.dart';

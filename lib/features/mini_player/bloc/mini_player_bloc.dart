@@ -5,8 +5,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../../../common/providers/repository/repository.dart';
 import '../../../common/repository/communication.dart';
+import '../../../common/repository/repository.dart';
 
 part 'mini_player_event.dart';
 part 'mini_player_state.dart';

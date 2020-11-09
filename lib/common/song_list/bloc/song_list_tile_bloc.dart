@@ -6,12 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../providers/moor_database.dart';
-import '../../providers/repository/repository.dart';
 import '../../repository/communication.dart';
+import '../../repository/repository.dart';
 import '../../repository/song_repository.dart';
 
 part 'song_list_tile_event.dart';
-
 part 'song_list_tile_state.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
