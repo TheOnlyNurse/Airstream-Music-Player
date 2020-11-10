@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
 
-import '../../../common/repository/communication.dart';
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/audio_repository.dart';
 
 enum PlayerControlsEvent {
   firstTrack,
@@ -21,22 +21,46 @@ enum PlayerControlsState {
 
 class PlayerControlsBloc
     extends Bloc<PlayerControlsEvent, PlayerControlsState> {
+  PlayerControlsBloc({@required this.audioRepository})
+      : super(PlayerControlsState.noControls) {
+    // Load initial layout (primer)
+    _originalLayout = _controlEvent;
+    add(_originalLayout);
 
-  PlayerControlsEvent _getControlEvent() {
-    final listLength = Repository().audio.queueLength;
-    final current = Repository().audio.index;
+    _newTracks = audioRepository.songState.listen((state) {
+
+        // Get new control structure
+        _originalLayout = _controlEvent;
+        add(_originalLayout);
+        isRewindPossible = false;
+
+    });
+    _rewindPossible = audioRepository.audioPosition.listen((position) {
+      if (position > const Duration(seconds: 5) && isRewindPossible == false) {
+        _showRewindIsPossible();
+        isRewindPossible = true;
+      }
+      if (position < const Duration(seconds: 5) && isRewindPossible) {
+        isRewindPossible = false;
+        add(_originalLayout);
+      }
+    });
+  }
+
+  final AudioRepository audioRepository;
+  PlayerControlsEvent _originalLayout;
+  bool isRewindPossible = false;
+  StreamSubscription _rewindPossible;
+  StreamSubscription _newTracks;
+
+  PlayerControlsEvent get _controlEvent {
+    final listLength = audioRepository.queueLength;
+    final current = audioRepository.currentIndex;
     if (listLength == 1) return PlayerControlsEvent.noNavigation;
     if (current == 0) return PlayerControlsEvent.firstTrack;
     if (current + 1 == listLength) return PlayerControlsEvent.lastTrack;
     return PlayerControlsEvent.middleOfPlaylist;
   }
-
-  final _repository = Repository();
-
-  PlayerControlsEvent _originalLayout;
-  bool isRewindPossible = false;
-  StreamSubscription _rewindPossible;
-  StreamSubscription _newTracks;
 
   void _showRewindIsPossible() {
     switch (_originalLayout) {
@@ -49,31 +73,6 @@ class PlayerControlsBloc
       default:
         break;
     }
-  }
-
-  PlayerControlsBloc() : super(PlayerControlsState.noControls) {
-    // Load initial layout (primer)
-    _originalLayout = _getControlEvent();
-    add(_originalLayout);
-
-    _newTracks = _repository.audio.songState.listen((state) {
-      if (state == AudioPlayerSongState.newSong) {
-        // Get new control structure
-        _originalLayout = _getControlEvent();
-        add(_originalLayout);
-        isRewindPossible = false;
-      }
-    });
-    _rewindPossible = _repository.audio.audioPosition.listen((position) {
-      if (position > const Duration(seconds: 5) && isRewindPossible == false) {
-        _showRewindIsPossible();
-        isRewindPossible = true;
-      }
-      if (position < const Duration(seconds: 5) && isRewindPossible) {
-        isRewindPossible = false;
-        add(_originalLayout);
-      }
-    });
   }
 
   @override

@@ -6,8 +6,10 @@ import 'package:path/path.dart' as p;
 import 'package:hive/hive.dart';
 
 class ImageFileProvider {
-  const ImageFileProvider({@required Box<int> hive, @required String cacheFolder})
-      : assert(hive != null),
+  const ImageFileProvider({
+    @required Box<int> hive,
+    @required String cacheFolder,
+  })  : assert(hive != null),
         assert(cacheFolder != null),
         _hive = hive,
         _cacheFolder = cacheFolder;

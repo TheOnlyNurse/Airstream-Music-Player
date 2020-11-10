@@ -194,22 +194,29 @@ extension AudioFileManagement on SongRepository {
   }
 
   /// Moves a given file into the cache folder and inserts it's existence into the database.
-  Future<void> cacheFile({Song song, File file}) async {
+  ///
+  /// Returns the file path recorded in the database.
+  Future<String> cacheFile({Song song, File file}) async {
     // Create a filename from song information.
     final filePath = path.join(
       _cacheFolder,
       '${song.id}.${song.title.hashCode}',
     );
-    await _fileDatabase.insertCompanion(AudioFilesCompanion.insert(
-      songId: Value(song.id),
-      path: filePath,
-      size: (await file.stat()).size,
-      created: DateTime.now(),
-    ));
     // After inserting the file record, ensure that the cache is still size compliant.
     _cacheSizeCheck();
     await File(filePath).create(recursive: true);
-    return file.copy(filePath);
+    await Future.wait([
+      // Insert into the database.
+      _fileDatabase.insertCompanion(AudioFilesCompanion.insert(
+        songId: Value(song.id),
+        path: filePath,
+        size: (await file.stat()).size,
+        created: DateTime.now(),
+      )),
+      // Copy from the temporary path to the database one.
+      file.copy(filePath),
+    ]);
+    return filePath;
   }
 
   /// Deletes the cache folder and clears the file database.
@@ -237,7 +244,7 @@ extension AudioFileManagement on SongRepository {
             File(fileEntry.path).delete(),
           ]);
           offset++;
-        // ignore: invariant_booleans
+          // ignore: invariant_booleans
         } while (currentSize > maxSize);
 
         await Future.wait(futures);

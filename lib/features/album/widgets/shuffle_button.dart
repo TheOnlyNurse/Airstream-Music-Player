@@ -20,7 +20,8 @@ class _ShuffleButton extends StatelessWidget {
           ),
           onPressed: () {
             songs.shuffle();
-            Repository().audio.start(playlist: songs);
+            final repository = GetIt.I.get<AudioRepository>();
+            repository.start(songs: songs);
           },
           child: Text('Shuffle', style: Theme.of(context).textTheme.headline6),
         ),

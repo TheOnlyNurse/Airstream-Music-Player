@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/repository/communication.dart';
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/audio_repository.dart';
 
 class PlayButton extends StatelessWidget {
-  final _repository = Repository();
+  const PlayButton({Key key, @required this.audioRepository}) : super(key: key);
+  final AudioRepository audioRepository;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      initialData: _repository.audio.playerState.value,
-      stream: _repository.audio.playerState,
+    return StreamBuilder<AudioState>(
+      initialData: audioRepository.audioState.value,
+      stream: audioRepository.audioState,
       builder: (context, state) {
-        final isPlaying = state.data == AudioPlayerState.playing;
+        final isPlaying = state.data == AudioState.playing;
 
         return RawMaterialButton(
           elevation: 4.0,
           fillColor: Theme.of(context).accentColor,
           constraints: const BoxConstraints.tightFor(width: 80.0, height: 80.0),
           shape: const CircleBorder(),
-          onPressed: () {
-            if (isPlaying) {
-              _repository.audio.pause();
-            } else {
-              _repository.audio.play();
-            }
-          },
+          onPressed: () => audioRepository.playPause(),
           child: Icon(isPlaying ? Icons.pause : Icons.play_arrow, size: 60.0),
         );
       },

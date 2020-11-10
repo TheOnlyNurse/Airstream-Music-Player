@@ -1,19 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../models/percentage_model.dart';
-import '../repository/communication.dart';
-import '../repository/image_repository.dart';
 import '../repository/song_repository.dart';
-import 'audio_provider.dart';
 import 'moor_database.dart';
 import 'server_provider.dart';
-import 'settings_provider.dart';
 
 class DownloadProvider {
   /// Global functions
@@ -33,9 +28,9 @@ class DownloadProvider {
   }
 
   /// Download Song, place into cache and prompt play
-  Future<void> downloadSong(Song song) async {
+  Future<String> download(Song song) async {
     await _prepareNewDownload(song);
-    final whenComplete = Completer<void>();
+    final whenComplete = Completer<String>();
     final fileBytes = StreamController<List<int>>();
     final response = await ServerProvider().streamFile(
       'stream?id=${song.id}',
@@ -57,44 +52,46 @@ class DownloadProvider {
 
       _downloadSS.onDone(() async {
         _closeSinks();
-        await GetIt.I.get<SongRepository>().cacheFile(
+        final newPath = await GetIt.I.get<SongRepository>().cacheFile(
               song: song,
               file: await _tempFile,
             );
         _songPlayable.add(song);
-        whenComplete.complete();
+        whenComplete.complete(newPath);
       });
-      return whenComplete.future;
     } else {
       _percentage.add(current.update(hasData: false));
-      return;
+      whenComplete.complete();
     }
+
+    return whenComplete.future;
   }
 
   Future<void> prefetch() async {
-    final provider = AudioProvider();
-    final currentIndex = provider.currentIndex;
-    final initialSong = provider.currentSong;
-    final initialQueue = provider.songQueue;
-
-    final maxNextSongs = provider.songQueue.length - currentIndex - 1;
-    final int prefetch = SettingsProvider().query(SettingType.prefetch);
-    final songsToFetch = math.min(prefetch, maxNextSongs);
-
-    for (var index = currentIndex + 1;
-        index < currentIndex + songsToFetch + 1;
-        index++) {
-      if (provider.currentSong.id != initialSong.id) break;
-      if (provider.songQueue.length != initialQueue.length) break;
-
-      final song = initialQueue[index];
-      final songPath = await GetIt.I.get<SongRepository>().filePath(song);
-      if (songPath == null) await downloadSong(song);
-      await GetIt.I.get<ImageRepository>().highDefinition(song.art);
-    }
+    throw UnimplementedError();
+    // final provider = AudioProvider();
+    // final currentIndex = provider.currentIndex;
+    // final initialSong = provider.current;
+    // final initialQueue = provider.songQueue;
+    //
+    // final maxNextSongs = provider.songQueue.length - currentIndex - 1;
+    // final int prefetch = SettingsProvider().query(SettingType.prefetch);
+    // final songsToFetch = math.min(prefetch, maxNextSongs);
+    //
+    // for (var index = currentIndex + 1;
+    //     index < currentIndex + songsToFetch + 1;
+    //     index++) {
+    //   if (provider.current.id != initialSong.id) break;
+    //   if (provider.songQueue.length != initialQueue.length) break;
+    //
+    //   final song = initialQueue[index];
+    //   final songPath = await GetIt.I.get<SongRepository>().filePath(song);
+    //   if (songPath == null) await download(song);
+    //   await GetIt.I.get<ImageRepository>().highDefinition(song.art);
+    // }
   }
 
-  /// Private Functions
+
   void _closeSinks() {
     _cancelTimer();
     _downloadSS.cancel();

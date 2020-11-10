@@ -1,7 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../providers/moor_database.dart';
+import '../../repository/audio_repository.dart';
 import '../../widgets/song_tile.dart';
 import '../bloc/song_list_tile_bloc.dart';
 
@@ -38,7 +41,9 @@ class SongListTile extends StatelessWidget {
 
     return BlocProvider(
       create: (context) {
-        return SongListTileBloc(tileSong: song)..add(SongListTileFetch());
+        return SongListTileBloc(
+            tileSong: song, audioRepository: GetIt.I.get<AudioRepository>())
+          ..add(SongListTileFetch());
       },
       child: BlocBuilder<SongListTileBloc, SongListTileState>(
         builder: (context, state) {

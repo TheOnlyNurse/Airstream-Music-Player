@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:airstream/common/providers/server_provider.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -15,9 +14,11 @@ import '../../../common/providers/image_provider.dart';
 import '../../../common/providers/moor_database.dart';
 import '../../../common/providers/playlist_provider.dart';
 import '../../../common/providers/scheduler.dart';
+import '../../../common/providers/server_provider.dart';
 import '../../../common/providers/songs_dao.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
+import '../../../common/repository/audio_repository.dart';
 import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/playlist_repository.dart';
 import '../../../common/repository/repository.dart';
@@ -91,4 +92,5 @@ void _initGetIt(String cachePath) {
     scheduler: Scheduler(),
     server: ServerProvider(),
   ));
+  lazy<AudioRepository>(AudioRepository());
 }

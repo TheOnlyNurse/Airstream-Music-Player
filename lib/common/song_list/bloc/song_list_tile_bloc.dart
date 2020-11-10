@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../providers/moor_database.dart';
-import '../../repository/communication.dart';
+import '../../repository/audio_repository.dart';
 import '../../repository/repository.dart';
 import '../../repository/song_repository.dart';
 
@@ -14,16 +14,11 @@ part 'song_list_tile_event.dart';
 part 'song_list_tile_state.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
-  final Song tileSong;
-  final _repository = Repository();
-  Song currentSong;
-  StreamSubscription onDownload;
-  StreamSubscription onDownloadFinished;
-  StreamSubscription onPlaying;
 
-  SongListTileBloc({@required this.tileSong})
+  SongListTileBloc({@required this.audioRepository, @required this.tileSong})
       : assert(tileSong != null),
         super(SongListTileInitial()) {
+    final _repository = Repository();
     onDownload = _repository.download.percentageStream.listen((event) {
       if (tileSong.id == event.songId && event.hasData) {
         add(SongListTileDownload(event.percentage));
@@ -32,15 +27,22 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
     onDownloadFinished = _repository.download.newPlayableSong.listen((event) {
       if (tileSong.id == event.id) add(SongListTileFinished());
     });
-    onPlaying = _repository.audio.playerState.listen((state) {
-      currentSong = _repository.audio.current;
-      if (currentSong.id == tileSong.id && state == AudioPlayerState.playing) {
+    onPlaying = audioRepository.audioState.listen((state) {
+      currentSong = audioRepository.current;
+      if (currentSong.id == tileSong.id && state == AudioState.playing) {
         add(const SongListTilePlaying(isPlaying: true));
       } else {
         add(const SongListTilePlaying(isPlaying: false));
       }
     });
   }
+
+  final Song tileSong;
+  final AudioRepository audioRepository;
+  Song currentSong;
+  StreamSubscription onDownload;
+  StreamSubscription onDownloadFinished;
+  StreamSubscription onPlaying;
 
   @override
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {

@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
+import '../../common/repository/audio_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/screens/album_list_screen.dart';
 import '../album/bloc/album_cubit.dart';
@@ -22,7 +23,6 @@ import '../navigation_bar/navigation_bar.dart';
 import '../playlist/playlist_screen.dart';
 import '../starred/starred_screen.dart';
 
-/// Library
 part 'widgets/pages.dart';
 part 'widgets/route_transition.dart';
 part 'widgets/routes.dart';
@@ -39,6 +39,7 @@ class LibraryFoundation extends StatelessWidget {
         BlocProvider<MiniPlayerBloc>(create: (_) => MiniPlayerBloc(
           screenHeight: MediaQuery.of(context).size.height,
           navigator: Navigator.of(context, rootNavigator: true),
+          audioRepository: GetIt.I.get<AudioRepository>(),
         )),
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/audio_repository.dart';
 import '../bloc/position_bloc.dart';
 
 class PositionSlider extends StatelessWidget {
+  const PositionSlider({Key key, @required this.audioRepository})
+      : super(key: key);
+  final AudioRepository audioRepository;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PositionBloc(),
+      create: (context) => PositionBloc(audioRepository: audioRepository),
       child: BlocBuilder<PositionBloc, PositionState>(
         builder: (context, state) {
           if (state is PositionSuccess) {
@@ -17,7 +21,7 @@ class PositionSlider extends StatelessWidget {
                 Slider(
                   max: state.maxDuration,
                   value: state.currentPosition,
-                  onChanged: (seconds) => Repository().audio.seek(seconds),
+                  onChanged: (seconds) => audioRepository.seek(seconds),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),

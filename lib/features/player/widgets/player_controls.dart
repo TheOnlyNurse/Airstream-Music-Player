@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/audio_repository.dart';
 import '../bloc/player_controls_bloc.dart';
 import '../widgets/play_button.dart';
 
 class PlayerControls extends StatelessWidget {
+  const PlayerControls({Key key, @required this.audioRepository})
+      : super(key: key);
+  final AudioRepository audioRepository;
+
   @override
   Widget build(BuildContext context) {
     final disabledColor = Theme.of(context).disabledColor;
@@ -38,23 +42,23 @@ class PlayerControls extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => PlayerControlsBloc(),
+      create: (context) => PlayerControlsBloc(audioRepository: audioRepository),
       child: BlocBuilder<PlayerControlsBloc, PlayerControlsState>(
         builder: (context, state) {
           final isPrevious = _isPreviousEnabled(state);
           final isNext = _isNextEnabled(state);
+
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               _Button(
-                onPressed:
-                    isPrevious ? () => Repository().audio.previous() : null,
+                onPressed: isPrevious ? () => audioRepository.previous() : null,
                 iconData: Icons.skip_previous,
                 isEnabled: isPrevious ? enabledColor : disabledColor,
               ),
-              PlayButton(),
+              PlayButton(audioRepository: audioRepository),
               _Button(
-                onPressed: isNext ? () => Repository().audio.next() : null,
+                onPressed: isNext ? () => audioRepository.next() : null,
                 iconData: Icons.skip_next,
                 isEnabled: isNext ? enabledColor : disabledColor,
               ),

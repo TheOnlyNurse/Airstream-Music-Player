@@ -16,7 +16,7 @@ class QueueDialog extends StatelessWidget {
         SizedBox(
           height: math.max(media.height - 250, 250),
           width: math.max(media.height - 50, 250),
-          child: PlayerQueue(),
+          child: const PlayerQueue(),
         )
       ],
     );

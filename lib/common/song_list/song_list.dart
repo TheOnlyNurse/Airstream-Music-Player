@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 
 import '../models/song_list_delegate.dart';
 import '../providers/moor_database.dart';
+import '../repository/audio_repository.dart';
 import '../repository/playlist_repository.dart';
-import '../repository/repository.dart';
 import '../repository/song_repository.dart';
 import '../song_list_bar/song_list_bar.dart';
 import '../static_assets.dart';
@@ -152,7 +152,8 @@ class _SliverSongList extends StatelessWidget {
               if (selectedIndexes.isNotEmpty) {
                 context.bloc<SongListBloc>().add(SongListSelection(index));
               } else {
-                Repository().audio.start(playlist: songs, index: index);
+                final repository = GetIt.I.get<AudioRepository>();
+                repository.start(songs: songs, index: index);
               }
             },
           );

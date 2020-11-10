@@ -5,8 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../../../common/repository/communication.dart';
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/audio_repository.dart';
 
 part 'mini_player_event.dart';
 part 'mini_player_state.dart';
@@ -15,27 +14,28 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   MiniPlayerBloc({
     @required double screenHeight,
     @required NavigatorState navigator,
+    @required this.audioRepository,
   })  : assert(screenHeight != null),
         assert(navigator != null),
         _navigator = navigator,
         _screenHeight = screenHeight.floor(),
         super(MiniPlayerHidden()) {
-    _audioEvents = _repository.audio.playerState.listen((state) {
+    _audioEvents = audioRepository.audioState.listen((state) {
       switch (state) {
-        case AudioPlayerState.playing:
+        case AudioState.playing:
           add(MiniPlayerPlaying());
           break;
-        case AudioPlayerState.paused:
+        case AudioState.paused:
           add(MiniPlayerPaused());
           break;
-        case AudioPlayerState.stopped:
+        case AudioState.stopped:
           add(MiniPlayerStopped());
           break;
       }
     });
   }
 
-  final _repository = Repository();
+  final AudioRepository audioRepository;
   final int _screenHeight;
   final NavigatorState _navigator;
   StreamSubscription _audioEvents;
@@ -46,11 +46,7 @@ class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
 
     if (currentState is MiniPlayerShown) {
       if (event is MiniPlayerPlayPause) {
-        if (currentState.isPlaying) {
-          _repository.audio.pause();
-        } else {
-          _repository.audio.play();
-        }
+        audioRepository.playPause();
       }
 
       if (event is MiniPlayerDragEnd) {

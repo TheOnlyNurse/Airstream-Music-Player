@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 /// Internal
 import '../providers/moor_database.dart';
-import '../repository/repository.dart';
+import '../repository/audio_repository.dart';
 import '../widgets/song_tile.dart';
 
 class SliverSongList extends StatelessWidget {
@@ -22,7 +23,8 @@ class SliverSongList extends StatelessWidget {
             return SongTile(
               song: songs[index],
               onTap: () {
-                Repository().audio.start(playlist: songs, index: index);
+                final repository = GetIt.I.get<AudioRepository>();
+                repository.start(songs: songs, index: index);
               },
             );
           },

@@ -2,21 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:meta/meta.dart';
 import 'package:moor/ffi.dart';
 import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 import 'package:path/path.dart' as p;
-import 'package:rxdart/rxdart.dart';
 
 import '../models/percentage_model.dart';
-import '../providers/audio_provider.dart';
 import '../providers/download_provider.dart';
 import '../providers/moor_database.dart';
 import '../providers/settings_provider.dart';
 import 'communication.dart';
 
-part 'audio_repo.dart';
 part 'download_repo.dart';
 part 'moor_isolate.dart';
 part 'settings_repo.dart';
@@ -26,8 +22,6 @@ part 'settings_repo.dart';
 /// however there is little logic here. See the relevant sub-division for that.
 
 class Repository {
-  /// Libraries
-  final audio = _AudioRepository();
 
   final settings = _SettingsRepository();
 

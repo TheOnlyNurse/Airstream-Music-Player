@@ -12,14 +12,3 @@ enum SettingType {
   mobileBitrate,
   autoOffline,
 }
-enum AlbumLibrary {
-  random,
-  newlyAdded,
-  recent,
-  frequent,
-  byAlphabet,
-  byGenre,
-  byDecade,
-  search,
-  byArtist,
-}

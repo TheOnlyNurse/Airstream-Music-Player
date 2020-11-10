@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/artist_repository.dart';
-import '../../common/repository/repository.dart';
+import '../../common/repository/audio_repository.dart';
 import '../../common/song_list/sliver_song_list.dart';
 import '../../common/static_assets.dart';
 import '../../common/widgets/circle_close_button.dart';

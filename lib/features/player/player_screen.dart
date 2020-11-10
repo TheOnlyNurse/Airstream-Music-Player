@@ -1,3 +1,4 @@
+import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -44,9 +45,13 @@ class PlayerScreen extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  PositionSlider(),
+                  PositionSlider(
+                    audioRepository: GetIt.I.get<AudioRepository>(),
+                  ),
                   const Spacer(),
-                  PlayerControls(),
+                  PlayerControls(
+                    audioRepository: GetIt.I.get<AudioRepository>(),
+                  ),
                   const Spacer(),
                 ],
               ),
