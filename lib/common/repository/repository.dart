@@ -7,13 +7,9 @@ import 'package:moor/isolate.dart';
 import 'package:moor/moor.dart';
 import 'package:path/path.dart' as p;
 
-import '../models/percentage_model.dart';
-import '../providers/download_provider.dart';
-import '../providers/moor_database.dart';
 import '../providers/settings_provider.dart';
 import 'communication.dart';
 
-part 'download_repo.dart';
 part 'moor_isolate.dart';
 part 'settings_repo.dart';
 
@@ -24,8 +20,6 @@ part 'settings_repo.dart';
 class Repository {
 
   final settings = _SettingsRepository();
-
-  final download = _DownloadRepository();
 
   /// Singleton boilerplate code
   factory Repository() => _instance;

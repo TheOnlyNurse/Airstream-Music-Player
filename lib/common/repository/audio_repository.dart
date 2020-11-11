@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:airstream/common/repository/download_repository.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../providers/audio_provider.dart';
-import '../providers/download_provider.dart';
 import '../providers/moor_database.dart';
 import '../repository/image_repository.dart';
 import '../repository/song_repository.dart';
@@ -18,19 +18,20 @@ class AudioRepository {
   AudioRepository({
     AudioProvider provider,
     SongRepository songRepository,
-    DownloadProvider downloadProvider,
+    DownloadRepository downloadRepository,
     ImageRepository imageRepository,
   })  : _provider =
             provider ?? AudioProvider(AssetsAudioPlayer.withId('airstream')),
         _songRepository = songRepository ?? GetIt.I.get<SongRepository>(),
-        _downloadProvider = downloadProvider ?? DownloadProvider(),
+        _downloadRepository =
+            downloadRepository ?? GetIt.I.get<DownloadRepository>(),
         _imageRepository = imageRepository ?? GetIt.I.get<ImageRepository>() {
     _provider.onAudioComplete.stream.listen(_onAudioCompleted);
   }
 
   final AudioProvider _provider;
   final SongRepository _songRepository;
-  final DownloadProvider _downloadProvider;
+  final DownloadRepository _downloadRepository;
   final ImageRepository _imageRepository;
 
   /// Emits a new [Song] object when it's being played.
@@ -100,15 +101,15 @@ class AudioRepository {
     // First filepath is from what's already downloaded.
     // First failure results in a download attempt.
     _ensurePlayable(
-      filepath: await _songRepository.filePath(current),
+      file: await _songRepository.file(current),
       onFailure: () async {
         _provider.pause();
         // Second filepath is a new download.
         // Second failure results in an exception.
         _ensurePlayable(
-          filepath: await _downloadProvider.download(current),
-          onFailure: () =>
-              throw Exception('File path from download provider is null.'),
+          file: await _downloadRepository.download(current),
+          // ignore: avoid_print
+          onFailure: () => print('Download file was null'),
         );
       },
     );
@@ -120,10 +121,10 @@ class AudioRepository {
   /// the same artwork to be used for multiple filepath checks.
   /// [onFailure] is used when the filepath is null.
   Function ensurePlayable({File artwork}) =>
-      ({String filepath, Function onFailure}) {
-        if (filepath != null) {
+      ({File file, Function onFailure}) {
+        if (file != null) {
           _provider.start(
-            songFile: File(filepath),
+            songFile: file,
             artwork: artwork,
             metas: _toMetas(current),
             notificationSettings: NotificationSettings(
@@ -178,7 +179,7 @@ class AudioRepository {
   /// Moves a song from the [from] index to the [to] index in the current song queue.
   void reorder(int from, int to) {
     // Removing the item at oldIndex will shorten the list by 1.
-    // Therefore, a new variable is used.
+    // Therefore, a new potentially adjusted variable is used.
     final _to = from < to ? to - 1 : to;
 
     // Adjust the current index to properly align with new list order.

@@ -12,7 +12,7 @@ class PositionSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PositionBloc(audioRepository: audioRepository),
+      create: (context) => PositionBloc(),
       child: SizedBox(
         width: MediaQuery.of(context).size.width - 32,
         height: 65,

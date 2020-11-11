@@ -2,31 +2,36 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
+import '../../../common/global_assets.dart';
 import '../../../common/repository/audio_repository.dart';
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/download_repository.dart';
 
 part 'position_event.dart';
-
 part 'position_state.dart';
 
 class PositionBloc extends Bloc<PositionEvent, PositionState> {
-  PositionBloc({@required this.audioRepository}) : super(PositionInitial()) {
-    onPosition = audioRepository.audioPosition.listen((duration) {
+  PositionBloc({
+    AudioRepository audioRepository,
+    DownloadRepository downloadRepository,
+  })  : _audioRepository = getIt<AudioRepository>(audioRepository),
+        _downloadRepository = getIt<DownloadRepository>(downloadRepository),
+        super(PositionInitial()) {
+    onPosition = _audioRepository.audioPosition.listen((duration) {
       add(PositionNew(duration));
     });
-    onDownloading = Repository().download.percentageStream.listen((event) {
-      if (event.songId == audioRepository.current.id) {
+    onDownloading = _downloadRepository.percentage.listen((event) {
+      if (event.songId == _audioRepository.current.id) {
         add(PositionDownload(event.percentage));
       }
     });
-    onNewSong = audioRepository.songState.listen((event) {
+    onNewSong = _audioRepository.songState.listen((event) {
       add(PositionRefresh());
     });
   }
 
-  final AudioRepository audioRepository;
+  final AudioRepository _audioRepository;
+  final DownloadRepository _downloadRepository;
   StreamSubscription onPosition;
   StreamSubscription onDownloading;
   StreamSubscription onNewSong;
@@ -37,7 +42,7 @@ class PositionBloc extends Bloc<PositionEvent, PositionState> {
       yield PositionInitial();
     }
     if (event is PositionNew) {
-      final maxDuration = audioRepository.maxDuration;
+      final maxDuration = _audioRepository.maxDuration;
       var position = event.position;
       if (maxDuration < event.position) position = maxDuration;
       yield PositionSuccess(position, maxDuration);

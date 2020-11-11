@@ -19,6 +19,7 @@ import '../../../common/providers/songs_dao.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/audio_repository.dart';
+import '../../../common/repository/download_repository.dart';
 import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/playlist_repository.dart';
 import '../../../common/repository/repository.dart';
@@ -70,10 +71,13 @@ Future<void> _initHive(String databasePath) async {
 }
 
 void _initGetIt(String cachePath) {
-  // Assistant function to ease lazy singleton registration.
+  // Assistant function to simplify lazy singleton registration.
   void lazy<T>(T repo) => GetIt.I.registerLazySingleton<T>(() => repo);
   // Many providers require access to the Moor Database isolate.
   final moorDb = GetIt.I.get<MoorDatabase>();
+
+  // Register database and cache paths.
+  GetIt.I.registerSingleton<String>(cachePath, instanceName: 'cachePath');
 
   // Registering repositories for use.
   lazy<ImageRepository>(ImageRepository(ImageFileProvider(
@@ -92,5 +96,8 @@ void _initGetIt(String cachePath) {
     scheduler: Scheduler(),
     server: ServerProvider(),
   ));
+  lazy<DownloadRepository>(DownloadRepository());
+  // Note: AudioRepository currently has a lot of dependencies.
+  // It should be put last.
   lazy<AudioRepository>(AudioRepository());
 }

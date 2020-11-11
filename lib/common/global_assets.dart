@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ErrorSolutions {
   // This class is not meant to be instantiated or extended.
@@ -54,3 +55,6 @@ class AirstreamTheme {
 
 final rootNavigator = GlobalKey<NavigatorState>();
 final libraryNavigator = GlobalKey<NavigatorState>();
+
+/// Returns the singleton stored in get it if the value is null.
+T getIt<T>(T value) => value ?? GetIt.I.get<T>();

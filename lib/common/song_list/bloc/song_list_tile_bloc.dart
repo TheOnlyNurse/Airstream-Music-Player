@@ -7,27 +7,33 @@ import 'package:get_it/get_it.dart';
 
 import '../../providers/moor_database.dart';
 import '../../repository/audio_repository.dart';
-import '../../repository/repository.dart';
+import '../../repository/download_repository.dart';
 import '../../repository/song_repository.dart';
 
 part 'song_list_tile_event.dart';
+
 part 'song_list_tile_state.dart';
 
 class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
-
-  SongListTileBloc({@required this.audioRepository, @required this.tileSong})
-      : assert(tileSong != null),
+  SongListTileBloc({
+    @required this.tileSong,
+    AudioRepository audioRepository,
+    DownloadRepository downloadRepository,
+  })  : assert(tileSong != null),
+  _audioRepository = audioRepository ?? GetIt.I.get<AudioRepository>(),
+  _downloadRepository = downloadRepository ?? GetIt.I.get<DownloadRepository>(),
         super(SongListTileInitial()) {
-    final _repository = Repository();
-    onDownload = _repository.download.percentageStream.listen((event) {
-      if (tileSong.id == event.songId && event.hasData) {
-        add(SongListTileDownload(event.percentage));
+    onDownload = _downloadRepository.percentage.listen((event) {
+      if (tileSong.id == event.songId && event.isActive) {
+        if (event.percentage < 96) {
+          add(SongListTileDownload(event.percentage));
+        } else {
+          // TODO: Clean up this download finished behaviour.
+          add(SongListTileFinished());
+        }
       }
     });
-    onDownloadFinished = _repository.download.newPlayableSong.listen((event) {
-      if (tileSong.id == event.id) add(SongListTileFinished());
-    });
-    onPlaying = audioRepository.audioState.listen((state) {
+    onPlaying = _audioRepository.audioState.listen((state) {
       if (state == AudioState.playing) {
         currentSong = audioRepository.current;
         if (currentSong.id == tileSong.id) {
@@ -42,7 +48,8 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   }
 
   final Song tileSong;
-  final AudioRepository audioRepository;
+  final AudioRepository _audioRepository;
+  final DownloadRepository _downloadRepository;
   Song currentSong;
   StreamSubscription onDownload;
   StreamSubscription onDownloadFinished;
@@ -52,7 +59,7 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
     final currentState = state;
     if (event is SongListTileFetch) {
-      final response = await GetIt.I.get<SongRepository>().filePath(tileSong);
+      final response = await GetIt.I.get<SongRepository>().file(tileSong);
       if (response != null) {
         yield const SongListTileSuccess(cachePercent: 100);
       } else {

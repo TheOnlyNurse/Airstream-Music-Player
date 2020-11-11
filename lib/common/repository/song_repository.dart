@@ -180,7 +180,10 @@ extension ComplexQueries on SongRepository {
 
 extension AudioFileManagement on SongRepository {
   /// Returns the file (is it exists) associated with a song id.
-  Future<String> filePath(Song song) => _fileDatabase.filePath(song.id);
+  Future<File> file(Song song) async {
+    final path = await _fileDatabase.filePath(song.id);
+    return path != null ? File(path) : null;
+  }
 
   /// Deletes the file associated with a song.
   Future<void> deleteFile(Song song) async {
@@ -196,7 +199,7 @@ extension AudioFileManagement on SongRepository {
   /// Moves a given file into the cache folder and inserts it's existence into the database.
   ///
   /// Returns the file path recorded in the database.
-  Future<String> cacheFile({Song song, File file}) async {
+  Future<File> cacheFile({Song song, File file}) async {
     // Create a filename from song information.
     final filePath = path.join(
       _cacheFolder,
@@ -204,7 +207,7 @@ extension AudioFileManagement on SongRepository {
     );
     // After inserting the file record, ensure that the cache is still size compliant.
     _cacheSizeCheck();
-    await File(filePath).create(recursive: true);
+    final databaseFile = await File(filePath).create(recursive: true);
     await Future.wait([
       // Insert into the database.
       _fileDatabase.insertCompanion(AudioFilesCompanion.insert(
@@ -216,7 +219,7 @@ extension AudioFileManagement on SongRepository {
       // Copy from the temporary path to the database one.
       file.copy(filePath),
     ]);
-    return filePath;
+    return databaseFile;
   }
 
   /// Deletes the cache folder and clears the file database.

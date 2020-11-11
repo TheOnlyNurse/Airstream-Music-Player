@@ -1,134 +1,123 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+import 'package:meta/meta.dart';
+import 'package:mutex/mutex.dart';
+import 'package:rxdart/rxdart.dart';
 
-import '../models/percentage_model.dart';
-import '../repository/song_repository.dart';
+import '../models/download_percentage.dart';
 import 'moor_database.dart';
 import 'server_provider.dart';
 
 class DownloadProvider {
-  /// Global functions
-  Stream<PercentageModel> get percentageStream => _percentage.stream;
+  DownloadProvider({@required File downloadFile})
+      : assert(downloadFile != null),
+        _downloadFile = downloadFile,
+        _limiter = Mutex();
 
-  Stream<Song> get songPlayable => _songPlayable.stream;
+  /// A file used as to temporarily store a partially downloaded file.
+  final File _downloadFile;
 
-  /// Private variables
-  final _percentage = StreamController<PercentageModel>.broadcast();
-  final _songPlayable = StreamController<Song>.broadcast();
+  /// The sink used to write bytes to the temporary download file.
+  IOSink _fileSink;
+
+  /// A subscription to a download.
+  ///
+  /// Used to ensure that only one song is being downloaded at any given time.
+  StreamSubscription<List<int>> _downloadSubscription;
+
+  /// Used to limit the download requests until all resources are clean/ready.
+  final Mutex _limiter;
+
+  /// See getter below.
+  final _percentage = BehaviorSubject<DownloadPercentage>();
+
+  /// Emits an ongoing download progress.
+  ValueStream<DownloadPercentage> get percentage => _percentage.stream;
+
+  /// A timer used to timeout downloads that are taking too long between data packets.
   Timer _timeoutTimer;
-  StreamSubscription<List<int>> _downloadSS;
-  IOSink _tempSongSink;
 
-  Future<File> get _tempFile async {
-    return File(path.join((await getTemporaryDirectory()).path, 'song_file'));
-  }
+  /// Begin a download that might return a file if the download isn't interrupted.
+  Future<File> start(Song song) async {
+    // Interrupt any previous downloads
+    if (_downloadSubscription != null) _downloadSubscription.cancel();
+    await _limiter.acquire();
+    print('Download started');
+    _renewFile();
+    final futureFile = Completer<File>();
+    final byteStream = StreamController<List<int>>();
+    // Broadcast download has begun.
+    _percentage.add(DownloadPercentage(songId: song.id));
 
-  /// Download Song, place into cache and prompt play
-  Future<String> download(Song song) async {
-    await _prepareNewDownload(song);
-    final whenComplete = Completer<String>();
-    final fileBytes = StreamController<List<int>>();
-    final response = await ServerProvider().streamFile(
+    // Retrieve the file size and pipe the bytes to [byteStream].
+    final size = await ServerProvider().streamFile(
       'stream?id=${song.id}',
-      fileBytes,
+      byteStream,
     );
 
-    var current = PercentageModel(hasData: true, songId: song.id);
-
-    if (response.hasData) {
-      current = current.update(total: response.data);
-
-      _downloadSS = fileBytes.stream.listen((bytes) {
-        _startTimer(whenComplete, current);
-        _tempSongSink.add(bytes);
-        // Update the current percentage
-        current = current.update(increment: bytes.length);
-        _percentage.add(current);
-      });
-
-      _downloadSS.onDone(() async {
-        _closeSinks();
-        final newPath = await GetIt.I.get<SongRepository>().cacheFile(
-              song: song,
-              file: await _tempFile,
-            );
-        _songPlayable.add(song);
-        whenComplete.complete(newPath);
-      });
+    // Update the progress indicator, ending early on an error.
+    if (size.hasData) {
+      _percentage.add(_percentage.value.copyWith(total: size.data));
     } else {
-      _percentage.add(current.update(hasData: false));
-      whenComplete.complete();
+      _percentage.add(_percentage.value.copyWith(isActive: false));
+      return null;
     }
 
-    return whenComplete.future;
+    _downloadSubscription = byteStream.stream.listen(_onData);
+    byteStream.onCancel = () => _onFinished(futureFile);
+
+    return futureFile.future;
   }
 
-  Future<void> prefetch() async {
-    throw UnimplementedError();
-    // final provider = AudioProvider();
-    // final currentIndex = provider.currentIndex;
-    // final initialSong = provider.current;
-    // final initialQueue = provider.songQueue;
-    //
-    // final maxNextSongs = provider.songQueue.length - currentIndex - 1;
-    // final int prefetch = SettingsProvider().query(SettingType.prefetch);
-    // final songsToFetch = math.min(prefetch, maxNextSongs);
-    //
-    // for (var index = currentIndex + 1;
-    //     index < currentIndex + songsToFetch + 1;
-    //     index++) {
-    //   if (provider.current.id != initialSong.id) break;
-    //   if (provider.songQueue.length != initialQueue.length) break;
-    //
-    //   final song = initialQueue[index];
-    //   final songPath = await GetIt.I.get<SongRepository>().filePath(song);
-    //   if (songPath == null) await download(song);
-    //   await GetIt.I.get<ImageRepository>().highDefinition(song.art);
-    // }
-  }
-
-
-  void _closeSinks() {
-    _cancelTimer();
-    _downloadSS.cancel();
-    _downloadSS = null;
-    _tempSongSink.close();
-  }
-
-  void _cancelTimer() {
-    if (_timeoutTimer != null) {
-      _timeoutTimer.cancel();
-      _timeoutTimer = null;
+  /// Cancels the stream subscription which also cancels the linked controller.
+  ///
+  /// [_limiter] is also released here, so calling this function is vital on
+  /// completion/interruption events.
+  Future<void> _clean() async {
+    print('Cleaned.');
+    if (_downloadSubscription != null) {
+      _downloadSubscription.cancel();
+      _downloadSubscription = null;
     }
+    if (_limiter.isLocked) _limiter.release();
+    if (_fileSink != null) _fileSink.close();
   }
 
-  void _startTimer(Completer downloadComplete, PercentageModel percentage) {
-    _cancelTimer();
+  /// Prepares the download file location to receive a fresh set of bytes.
+  Future<void> _renewFile() async {
+    if (await _downloadFile.exists()) {
+      await _downloadFile.delete();
+    } else {
+      await _downloadFile.create(recursive: true);
+    }
+    _fileSink = _downloadFile.openWrite(mode: FileMode.append);
+  }
+
+  /// Add the received bytes to the file.
+  void _onData(List<int> bytes) {
+    _resetTimeout();
+    _fileSink.add(bytes);
+    _percentage.add(_percentage.value.copyWith(increment: bytes.length));
+  }
+
+  /// Cleans up resources when the download has finished.
+  ///
+  /// This can be either because of an interruption or because the file is completed.
+  Future<void> _onFinished(Completer<File> completer) async {
+    await _clean();
+    await _fileSink.close();
+    completer
+        .complete(_percentage.value.percentage == 100 ? _downloadFile : null);
+  }
+
+  /// A timer that cancels the download stream after a set duration.
+  ///
+  /// Used to cancel the stream when no new information isn't given promptly.
+  void _resetTimeout() {
+    if (_timeoutTimer?.isActive ?? false) _timeoutTimer.cancel();
     _timeoutTimer = Timer(const Duration(seconds: 5), () {
-      _closeSinks();
-      _percentage.add(percentage.update(hasData: false));
-      downloadComplete.complete();
+      if (_downloadSubscription != null) _downloadSubscription.cancel();
     });
   }
-
-  Future<void> _prepareNewDownload(Song song) async {
-    // Cancel any existing downloads in favour of the new song
-    if (_downloadSS != null) _closeSinks();
-
-    final tempFile = await _tempFile;
-    if (tempFile.existsSync()) tempFile.deleteSync();
-    _tempSongSink = tempFile.openWrite(mode: FileMode.append);
-    _percentage.add(PercentageModel(hasData: true, songId: song.id));
-    return;
-  }
-
-  /// Singleton boilerplate
-  factory DownloadProvider() => _instance;
-  static final DownloadProvider _instance = DownloadProvider._internal();
-
-  DownloadProvider._internal();
 }
