@@ -79,7 +79,6 @@ class AudioRepository {
     // Reset the queue.
     _songQueue.clear();
     _songQueue.addAll(songs);
-    print(_songQueue);
     return play(index);
   }
 
@@ -103,7 +102,6 @@ class AudioRepository {
     _ensurePlayable(
       filepath: await _songRepository.filePath(current),
       onFailure: () async {
-        print('pausing');
         _provider.pause();
         // Second filepath is a new download.
         // Second failure results in an exception.
@@ -123,7 +121,6 @@ class AudioRepository {
   /// [onFailure] is used when the filepath is null.
   Function ensurePlayable({File artwork}) =>
       ({String filepath, Function onFailure}) {
-        print('filepath: $filepath; onFailure: ${onFailure.toString()}');
         if (filepath != null) {
           _provider.start(
             songFile: File(filepath),

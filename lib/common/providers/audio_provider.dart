@@ -63,7 +63,10 @@ class AudioProvider {
     _audioPlayer.seek(position);
   }
 
-  void stop() => _audioPlayer.stop();
+  Future<void> stop() {
+    state.add(AudioState.stopped);
+    return _audioPlayer.stop();
+  }
 
   void resetAudio() {
     _audioPlayer.seek(const Duration(), force: true);
