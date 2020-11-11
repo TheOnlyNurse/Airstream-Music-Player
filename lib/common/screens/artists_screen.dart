@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
@@ -36,7 +35,12 @@ class ArtistsScreen extends StatelessWidget {
                     controller: _scrollController,
                     padding: const EdgeInsets.only(
                         left: 16.0, right: 16.0, bottom: 30.0),
-                    gridDelegate: WidgetProperties.artistsDelegate,
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 250,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 1 / 1.2,
+                    ),
                     itemCount: response.data.length,
                     itemBuilder: (context, int index) {
                       return ArtistCircle(artist: response.data[index]);

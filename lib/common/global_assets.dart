@@ -25,13 +25,6 @@ class WidgetProperties {
     childAspectRatio: 1 / 1.25,
   );
 
-  static const artistsDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-    maxCrossAxisExtent: 250,
-    mainAxisSpacing: 20,
-    crossAxisSpacing: 20,
-    childAspectRatio: 1 / 1.2,
-  );
-
   static const scrollPhysics = BouncingScrollPhysics(
     parent: AlwaysScrollableScrollPhysics(),
   );

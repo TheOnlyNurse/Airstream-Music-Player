@@ -70,7 +70,7 @@ class AudioRepository {
   /// Returns whether the previous index is possible.
   bool get hasPrevious {
     // Negative indexes should never be used.
-    assert(_currentIndex.isNegative);
+    assert(!_currentIndex.isNegative);
     return _currentIndex != 0;
   }
 
@@ -156,7 +156,7 @@ class AudioRepository {
 
   /// Plays the next song if one exists.
   void next() {
-    if (hasNext) play(_currentIndex++);
+    if (hasNext) play(_currentIndex + 1);
   }
 
   /// Plays the previous song if one exists.
@@ -166,7 +166,7 @@ class AudioRepository {
     if (audioPosition.value > const Duration(seconds: 5)) {
       _provider.seek(const Duration());
     } else if (hasPrevious) {
-      play(_currentIndex--);
+      play(_currentIndex - 1);
     }
   }
 

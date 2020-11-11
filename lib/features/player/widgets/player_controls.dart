@@ -19,10 +19,8 @@ class PlayerControls extends StatelessWidget {
       switch (state) {
         case PlayerControlsState.noNext:
           return true;
-          break;
         case PlayerControlsState.allControls:
           return true;
-          break;
         default:
           return false;
       }
@@ -32,10 +30,8 @@ class PlayerControls extends StatelessWidget {
       switch (state) {
         case PlayerControlsState.noPrevious:
           return true;
-          break;
         case PlayerControlsState.allControls:
           return true;
-          break;
         default:
           return false;
       }

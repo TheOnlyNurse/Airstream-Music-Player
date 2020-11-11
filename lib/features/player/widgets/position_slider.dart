@@ -13,47 +13,45 @@ class PositionSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => PositionBloc(audioRepository: audioRepository),
-      child: BlocBuilder<PositionBloc, PositionState>(
-        builder: (context, state) {
-          if (state is PositionSuccess) {
-            return Column(
-              children: <Widget>[
-                Slider(
-                  max: state.maxDuration,
-                  value: state.currentPosition,
-                  onChanged: (seconds) => audioRepository.seek(seconds),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(state.currentText),
-                      Text(state.maxText),
-                    ],
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width - 32,
+        height: 65,
+        child: BlocBuilder<PositionBloc, PositionState>(
+          builder: (context, state) {
+            if (state is PositionSuccess) {
+              return Column(
+                children: <Widget>[
+                  Slider(
+                    max: state.maxDuration,
+                    value: state.currentPosition,
+                    onChanged: (seconds) => audioRepository.seek(seconds),
                   ),
-                ),
-              ],
-            );
-          }
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(state.currentText),
+                        Text(state.maxText),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
 
-          if (state is PositionInitial || state is PositionLoading) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: SizedBox(
-                height: 4,
+            if (state is PositionInitial || state is PositionLoading) {
+              return Center(
                 child: LinearProgressIndicator(
                   value:
                       state is PositionLoading ? state.percentage / 100 : null,
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return Center(
-            child: Text('Could not read state: $state'),
-          );
-        },
+            return Center(child: Text('Failed to read state: $state'));
+          },
+        ),
       ),
     );
   }

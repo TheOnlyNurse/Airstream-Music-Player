@@ -33,11 +33,10 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     final currentState = state;
 
     if (event is PlayerFetch) {
+      yield PlayerInitial();
       final song = _audioRepository.current;
       if (song != null) {
-        yield currentState is PlayerSuccess
-            ? currentState.copyWith(song: song)
-            : PlayerSuccess(song: song);
+        yield PlayerSuccess(song: song);
       } else {
         yield PlayerFailure();
       }

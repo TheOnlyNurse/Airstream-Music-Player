@@ -68,13 +68,9 @@ class _Success extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        PositionSlider(
-          audioRepository: GetIt.I.get<AudioRepository>(),
-        ),
+        PositionSlider(audioRepository: GetIt.I.get<AudioRepository>()),
         const Spacer(),
-        PlayerControls(
-          audioRepository: GetIt.I.get<AudioRepository>(),
-        ),
+        PlayerControls(audioRepository: GetIt.I.get<AudioRepository>()),
         const Spacer(),
       ],
     );
