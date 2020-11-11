@@ -1,3 +1,4 @@
+import 'package:airstream/common/global_assets.dart';
 import 'package:airstream/common/models/playlist_model.dart';
 import 'package:airstream/common/models/repository_response.dart';
 import 'package:airstream/common/repository/playlist_repository.dart';
@@ -28,9 +29,7 @@ part 'widgets/route_transition.dart';
 part 'widgets/routes.dart';
 
 class LibraryFoundation extends StatelessWidget {
-  const LibraryFoundation({Key key, this.navigatorKey}) : super(key: key);
-
-  final GlobalKey<NavigatorState> navigatorKey;
+  const LibraryFoundation({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +43,13 @@ class LibraryFoundation extends StatelessWidget {
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(
             playerBloc: context.bloc<MiniPlayerBloc>(),
-            navigatorKey: navigatorKey,
           ),
         ),
       ],
       child: WillPopScope(
         onWillPop: () async {
-          final navigatorState = navigatorKey.currentState;
-          if (navigatorState.canPop()) {
-            navigatorState.pop();
+          if (libraryNavigator.currentState.canPop()) {
+            libraryNavigator.currentState.pop();
             return false;
           } else {
             return true;
@@ -63,7 +60,7 @@ class LibraryFoundation extends StatelessWidget {
             child: Stack(
               children: <Widget>[
                 Navigator(
-                  key: navigatorKey,
+                  key: libraryNavigator,
                   initialRoute: 'library/',
                   onGenerateRoute: _routeTransition,
                 ),

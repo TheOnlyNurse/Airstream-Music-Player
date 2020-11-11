@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import '../models/repository_response.dart';
 
 class FutureButton<T> extends StatelessWidget {
-  final Widget child;
   final Future<RepositoryResponse<T>> future;
+  final Widget child;
   final void Function(T) onTap;
 
   const FutureButton({
     Key key,
-    @required this.child,
     @required this.future,
+    @required this.child,
     this.onTap,
-  })  : assert(child != null),
-        assert(future != null),
+  })  : assert(future != null),
+        assert(child != null),
         super(key: key);
 
   @override

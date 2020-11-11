@@ -1,24 +1,22 @@
 import 'dart:io';
 
-/// Internal
 import '../providers/moor_database.dart';
 import '../repository/image_repository.dart';
 
 class ImageAdapter {
   final Album _album;
   final Artist _artist;
+  final Song _song;
   final bool _isHiDef;
 
   const ImageAdapter({
     Album album,
     Artist artist,
+    Song song,
     bool isHiDef = false,
-  })  : assert(
-          !(album != null && artist != null),
-          'Must pass either [album] or [artist] but not both.',
-        ),
-        _album = album,
+  })  : _album = album,
         _artist = artist,
+        _song = song,
         _isHiDef = isHiDef;
 
   /// Tells Airstream Image whether to animate from loading widget.
@@ -38,6 +36,11 @@ class ImageAdapter {
 
     if (_artist != null) {
       return repository.fromArtist(_artist, fetch: _isHiDef);
+    }
+
+    if (_song != null) {
+      final id = _song.art;
+      return _isHiDef ? repository.highDefinition(id) : repository.preview(id);
     }
 
     throw UnimplementedError();

@@ -1,4 +1,4 @@
-import 'package:airstream/common/static_assets.dart';
+import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 
 /// Internal

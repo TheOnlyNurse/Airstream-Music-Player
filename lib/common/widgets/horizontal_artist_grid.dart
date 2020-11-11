@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../global_assets.dart';
 import '../providers/moor_database.dart';
-import '../static_assets.dart';
 import 'artist_circle.dart';
 
 class HorizontalArtistGrid extends StatelessWidget {

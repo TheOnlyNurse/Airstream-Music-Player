@@ -58,3 +58,6 @@ class AirstreamTheme {
     brightness: Brightness.dark,
   );
 }
+
+final rootNavigator = GlobalKey<NavigatorState>();
+final libraryNavigator = GlobalKey<NavigatorState>();

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-
-/// Internal Links
+import '../global_assets.dart';
 import '../providers/moor_database.dart';
-import '../static_assets.dart';
 import '../widgets/album_card.dart';
 
 class SliverAlbumGrid extends StatelessWidget {

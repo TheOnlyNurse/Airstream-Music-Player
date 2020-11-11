@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
-import '../static_assets.dart';
 import '../widgets/alpha_grid_view.dart';
 import '../widgets/artist_circle.dart';
 import '../widgets/error_widgets.dart';

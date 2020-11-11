@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../global_assets.dart';
 import '../models/song_list_delegate.dart';
 import '../providers/moor_database.dart';
 import '../repository/audio_repository.dart';
 import '../repository/playlist_repository.dart';
 import '../repository/song_repository.dart';
 import '../song_list_bar/song_list_bar.dart';
-import '../static_assets.dart';
 import 'bloc/song_list_bloc.dart';
 import 'widgets/song_list_tile.dart';
 

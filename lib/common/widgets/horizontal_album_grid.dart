@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../global_assets.dart';
 import '../providers/moor_database.dart';
-import '../static_assets.dart';
 import 'album_card.dart';
 
 class HorizontalAlbumGrid extends StatelessWidget {

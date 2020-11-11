@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:airstream/common/providers/server_provider.dart';
-import 'package:airstream/common/static_assets.dart';
+import 'package:airstream/common/global_assets.dart';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 

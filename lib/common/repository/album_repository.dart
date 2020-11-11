@@ -2,12 +2,12 @@ import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
+import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/albums_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/scheduler.dart';
 import '../providers/server_provider.dart';
-import '../static_assets.dart';
 
 class AlbumRepository {
   const AlbumRepository({

@@ -81,8 +81,8 @@ class _SolutionText extends StatelessWidget {
   }
 }
 
-class NoStateErrorScreen extends StatelessWidget {
-  const NoStateErrorScreen({Key key, @required this.message})
+class StateErrorScreen extends StatelessWidget {
+  const StateErrorScreen({Key key, @required this.message})
       : assert(message != null),
         super(key: key);
 

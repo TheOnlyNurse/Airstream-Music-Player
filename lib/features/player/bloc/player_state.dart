@@ -7,34 +7,23 @@ abstract class PlayerState extends Equatable {
   List<Object> get props => [];
 }
 
-class PlayerInitial extends PlayerState {
-  final Song song;
-
-  const PlayerInitial(this.song);
-
-  @override
-  List<Object> get props => [song];
-}
+class PlayerInitial extends PlayerState {}
 
 class PlayerSuccess extends PlayerState {
   final Song song;
-  final Album album;
-  final File image;
   final bool isFinished;
 
   const PlayerSuccess(
-      {this.song, this.image, this.album, this.isFinished = false});
+      {this.song, this.isFinished = false});
 
-  PlayerSuccess copyWith({Album album, File image, bool isFinished}) =>
+  PlayerSuccess copyWith({Song song, bool isFinished}) =>
       PlayerSuccess(
-        song: song,
-        album: album ?? this.album,
-        image: image ?? this.image,
+        song: this.song,
         isFinished: isFinished ?? false,
       );
 
   @override
-  List<Object> get props => [song, album, image, isFinished];
+  List<Object> get props => [song, isFinished];
 }
 
 class PlayerFailure extends PlayerState {}

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../repository/album_repository.dart';
-import '../static_assets.dart';
 import '../widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';
 

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
+import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'player_queue.dart';
 
@@ -16,7 +18,7 @@ class QueueDialog extends StatelessWidget {
         SizedBox(
           height: math.max(media.height - 250, 250),
           width: math.max(media.height - 50, 250),
-          child: const PlayerQueue(),
+          child: PlayerQueue(audioRepository: GetIt.I.get<AudioRepository>()),
         )
       ],
     );

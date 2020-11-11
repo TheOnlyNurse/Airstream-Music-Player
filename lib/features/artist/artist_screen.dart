@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/global_assets.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/song_list/sliver_song_list.dart';
-import '../../common/static_assets.dart';
 import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';

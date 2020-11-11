@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../common/static_assets.dart';
+import '../../common/global_assets.dart';
 import 'screens/account_settings.dart';
 import 'screens/network_settings.dart';
 import 'screens/playback_settings.dart';

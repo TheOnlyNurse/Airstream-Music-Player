@@ -1,4 +1,4 @@
-import 'package:airstream/common/static_assets.dart';
+import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 
 import 'features/library_foundation/foundation.dart';
@@ -7,13 +7,9 @@ import 'features/player/player_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/settings/settings_foundation.dart';
 
-void main() => runApp(_Foundation(rootNavigator: GlobalKey()));
+void main() => runApp(_Foundation());
 
 class _Foundation extends StatelessWidget {
-  const _Foundation({Key key, @required this.rootNavigator})
-      : super(key: key);
-
-  final GlobalKey<NavigatorState> rootNavigator;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +29,12 @@ class _Foundation extends StatelessWidget {
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
         ),
       ),
+      navigatorKey: rootNavigator,
       routes: <String, WidgetBuilder>{
-        '/musicPlayer': (context) => PlayerScreen(navKey: rootNavigator),
+        '/musicPlayer': (context) => const PlayerScreen(),
         '/settings': (context) => SettingsScreen(),
-        '/search': (context) => SearchScreen(navKey: rootNavigator),
-        '/library': (context) => LibraryFoundation(navigatorKey: rootNavigator),
+        '/search': (context) => SearchScreen(),
+        '/library': (context) => const LibraryFoundation(),
       },
       home: SplashScreen(),
     );

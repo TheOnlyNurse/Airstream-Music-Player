@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/global_assets.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/audio_repository.dart';
 import '../../common/song_list/sliver_song_list.dart';
-import '../../common/static_assets.dart';
 import '../../common/widgets/circle_close_button.dart';
 import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
@@ -46,7 +46,7 @@ class SingleAlbumScreen extends StatelessWidget {
           return const Center(child: Text('TODO: proper error screen'));
         }
 
-        return NoStateErrorScreen(message: state.toString());
+        return StateErrorScreen(message: state.toString());
       },
     );
   }

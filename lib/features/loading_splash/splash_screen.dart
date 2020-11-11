@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/loading_splash_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -15,8 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    cubit = SplashScreenCubit();
-    cubit.loadDatabases();
+    cubit = SplashScreenCubit()..loadDatabases();
     super.initState();
   }
 

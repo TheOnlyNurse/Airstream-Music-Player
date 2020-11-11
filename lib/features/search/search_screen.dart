@@ -3,42 +3,39 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/global_assets.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/song_repository.dart';
-import '../../common/static_assets.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/song_tile.dart';
 import 'bloc/search_bloc.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({
-    Key key,
-    @required this.navKey,
-  })  : assert(navKey != null),
-        super(key: key);
-
-  final GlobalKey<NavigatorState> navKey;
-
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final textController = TextEditingController();
+  TextEditingController _textController;
+
+  @override
+  void initState() {
+    _textController = TextEditingController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     void _onTap(String route, dynamic argument) {
-      final navState = widget.navKey.currentState;
-      if (navState.canPop()) {
-        navState.popUntil((route) => route.isFirst);
+      if (libraryNavigator.currentState.canPop()) {
+        libraryNavigator.currentState.popUntil((route) => route.isFirst);
       }
+      Navigator.of(libraryNavigator.currentContext)
+          .pushNamed(route, arguments: argument);
       Navigator.pop(context);
-      textController.clear();
-      navState.pushNamed(route, arguments: argument);
     }
 
     return BlocProvider(
@@ -53,7 +50,7 @@ class _SearchScreenState extends State<SearchScreen> {
         body: SafeArea(
           child: Column(
             children: <Widget>[
-              _SearchBar(textController: textController),
+              _SearchBar(textController: _textController),
               Expanded(
                 child: BlocBuilder<SearchBloc, SearchState>(
                   builder: (context, state) {
@@ -74,6 +71,12 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 }
 
@@ -233,7 +236,7 @@ class _OtherSearchStates extends StatelessWidget {
     final currentState = state;
     if (currentState is SearchInitial) return const Text('Here to serve!');
     if (currentState is SearchLoading) {
-      return const  SizedBox(
+      return const SizedBox(
         height: 60,
         width: 60,
         child: Center(child: CircularProgressIndicator()),

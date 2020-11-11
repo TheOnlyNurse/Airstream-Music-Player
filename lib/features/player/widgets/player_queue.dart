@@ -5,7 +5,9 @@ import '../../../common/repository/audio_repository.dart';
 import '../../../common/widgets/song_tile.dart';
 
 class PlayerQueue extends StatefulWidget {
-  const PlayerQueue({Key key, this.audioRepository}) : super(key: key);
+  const PlayerQueue({Key key, @required this.audioRepository})
+      : assert(audioRepository != null),
+        super(key: key);
   final AudioRepository audioRepository;
 
   @override

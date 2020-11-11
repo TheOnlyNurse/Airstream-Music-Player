@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
+import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/artists_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/server_provider.dart';
-import '../static_assets.dart';
 
 class ArtistRepository {
   final ArtistsDao _database;

@@ -21,10 +21,10 @@ class _Success extends StatelessWidget {
               future: GetIt.I.get<ArtistRepository>().byId(
                 state.album.artistId,
               ),
-              onTap: (response) => Navigator.pushReplacementNamed(
+              onTap: (artist) => Navigator.pushReplacementNamed(
                 context,
                 'library/singleArtist',
-                arguments: response,
+                arguments: artist,
               ),
               child: AutoSizeText(
                 state.album.title,
