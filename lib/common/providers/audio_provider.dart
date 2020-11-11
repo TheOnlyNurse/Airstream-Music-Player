@@ -9,6 +9,7 @@ import '../repository/audio_repository.dart';
 class AudioProvider {
   AudioProvider(this._audioPlayer) {
     _audioPlayer.playlistFinished.listen(_onAudioCompleted);
+    _audioPlayer.playerState.listen(_onPlayerStateChange);
   }
 
   /// The audio player controlled by the provider.
@@ -38,7 +39,6 @@ class AudioProvider {
   /// Pauses the last emitted state was a playing one.
   Future<void> pause() {
     if (state.value == AudioState.playing) {
-      state.add(AudioState.paused);
       return _audioPlayer.pause();
     } else {
       // To suppress returning null warnings.
@@ -49,7 +49,6 @@ class AudioProvider {
   /// Plays a song if the last emitted state was a paused one.
   Future<void> play() {
     if (state.value == AudioState.paused) {
-      state.add(AudioState.playing);
       return _audioPlayer.play();
     } else {
       // To suppress returning null warnings.
@@ -64,7 +63,6 @@ class AudioProvider {
   }
 
   Future<void> stop() {
-    state.add(AudioState.stopped);
     return _audioPlayer.stop();
   }
 
@@ -93,7 +91,6 @@ class AudioProvider {
       if (artwork != null) {
         audio.updateMetas(image: MetasImage.file(artwork.path));
       }
-      state.add(AudioState.playing);
       isPlaying.complete(true);
     } catch (e) {
       isPlaying.complete(false);
@@ -112,4 +109,20 @@ class AudioProvider {
       }
     }
   }
+
+  void _onPlayerStateChange(PlayerState event) {
+    print('processing event $event');
+    switch(event) {
+      case PlayerState.play:
+        state.add(AudioState.playing);
+        break;
+      case PlayerState.pause:
+        state.add(AudioState.paused);
+        break;
+      case PlayerState.stop:
+        state.add(AudioState.stopped);
+        break;
+    }
+  }
+
 }

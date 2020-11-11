@@ -28,9 +28,13 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
       if (tileSong.id == event.id) add(SongListTileFinished());
     });
     onPlaying = audioRepository.audioState.listen((state) {
-      currentSong = audioRepository.current;
-      if (currentSong.id == tileSong.id && state == AudioState.playing) {
-        add(const SongListTilePlaying(isPlaying: true));
+      if (state == AudioState.playing) {
+        currentSong = audioRepository.current;
+        if (currentSong.id == tileSong.id) {
+          add(const SongListTilePlaying(isPlaying: true));
+        } else {
+          add(const SongListTilePlaying(isPlaying: false));
+        }
       } else {
         add(const SongListTilePlaying(isPlaying: false));
       }
