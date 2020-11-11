@@ -111,7 +111,6 @@ class AudioProvider {
   }
 
   void _onPlayerStateChange(PlayerState event) {
-    print('processing event $event');
     switch(event) {
       case PlayerState.play:
         state.add(AudioState.playing);

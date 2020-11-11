@@ -15,11 +15,9 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   PlayerBloc({AudioRepository audioRepository})
       : _audioRepository = audioRepository ?? GetIt.I.get<AudioRepository>(),
         super(PlayerInitial()) {
-    _newSong = _audioRepository.songState.listen((state) => add(PlayerFetch()));
+    _newSong = _audioRepository.songState.listen((_) => add(PlayerFetch()));
     _audioStopped = _audioRepository.audioState.listen((state) {
-      if (state == AudioState.stopped) {
-        add(PlayerStopped());
-      }
+      if (state == AudioState.stopped) add(PlayerStopped());
     });
   }
 
@@ -33,13 +31,8 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     final currentState = state;
 
     if (event is PlayerFetch) {
-      yield PlayerInitial();
       final song = _audioRepository.current;
-      if (song != null) {
-        yield PlayerSuccess(song: song);
-      } else {
-        yield PlayerFailure();
-      }
+      yield song != null ? PlayerSuccess(song: song) : PlayerFailure();
     }
 
     if (event is PlayerStopped && currentState is PlayerSuccess) {
