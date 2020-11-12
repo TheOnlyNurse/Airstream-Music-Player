@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../../../common/global_assets.dart';
+part of '../settings_foundation.dart';
 
 class SettingsTitle extends StatefulWidget {
   final int current;

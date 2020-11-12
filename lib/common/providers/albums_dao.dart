@@ -1,9 +1,6 @@
-/// External Packages
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
 
-import '../repository/repository.dart';
-/// Internal Links
 import 'moor_database.dart';
 
 part 'albums_dao.g.dart';
@@ -27,8 +24,6 @@ class Albums extends Table {
 
   IntColumn get year => integer().nullable()();
 
-  BoolColumn get isCached => boolean().withDefault(const Constant(false))();
-
   BoolColumn get isStarred => boolean().withDefault(const Constant(false))();
 
   @override
@@ -38,15 +33,6 @@ class Albums extends Table {
 @UseDao(tables: [Albums])
 class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   AlbumsDao(MoorDatabase db) : super(db);
-
-  /// Returns an expression that returns cached albums if offline.
-  Expression<bool> _cacheChecker($AlbumsTable tbl, Expression<bool> addWhere) {
-    if (Repository().settings.isOffline) {
-      return tbl.isCached.equals(true) & addWhere;
-    } else {
-      return addWhere;
-    }
-  }
 
   /// ========== DB QUERIES ==========
 
@@ -67,10 +53,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   Future<List<Album>> random(int length) async {
     // k of 8 means 12.5% chance of selecting a row
     const randomWhere = 'WHERE random() % 8 = 0';
-    const cached = ' AND is_cached = 1';
-    final queryWhere =
-        Repository().settings.isOffline ? randomWhere + cached : randomWhere;
-    final selectQuery = 'SELECT * FROM albums $queryWhere LIMIT $length';
+    final selectQuery = 'SELECT * FROM albums $randomWhere LIMIT $length';
     final query = await customSelect(selectQuery).get();
     return query.map((e) => Album.fromData(e.data, db)).toList();
   }
@@ -84,8 +67,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
 
   /// Returns all the genres recorded within albums.
   Future<List<String>> extractGenres() async {
-    final query = select(albums);
-    query.where((a) => _cacheChecker(a, isNotNull(a.genre)));
+    final query = select(albums)..where((a) => isNotNull(a.genre));
     query.orderBy([(a) => OrderingTerm(expression: a.genre)]);
     return query.map((row) => row.genre).get();
   }

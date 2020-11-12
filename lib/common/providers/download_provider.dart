@@ -43,7 +43,6 @@ class DownloadProvider {
     // Interrupt any previous downloads
     if (_downloadSubscription != null) _downloadSubscription.cancel();
     await _limiter.acquire();
-    print('Download started');
     _renewFile();
     final futureFile = Completer<File>();
     final byteStream = StreamController<List<int>>();
@@ -75,7 +74,6 @@ class DownloadProvider {
   /// [_limiter] is also released here, so calling this function is vital on
   /// completion/interruption events.
   Future<void> _clean() async {
-    print('Cleaned.');
     if (_downloadSubscription != null) {
       _downloadSubscription.cancel();
       _downloadSubscription = null;

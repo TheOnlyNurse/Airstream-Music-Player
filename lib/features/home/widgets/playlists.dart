@@ -13,7 +13,7 @@ class Playlists extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => PlaylistsLibraryBloc(
-        playlistRepository: GetIt.I.get<PlaylistRepository>(),
+        playlist: GetIt.I.get<PlaylistRepository>(),
       )..add(PlaylistsLibraryEvent.fetch),
       child: BlocBuilder<PlaylistsLibraryBloc, PlaylistsLibraryState>(
         builder: (context, state) {

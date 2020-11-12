@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of '../settings_foundation.dart';
 
 class CustomSwitch extends StatefulWidget {
   final bool initial;

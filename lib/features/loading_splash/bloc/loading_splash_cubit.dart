@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -21,8 +22,8 @@ import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/audio_repository.dart';
 import '../../../common/repository/download_repository.dart';
 import '../../../common/repository/image_repository.dart';
+import '../../../common/repository/moor_isolate.dart';
 import '../../../common/repository/playlist_repository.dart';
-import '../../../common/repository/repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'loading_splash_state.dart';
@@ -80,6 +81,7 @@ void _initGetIt(String cachePath) {
   GetIt.I.registerSingleton<String>(cachePath, instanceName: 'cachePath');
 
   // Registering repositories for use.
+  lazy<SettingsRepository>(SettingsRepository());
   lazy<ImageRepository>(ImageRepository(ImageFileProvider(
     hive: Hive.box<int>('images'),
     cacheFolder: path.join(cachePath, 'image/'),

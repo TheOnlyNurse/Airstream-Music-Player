@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:crypto/crypto.dart';
+import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
@@ -10,11 +12,10 @@ import 'package:xml/xml.dart';
 
 import '../../temp_password_holder.dart';
 import '../models/repository_response.dart';
-import '../repository/repository.dart';
 import 'scheduler.dart';
 
 class ServerProvider {
-  /// Private Variables
+  final _settings = GetIt.I.get<SettingsRepository>();
   final http.Client _httpClient = http.Client();
   final _streamLocker = Mutex();
   final _fetchLocker = Mutex();
@@ -32,7 +33,7 @@ class ServerProvider {
     String request,
     StreamController<List<int>> controller,
   ) async {
-    if (Repository().settings.isOffline) {
+    if (_settings.isOffline) {
       return const SingleResponse<int>(error: 'App is offline');
     }
 
@@ -171,7 +172,7 @@ class ServerProvider {
   /// Returns null when an invalid response is received.
   /// Denies all requests (with null) when the user setting 'isOffline' is true.
   Future<http.Response> _fetch(String url) async {
-    if (Repository().settings.isOffline) return null;
+    if (_settings.isOffline) return null;
 
     await _fetchLocker.acquire();
     try {
@@ -188,7 +189,7 @@ class ServerProvider {
 
   /// Fetch a JSON response given a query from the discogs database
   Future<http.Response> _fetchDiscogs(String query) async {
-    if (Repository().settings.isOffline) return null;
+    if (_settings.isOffline) return null;
 
     const key = 'jQAdutNleiRcSyAKdvdU';
     const secret = 'ZbUjUUiQiGUxDSOHmNusBWrLSGbAKMsz';

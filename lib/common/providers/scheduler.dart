@@ -1,13 +1,13 @@
-
+import 'package:airstream/common/global_assets.dart';
+import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '../repository/communication.dart';
 import 'server_provider.dart';
-import 'settings_provider.dart';
 
 class Scheduler {
-  /// Global Variables
+  final SettingsRepository _settings;
+
   Future<bool> get hasJobs async => _hasJobs();
 
   /// Private variables
@@ -50,8 +50,8 @@ class Scheduler {
   }
 
   void _onStart() {
-    SettingsProvider().onSettingsChange.listen((type) {
-      if (type == SettingType.isOffline) _hasJobs();
+    _settings.connectivityChanged.listen((isOnline) {
+      if (isOnline) _hasJobs();
     });
   }
 
@@ -59,9 +59,8 @@ class Scheduler {
   factory Scheduler() => _instance;
   static final Scheduler _instance = Scheduler._internal();
 
-  Scheduler._internal() {
+  Scheduler._internal({SettingsRepository settingsRepository})
+      : _settings = getIt<SettingsRepository>(settingsRepository) {
     _onStart();
   }
-
-
 }

@@ -1,28 +1,29 @@
 import 'dart:async';
 
-import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 
+import '../../../common/global_assets.dart';
 import '../../../common/models/playlist_model.dart';
-import '../../../common/repository/communication.dart';
+import '../../../common/models/repository_response.dart';
 import '../../../common/repository/playlist_repository.dart';
-import '../../../common/repository/repository.dart';
+import '../../../common/repository/settings_repository.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
-  PlaylistsLibraryBloc({@required this.playlistRepository})
-      : assert(playlistRepository != null),
+  PlaylistsLibraryBloc({PlaylistRepository playlist, SettingsRepository settings,})
+      : _playlist = getIt<PlaylistRepository>(playlist),
+  _settings = getIt<SettingsRepository>(settings),
         super(PlaylistsLibraryInitial()) {
-    onNetworkChange = Repository().settings.onChange.listen((type) {
-      if (type == SettingType.isOffline) add(PlaylistsLibraryEvent.fetch);
+    onNetworkChange = _settings.connectivityChanged.listen((isOnline) {
+      if (isOnline) add(PlaylistsLibraryEvent.fetch);
     });
-    onPlaylistChange = playlistRepository.changed.listen((event) {
+    onPlaylistChange = _playlist.changed.listen((event) {
       add(PlaylistsLibraryEvent.fetch);
     });
   }
 
-  final PlaylistRepository playlistRepository;
+  final PlaylistRepository _playlist;
+  final SettingsRepository _settings;
   StreamSubscription onNetworkChange;
   StreamSubscription onPlaylistChange;
 
@@ -31,7 +32,7 @@ class PlaylistsLibraryBloc
       PlaylistsLibraryEvent event) async* {
     switch (event) {
       case PlaylistsLibraryEvent.fetch:
-        final response = playlistRepository.byAlphabet();
+        final response = _playlist.byAlphabet();
         if (response.hasData) {
           yield PlaylistsLibrarySuccess(response.data);
         } else {

@@ -52,7 +52,6 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   final DownloadRepository _downloadRepository;
   Song currentSong;
   StreamSubscription onDownload;
-  StreamSubscription onDownloadFinished;
   StreamSubscription onPlaying;
 
   @override
@@ -84,7 +83,6 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   Future<void> close() {
     onPlaying.cancel();
     onDownload.cancel();
-    onDownloadFinished.cancel();
     return super.close();
   }
 }

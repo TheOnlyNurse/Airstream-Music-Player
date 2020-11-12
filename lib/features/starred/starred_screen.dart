@@ -21,8 +21,8 @@ class StarredScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => StarredBloc(
-        albumRepository: GetIt.I.get<AlbumRepository>(),
-        songRepository: GetIt.I.get<SongRepository>(),
+        album: GetIt.I.get<AlbumRepository>(),
+        song: GetIt.I.get<SongRepository>(),
       )..add(StarredFetch()),
       child: BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
         if (state is StarredSuccess) {

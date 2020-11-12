@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../common/global_assets.dart';
-import 'screens/account_settings.dart';
-import 'screens/network_settings.dart';
-import 'screens/playback_settings.dart';
-import 'screens/settings_title.dart';
+import '../../common/repository/image_repository.dart';
+import '../../common/repository/settings_repository.dart';
+import '../../common/repository/song_repository.dart';
+import '../../common/widgets/custom_alert_dialog.dart';
+
+part 'screens/account_settings.dart';
+part 'screens/network_settings.dart';
+part 'screens/playback_settings.dart';
+part 'screens/settings_title.dart';
+part 'widgets/switch.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -51,7 +58,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             });
           },
           children: <Widget>[
-            NetworkSettingsScreen(),
+            NetworkSettingsScreen(
+              settings: GetIt.I.get<SettingsRepository>(),
+            ),
             AccountSettings(),
             PlaybackSettings(),
           ],

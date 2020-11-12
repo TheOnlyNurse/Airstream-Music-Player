@@ -1,16 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-
-import '../../../common/global_assets.dart';
-import '../../../common/repository/communication.dart';
-import '../../../common/repository/image_repository.dart';
-import '../../../common/repository/repository.dart';
-import '../../../common/repository/song_repository.dart';
-import '../../../common/widgets/custom_alert_dialog.dart';
-import '../widgets/slider.dart';
-import '../widgets/switch.dart';
+part of '../settings_foundation.dart';
 
 class NetworkSettingsScreen extends StatelessWidget {
+  const NetworkSettingsScreen({Key key, @required this.settings})
+      : assert(settings != null),
+        super(key: key);
+
+  final SettingsRepository settings;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -23,38 +19,15 @@ class NetworkSettingsScreen extends StatelessWidget {
             CustomSwitch(
               title: const Text('Go offline?'),
               leading: const Icon(Icons.cloud_off),
-              initial: Repository().settings.isOffline,
-              onChanged: (value) {
-                Repository().settings.change(SettingType.isOffline, value);
-              },
+              initial: settings.isOffline,
+              onChanged: (value) => settings.toggleOnline(),
             ),
             CustomSwitch(
               title: const Text('Auto offline on mobile data'),
-              leading: const Icon(Icons.signal_cellular_connected_no_internet_4_bar),
-              initial: Repository().settings.autoOffline,
-              onChanged: (value) {
-                Repository().settings.change(SettingType.autoOffline, value);
-              },
-            ),
-            const _Title(title: 'Cache'),
-            const SettingsSlider(title: 'Prefetch', type: SettingType.prefetch),
-            const SettingsSlider(
-                title: 'Music Cache', type: SettingType.musicCache),
-            const SettingsSlider(
-                title: 'Image Cache', type: SettingType.imageCache),
-            const SizedBox(height: 16),
-            _ClearCache(
-              imageRepository: GetIt.I.get<ImageRepository>(),
-              songRepository: GetIt.I.get<SongRepository>(),
-            ),
-            const _Title(title: 'Bitrate'),
-            const SettingsSlider(
-              title: 'Wifi Bitrate',
-              type: SettingType.wifiBitrate,
-            ),
-            const SettingsSlider(
-              title: 'Mobile Bitrate',
-              type: SettingType.mobileBitrate,
+              leading:
+                  const Icon(Icons.signal_cellular_connected_no_internet_4_bar),
+              initial: settings.autoOffline,
+              onChanged: (value) => settings.toggleAutoOffline(),
             ),
           ],
         ),
@@ -80,6 +53,7 @@ class _Title extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _ClearCache extends StatelessWidget {
   const _ClearCache(
       {Key key, @required this.imageRepository, @required this.songRepository})

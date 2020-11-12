@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of '../settings_foundation.dart';
 
 class PlaybackSettings extends StatelessWidget {
   @override

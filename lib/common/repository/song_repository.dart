@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
@@ -14,21 +15,23 @@ import '../providers/audio_files_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/server_provider.dart';
 import '../providers/songs_dao.dart';
-import 'repository.dart';
 
 class SongRepository {
   SongRepository({
     @required SongsDao songsDao,
     @required AudioFilesDao audioFilesDao,
     @required String cacheFolder,
+    SettingsRepository settings,
   })  : assert(songsDao != null),
         assert(audioFilesDao != null),
         _database = songsDao,
         _fileDatabase = audioFilesDao,
-        _cacheFolder = cacheFolder;
+        _cacheFolder = cacheFolder,
+        _settings = getIt<SettingsRepository>(settings);
 
   final SongsDao _database;
   final AudioFilesDao _fileDatabase;
+  final SettingsRepository _settings;
   final String _cacheFolder;
   final _cacheCheckLocker = Mutex();
 
@@ -232,7 +235,7 @@ extension AudioFileManagement on SongRepository {
 
   Future<void> _cacheSizeCheck() async {
     await _cacheCheckLocker.protect(() async {
-      final maxSize = Repository().settings.maxAudioCacheSize;
+      final maxSize = _settings.audioCache;
       var currentSize = await _fileDatabase.cacheSize();
 
       if (currentSize > maxSize) {

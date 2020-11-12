@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:airstream/common/models/download_percentage.dart';
-import 'package:airstream/common/providers/download_provider.dart';
-import 'package:airstream/common/providers/moor_database.dart';
-import 'package:airstream/common/repository/song_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
+
+import '../models/download_percentage.dart';
+import '../providers/download_provider.dart';
+import '../providers/moor_database.dart';
+import 'song_repository.dart';
 
 class DownloadRepository {
   DownloadRepository({
