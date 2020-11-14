@@ -1,6 +1,6 @@
-import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 
+import 'common/global_assets.dart';
 import 'features/library_foundation/foundation.dart';
 import 'features/loading_splash/splash_screen.dart';
 import 'features/player/player_screen.dart';

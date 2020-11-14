@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:airstream/common/providers/settings_provider.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:hive/hive.dart';
+
+import '../providers/settings_provider.dart';
 
 class SettingsRepository {
   SettingsRepository({SettingsProvider provider})

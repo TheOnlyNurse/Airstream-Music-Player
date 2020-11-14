@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../common/repository/audio_repository.dart';
 import 'player_queue.dart';
 
 class QueueDialog extends StatelessWidget {

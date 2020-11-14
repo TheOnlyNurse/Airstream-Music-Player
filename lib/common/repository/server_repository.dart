@@ -2,17 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:airstream/common/global_assets.dart';
-import 'package:airstream/common/providers/discogs_provider.dart';
-import 'package:airstream/common/repository/settings_repository.dart';
+
 import 'package:crypto/crypto.dart';
-import 'package:airstream/common/providers/subsonic_provider.dart';
-import 'package:airstream/temp_password_holder.dart';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:xml/xml.dart';
-import 'package:meta/meta.dart';
+
+import '../../temp_password_holder.dart';
+import '../global_assets.dart';
+import '../providers/discogs_provider.dart';
+import '../providers/subsonic_provider.dart';
+import 'settings_repository.dart';
 
 class ServerRepository {
   ServerRepository({

@@ -1,11 +1,11 @@
-import 'package:airstream/common/repository/playlist_repository.dart';
-import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../global_assets.dart';
 import '../../models/playlist_model.dart';
+import '../../repository/playlist_repository.dart';
 import '../bloc/playlist_dialog_bloc.dart';
 
 class PlaylistDialog extends StatelessWidget {

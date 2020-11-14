@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:airstream/common/repository/download_repository.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
@@ -9,8 +8,9 @@ import 'package:rxdart/rxdart.dart';
 
 import '../providers/audio_provider.dart';
 import '../providers/moor_database.dart';
-import '../repository/image_repository.dart';
-import '../repository/song_repository.dart';
+import 'download_repository.dart';
+import 'image_repository.dart';
+import 'song_repository.dart';
 
 enum AudioState { playing, paused, stopped }
 

@@ -1,8 +1,8 @@
-import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/global_assets.dart';
 import '../../common/models/song_list_delegate.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';

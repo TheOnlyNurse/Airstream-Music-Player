@@ -1,15 +1,15 @@
-import 'package:airstream/common/global_assets.dart';
-import 'package:airstream/common/models/playlist_model.dart';
-import 'package:airstream/common/models/repository_response.dart';
-import 'package:airstream/common/repository/playlist_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/global_assets.dart';
+import '../../common/models/playlist_model.dart';
+import '../../common/models/repository_response.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/audio_repository.dart';
+import '../../common/repository/playlist_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/screens/album_list_screen.dart';
 import '../album/bloc/album_cubit.dart';

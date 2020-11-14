@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common/global_assets.dart';
+import '../../../common/repository/settings_repository.dart';
 import '../../mini_player/bloc/mini_player_bloc.dart';
 
 part 'navigation_bar_event.dart';
-
 part 'navigation_bar_state.dart';
 
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {

@@ -7,18 +7,21 @@ import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/albums_dao.dart';
 import '../providers/moor_database.dart';
-import '../providers/scheduler.dart';
+import 'scheduler.dart';
 import 'server_repository.dart';
 
 class AlbumRepository {
   AlbumRepository({
     AlbumsDao albumsDao,
     ServerRepository server,
+    Scheduler scheduler,
   })  : _database = albumsDao ?? AlbumsDao(GetIt.I.get<MoorDatabase>()),
-        _server = getIt<ServerRepository>(server);
+        _server = getIt<ServerRepository>(server),
+        _scheduler = getIt<Scheduler>(scheduler);
 
   final AlbumsDao _database;
   final ServerRepository _server;
+  final Scheduler _scheduler;
 
   /// ========== ALBUM COLLECTIONS ==========
 
@@ -153,7 +156,7 @@ class AlbumRepository {
   Future<void> updateStarred(Album album, {@required bool starred}) async {
     await _database.markStarred([album.id], starred: starred);
     final request = starred ? 'star' : 'unstar';
-    Scheduler().schedule('$request?albumId=${album.id}');
+    _scheduler.schedule('$request?albumId=${album.id}');
   }
 
   /// Overrides the local database with one from the server.

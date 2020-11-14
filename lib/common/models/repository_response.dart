@@ -1,8 +1,6 @@
 
 abstract class RepositoryResponse<T> {
-  @Deprecated('Data will soon return an Either object.')
   final String error;
-  @Deprecated('Solutions are not required.')
   final List<String> solutions;
   final T data;
 

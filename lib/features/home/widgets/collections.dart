@@ -1,7 +1,6 @@
-import 'package:airstream/common/global_assets.dart';
 import 'package:flutter/material.dart';
 
-/// Internal
+import '../../../common/global_assets.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/screens/album_list_screen.dart';

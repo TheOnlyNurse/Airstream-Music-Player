@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:airstream/common/global_assets.dart';
-import 'package:airstream/common/repository/server_repository.dart';
 import 'package:hive/hive.dart';
 
+import '../global_assets.dart';
 import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../providers/playlist_provider.dart';
-import '../providers/scheduler.dart';
 import 'communication.dart';
+import 'scheduler.dart';
+import 'server_repository.dart';
 
 class PlaylistRepository {
   PlaylistRepository({
@@ -17,7 +17,7 @@ class PlaylistRepository {
     Scheduler scheduler,
     ServerRepository server,
   })  : _database = provider ?? PlaylistProvider(hive: Hive.box('playlists')),
-        _scheduler = scheduler ?? Scheduler(),
+        _scheduler = getIt<Scheduler>(scheduler),
         _server = getIt<ServerRepository>(server);
 
   final PlaylistProvider _database;

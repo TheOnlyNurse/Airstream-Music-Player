@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:airstream/common/global_assets.dart';
-import 'package:airstream/common/repository/server_repository.dart';
 import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../global_assets.dart';
 import '../models/download_percentage.dart';
+import '../repository/server_repository.dart';
 import 'moor_database.dart';
 
 class DownloadProvider {

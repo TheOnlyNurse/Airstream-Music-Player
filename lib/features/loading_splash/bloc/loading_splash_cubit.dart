@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:airstream/common/repository/server_repository.dart';
-import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -16,6 +14,9 @@ import '../../../common/repository/download_repository.dart';
 import '../../../common/repository/image_repository.dart';
 import '../../../common/repository/moor_isolate.dart';
 import '../../../common/repository/playlist_repository.dart';
+import '../../../common/repository/scheduler.dart';
+import '../../../common/repository/server_repository.dart';
+import '../../../common/repository/settings_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'loading_splash_state.dart';
@@ -75,12 +76,12 @@ void _initGetIt(String cachePath) {
   // Have a look at their constructors to see how this is done through GetIt.
   lazy<SettingsRepository>(SettingsRepository()); // No requirements
   lazy<ServerRepository>(ServerRepository()); // Requires settings
+  lazy<Scheduler>(Scheduler()); // Requires settings and server
   lazy<ImageRepository>(ImageRepository()); // Requires server
-  lazy<AlbumRepository>(AlbumRepository()); // Requires server
   lazy<ArtistRepository>(ArtistRepository()); // Requires server
   lazy<SongRepository>(SongRepository()); // Requires server & settings
   lazy<PlaylistRepository>(PlaylistRepository()); // Requires server & scheduler
+  lazy<AlbumRepository>(AlbumRepository()); // Requires server & scheduler
   lazy<DownloadRepository>(DownloadRepository()); // Requires song repo
-  lazy<AudioRepository>(
-      AudioRepository()); // Requires song, download & image repos
+  lazy<AudioRepository>(AudioRepository()); // Requires song, download & image repos
 }
