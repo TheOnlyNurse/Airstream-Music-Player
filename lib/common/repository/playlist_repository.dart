@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:airstream/common/providers/server_provider.dart';
 import 'package:airstream/common/global_assets.dart';
-import 'package:meta/meta.dart';
-import 'package:xml/xml.dart';
+import 'package:airstream/common/repository/server_repository.dart';
+import 'package:hive/hive.dart';
 
 import '../models/playlist_model.dart';
 import '../models/repository_response.dart';
@@ -14,19 +13,16 @@ import 'communication.dart';
 
 class PlaylistRepository {
   PlaylistRepository({
-    @required PlaylistProvider provider,
-    @required Scheduler scheduler,
-    @required ServerProvider server,
-  })  : assert(provider != null),
-        assert(scheduler != null),
-        assert(server != null),
-        _scheduler = scheduler,
-        _database = provider,
-        _server = server;
+    PlaylistProvider provider,
+    Scheduler scheduler,
+    ServerRepository server,
+  })  : _database = provider ?? PlaylistProvider(hive: Hive.box('playlists')),
+        _scheduler = scheduler ?? Scheduler(),
+        _server = getIt<ServerRepository>(server);
 
   final PlaylistProvider _database;
   final Scheduler _scheduler;
-  final ServerProvider _server;
+  final ServerRepository _server;
   final _onChange = StreamController<PlaylistChange>.broadcast();
 
   /// A stream that changes when playlists change.
@@ -95,7 +91,6 @@ class PlaylistRepository {
     } else {
       return SingleResponse<Playlist>(data: created);
     }
-
   }
 
   /// Clears the local database in favour of one from the server.
@@ -104,17 +99,19 @@ class PlaylistRepository {
   /// playlist individually and the acquiring the song ids. Therefore, you can only "update"
   /// one playlist at a time.
   Future<void> forceSync() async {
-    final allPlaylists = await _server.fetchXml('getPlaylists?');
-    if (allPlaylists.hasError) throw UnimplementedError();
-    await _database.clear();
-    final idList = allPlaylists.data
-        .findAllElements('playlist')
-        .map((element) => element.getAttribute('id'));
+    (await _server.allPlaylists()).fold(
+      (error) => throw UnimplementedError(error),
+      (elements) async {
+        await _database.clear();
+        final idList = elements.map((e) => int.parse(e.getAttribute('id')));
 
-    for (final id in idList) {
-      final playlist = await ServerProvider().fetchXml('getPlaylist?id=$id');
-      if (playlist.hasError) break;
-      _database.insertElement(playlist.data);
-    }
+        for (final id in idList) {
+          (await _server.playlist(id)).fold(
+            (error) => throw UnimplementedError(error),
+            (document) => _database.insertDocument(document),
+          );
+        }
+      },
+    );
   }
 }

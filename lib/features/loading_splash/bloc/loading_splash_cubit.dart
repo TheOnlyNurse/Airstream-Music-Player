@@ -1,22 +1,14 @@
 import 'dart:async';
 
+import 'package:airstream/common/repository/server_repository.dart';
 import 'package:airstream/common/repository/settings_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../../../common/models/playlist_model.dart';
-import '../../../common/providers/albums_dao.dart';
-import '../../../common/providers/artists_dao.dart';
-import '../../../common/providers/audio_files_dao.dart';
-import '../../../common/providers/image_provider.dart';
 import '../../../common/providers/moor_database.dart';
-import '../../../common/providers/playlist_provider.dart';
-import '../../../common/providers/scheduler.dart';
-import '../../../common/providers/server_provider.dart';
-import '../../../common/providers/songs_dao.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/audio_repository.dart';
@@ -74,32 +66,21 @@ Future<void> _initHive(String databasePath) async {
 void _initGetIt(String cachePath) {
   // Assistant function to simplify lazy singleton registration.
   void lazy<T>(T repo) => GetIt.I.registerLazySingleton<T>(() => repo);
-  // Many providers require access to the Moor Database isolate.
-  final moorDb = GetIt.I.get<MoorDatabase>();
 
   // Register database and cache paths.
   GetIt.I.registerSingleton<String>(cachePath, instanceName: 'cachePath');
 
   // Registering repositories for use.
-  lazy<SettingsRepository>(SettingsRepository());
-  lazy<ImageRepository>(ImageRepository(ImageFileProvider(
-    hive: Hive.box<int>('images'),
-    cacheFolder: path.join(cachePath, 'image/'),
-  )));
-  lazy<AlbumRepository>(AlbumRepository(albumsDao: AlbumsDao(moorDb)));
-  lazy<ArtistRepository>(ArtistRepository(artistsDao: ArtistsDao(moorDb)));
-  lazy<SongRepository>(SongRepository(
-    songsDao: SongsDao(moorDb),
-    audioFilesDao: AudioFilesDao(moorDb),
-    cacheFolder: path.join(cachePath, 'audio/'),
-  ));
-  lazy<PlaylistRepository>(PlaylistRepository(
-    provider: PlaylistProvider(hive: Hive.box('playlists')),
-    scheduler: Scheduler(),
-    server: ServerProvider(),
-  ));
-  lazy<DownloadRepository>(DownloadRepository());
-  // Note: AudioRepository currently has a lot of dependencies.
-  // It should be put last.
-  lazy<AudioRepository>(AudioRepository());
+  // The order of registration is important due to how they depend on each other.
+  // Have a look at their constructors to see how this is done through GetIt.
+  lazy<SettingsRepository>(SettingsRepository()); // No requirements
+  lazy<ServerRepository>(ServerRepository()); // Requires settings
+  lazy<ImageRepository>(ImageRepository()); // Requires server
+  lazy<AlbumRepository>(AlbumRepository()); // Requires server
+  lazy<ArtistRepository>(ArtistRepository()); // Requires server
+  lazy<SongRepository>(SongRepository()); // Requires server & settings
+  lazy<PlaylistRepository>(PlaylistRepository()); // Requires server & scheduler
+  lazy<DownloadRepository>(DownloadRepository()); // Requires song repo
+  lazy<AudioRepository>(
+      AudioRepository()); // Requires song, download & image repos
 }

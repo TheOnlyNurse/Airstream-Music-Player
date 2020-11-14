@@ -1,19 +1,23 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:airstream/common/global_assets.dart';
+import 'package:airstream/common/repository/server_repository.dart';
 import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/download_percentage.dart';
 import 'moor_database.dart';
-import 'server_provider.dart';
 
 class DownloadProvider {
-  DownloadProvider({@required File downloadFile})
+  DownloadProvider({@required File downloadFile, ServerRepository server})
       : assert(downloadFile != null),
         _downloadFile = downloadFile,
+        _server = getIt<ServerRepository>(server),
         _limiter = Mutex();
+
+  final ServerRepository _server;
 
   /// A file used as to temporarily store a partially downloaded file.
   final File _downloadFile;
@@ -50,23 +54,18 @@ class DownloadProvider {
     _percentage.add(DownloadPercentage(songId: song.id));
 
     // Retrieve the file size and pipe the bytes to [byteStream].
-    final size = await ServerProvider().streamFile(
-      'stream?id=${song.id}',
-      byteStream,
+    return (await _server.stream('stream?id=${song.id}', byteStream)).fold(
+      (error) {
+        _percentage.add(_percentage.value.copyWith(isActive: false));
+        return null;
+      },
+      (size) {
+        _percentage.add(_percentage.value.copyWith(total: size));
+        _downloadSubscription = byteStream.stream.listen(_onData);
+        byteStream.onCancel = () => _onFinished(futureFile);
+        return futureFile.future;
+      },
     );
-
-    // Update the progress indicator, ending early on an error.
-    if (size.hasData) {
-      _percentage.add(_percentage.value.copyWith(total: size.data));
-    } else {
-      _percentage.add(_percentage.value.copyWith(isActive: false));
-      return null;
-    }
-
-    _downloadSubscription = byteStream.stream.listen(_onData);
-    byteStream.onCancel = () => _onFinished(futureFile);
-
-    return futureFile.future;
   }
 
   /// Cancels the stream subscription which also cancels the linked controller.

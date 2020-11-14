@@ -32,7 +32,7 @@ class PlaylistProvider {
   /// ========== DB MANAGEMENT ==========
 
   /// Decode a playlist xml document and insert as a [Playlist] into the database.
-  void insertElement(XmlDocument document) {
+  void insertDocument(XmlDocument document) {
     final songIds = document
         .findAllElements('entry')
         .map((e) => int.parse(e.getAttribute('id')))

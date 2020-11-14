@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
@@ -7,15 +8,17 @@ import '../models/repository_response.dart';
 import '../providers/albums_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/scheduler.dart';
-import '../providers/server_provider.dart';
+import 'server_repository.dart';
 
 class AlbumRepository {
-  const AlbumRepository({
-    @required AlbumsDao albumsDao,
-  })  : assert(albumsDao != null),
-        _database = albumsDao;
+  AlbumRepository({
+    AlbumsDao albumsDao,
+    ServerRepository server,
+  })  : _database = albumsDao ?? AlbumsDao(GetIt.I.get<MoorDatabase>()),
+        _server = getIt<ServerRepository>(server);
 
   final AlbumsDao _database;
+  final ServerRepository _server;
 
   /// ========== ALBUM COLLECTIONS ==========
 
@@ -135,17 +138,16 @@ class AlbumRepository {
 
   /// ========== DB MANAGEMENT ==========
 
+  /// Replaces starred [Album] objects with those marked as starred on the server.
   Future<void> forceSyncStarred() async {
-    final response = await ServerProvider().fetchXml('getStarred2?');
-    if (response.hasData) {
-      final elements = response.data.findAllElements('album').toList();
-      final idList = elements.map((e) {
-        return int.parse(e.getAttribute('id'));
-      }).toList();
-      await _database.clearStarred();
-      await _database.markStarred(idList);
-    }
-    return;
+    return (await _server.starred('album')).fold(
+      (error) => throw Exception('Unimplemented error message: $error'),
+      (elements) async {
+        final ids = elements.map((e) => int.parse(e.getAttribute('id')));
+        await _database.clearStarred();
+        await _database.markStarred(ids.toList());
+      },
+    );
   }
 
   Future<void> updateStarred(Album album, {@required bool starred}) async {
@@ -160,12 +162,11 @@ class AlbumRepository {
     int offset = 0;
 
     while (true) {
-      final response = await _fetch(
+      final elements = (await _server.albumList(
         type: 'alphabeticalByName',
         specifics: 'size=500&offset=$offset',
-      );
-      if (response.hasError) throw UnimplementedError();
-      final elements = response.data.findAllElements('album').toList();
+      ))
+          .fold<List<XmlElement>>((error) => [], (response) => response);
       if (elements.isEmpty) break;
       allElements.addAll(elements);
       offset += 500;
@@ -176,7 +177,6 @@ class AlbumRepository {
       await _database.clear();
       await _database.insertElements(allElements);
     }
-    return;
   }
 
   /// ========== COMMON FUNCTIONS ==========
@@ -215,10 +215,8 @@ class AlbumRepository {
 
     if (idList == null || forceFetch) {
       final idsFromServer = await _idsFromType(type);
-      if (idsFromServer != null) {
-        idList = idsFromServer;
-        cache.put(cacheKey, idList);
-      }
+      idList = idsFromServer;
+      cache.put(cacheKey, idList);
     }
 
     final unsorted = await _database.byIdList(idList);
@@ -235,20 +233,12 @@ class AlbumRepository {
 
   /// Returns a list of ids given an album fetch type
   Future<List<int>> _idsFromType(String type) async {
-    int idFromElement(e) => int.parse(e.getAttribute('id') as String);
-
-    final response = await _fetch(type: type, specifics: 'size=50');
-    if (response.hasError) return null;
-    final elements = response.data.findAllElements('album').toList();
-    return elements.isEmpty ? null : elements.map(idFromElement).toList();
-  }
-
-  /// Fetch information from the server
-  Future<SingleResponse<XmlDocument>> _fetch({@required String type, String specifics}) {
-    assert(type != null);
-    final request = specifics == null
-        ? 'getAlbumList2?type=$type'
-        : 'getAlbumList2?type=$type&$specifics';
-    return ServerProvider().fetchXml(request);
+    return (await _server.albumList(type: type, specifics: 'size=50')).fold(
+      (error) => throw UnimplementedError(error),
+      (r) {
+        int idFromElement(e) => int.parse(e.getAttribute('id') as String);
+        return r.isEmpty ? [] : r.map(idFromElement).toList();
+      },
+    );
   }
 }

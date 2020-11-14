@@ -1,18 +1,18 @@
-import 'package:meta/meta.dart';
-import 'package:xml/xml.dart';
+import 'package:get_it/get_it.dart';
 
 import '../global_assets.dart';
 import '../models/repository_response.dart';
 import '../providers/artists_dao.dart';
 import '../providers/moor_database.dart';
-import '../providers/server_provider.dart';
+import '../repository/server_repository.dart';
 
 class ArtistRepository {
-  final ArtistsDao _database;
+  ArtistRepository({ArtistsDao artistsDao, ServerRepository server})
+      : _server = getIt<ServerRepository>(server),
+        _database = artistsDao ?? ArtistsDao(GetIt.I.get<MoorDatabase>());
 
-  const ArtistRepository({@required ArtistsDao artistsDao})
-      : assert(artistsDao != null),
-        _database = artistsDao;
+  final ArtistsDao _database;
+  final ServerRepository _server;
 
   Future<ListResponse<Artist>> byAlphabet() async {
     final artists = await _database.byAlphabet();
@@ -30,11 +30,13 @@ class ArtistRepository {
 
   /// Clears the local database in favour for one from the server.
   Future<void> forceSync() async {
-    final response = await ServerProvider().fetchXml('getArtists?');
-    if (response.hasError) throw UnimplementedError();
-    await _database.clear();
-    final elements = response.data.findAllElements('artist').toList();
-    return _database.insertElements(elements);
+    return (await _server.artistList()).fold(
+      (error) => throw UnimplementedError(error),
+      (elements) async {
+        await _database.clear();
+        await _database.insertElements(elements);
+      },
+    );
   }
 
   /// Returns an artist by their id.
@@ -55,36 +57,26 @@ class ArtistRepository {
   /// Fetches information from the server only if the information is missing.
   Future<ListResponse<Artist>> similar(Artist artist) async {
     var cachedIds = await _database.similarIds(artist.id);
-
     if (cachedIds == null) {
-      final response = await ServerProvider().fetchXml(
-        'getArtistInfo2?id=${artist.id}&count=10',
+      cachedIds = (await _server.similarArtists(artist.id)).fold(
+        (error) => [],
+        (elements) =>
+            elements.map((e) => int.parse(e.getAttribute('id'))).toList(),
       );
-
-      if (response.hasData) {
-        final elements = response.data.findAllElements('similarArtist');
-        cachedIds = elements.map((e) {
-          return int.parse(e.getAttribute('id'));
-        }).toList();
-      } else {
-        cachedIds = [];
-      }
 
       await _database.updateSimilar(artist.id, cachedIds);
     }
     return _removeEmptyLists(await _database.byIdList(cachedIds));
   }
+}
 
-  /// ========== COMMON FUNCTIONS ==========
-
-  ListResponse<Artist> _removeEmptyLists(List<Artist> artists) {
-    if (artists.isEmpty) {
-      return const ListResponse<Artist>(
-        error: 'No artists found within database.',
-        solutions: [ErrorSolutions.database, ErrorSolutions.network],
-      );
-    } else {
-      return ListResponse<Artist>(data: artists);
-    }
+ListResponse<Artist> _removeEmptyLists(List<Artist> artists) {
+  if (artists.isEmpty) {
+    return const ListResponse<Artist>(
+      error: 'No artists found within database.',
+      solutions: [ErrorSolutions.database, ErrorSolutions.network],
+    );
+  } else {
+    return ListResponse<Artist>(data: artists);
   }
 }

@@ -1,18 +1,26 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:airstream/common/global_assets.dart';
+import 'package:airstream/common/repository/server_repository.dart';
+import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
+import 'package:path/path.dart' as path;
 
-/// Internal
 import '../providers/image_provider.dart';
 import '../providers/moor_database.dart';
-import '../providers/server_provider.dart';
 
 class ImageRepository {
-  ImageRepository(this._provider);
+  ImageRepository({ImageFileProvider provider, ServerRepository server})
+      : _provider = provider ?? _initProvider(),
+        _server = getIt<ServerRepository>(server);
 
+  /// Provider instance that servers as a database.
   final ImageFileProvider _provider;
+
+  final ServerRepository _server;
 
   /// Mutex to "queue" checkSize jobs instead of having concurrent checks
   final _sizeLocker = Mutex();
@@ -72,25 +80,26 @@ class ImageRepository {
 
   Future<File> _fromServer(String id, ImageType type) async {
     final resolution = type == ImageType.lowRes ? 256 : 512;
-    final url = 'getCoverArt?id=$id&size=$resolution';
-    final response = await ServerProvider().fetchImage(url);
-    if (response.hasData) {
-      _queueSizeCheck();
-      return _provider.addBytes(response.data, id, type);
-    } else {
-      return null;
-    }
+    return (await _server.image(id, resolution)).fold(
+      (error) => null,
+      (bytes) {
+        _queueSizeCheck();
+        return _provider.addBytes(bytes, id, type);
+      },
+    );
   }
 
   Future<File> _fromDiscogs(String name, String id, ImageType type) async {
-    final response = await ServerProvider().fetchArtistImage(name);
-    if (response.hasData) {
-      _queueSizeCheck();
-      return _provider.addBytes(response.data, id, type);
-    } else {
-      _provider.setNull(id, type);
-      return null;
-    }
+    return (await _server.discogsImage(name)).fold(
+      (error) {
+        _provider.setNull(id, type);
+        return null;
+      },
+      (bytes) {
+        _queueSizeCheck();
+        return _provider.addBytes(bytes, id, type);
+      },
+    );
   }
 
   /// Queues size check calls
@@ -150,4 +159,10 @@ class ImageRepository {
     // if (images.isEmpty) return null;
     // return images;
   }
+}
+
+ImageFileProvider _initProvider() {
+  final root = GetIt.I.get<String>(instanceName: 'cachePath');
+  final folder = path.join(root, 'images/');
+  return ImageFileProvider(hive: Hive.box<int>('images'), cacheFolder: folder);
 }
