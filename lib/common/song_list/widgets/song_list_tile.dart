@@ -1,64 +1,62 @@
+part of '../sliver_song_list.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-
-import '../../providers/moor_database.dart';
-import '../../repository/audio_repository.dart';
-import '../../widgets/song_tile.dart';
-import '../bloc/song_list_tile_bloc.dart';
-
-class SongListTile extends StatelessWidget {
-  const SongListTile({
+class _SongListTile extends StatelessWidget {
+  const _SongListTile({
     @required this.song,
-    @required this.animation,
+    @required this.bloc,
     this.onLongPress,
     this.onTap,
     this.isSelected,
-  })  : assert(song != null),
-        assert(animation != null);
+  }) : assert(song != null);
 
   final Song song;
-  final Animation<double> animation;
+  final SongListTileBloc bloc;
   final void Function() onLongPress;
   final void Function() onTap;
   final bool isSelected;
 
+  /// Shows download percent or play arrow if applicable to this tile.
+  List<double> _stops(double cachePercent) {
+    if (cachePercent == 0.0) {
+      return [1,1];
+    } else if (cachePercent < 1.0) {
+      final lower = math.max(0.8 - cachePercent, 0.0);
+      final upper = 1.0 - cachePercent;
+      return [lower, upper];
+    } else {
+      return [0,0];
+    }
+  }
+
+  List<Color> _colours(bool isPlaying, BuildContext context) {
+    final playing = Theme.of(context).accentColor;
+    final cached = Colors.transparent;
+    final notCached = Theme.of(context).errorColor;
+    return isPlaying ? [playing, playing] : [notCached, cached];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _slideTween = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    );
-
-    int _getPercent(SongListTileState state) {
-      return state is SongListTileSuccess ? state.cachePercent : 0;
-    }
-
-    bool _getPlaying(SongListTileState state) {
-      return state is SongListTileSuccess && state.isPlaying;
-    }
-
-    return BlocProvider(
-      create: (context) {
-        return SongListTileBloc(
-            tileSong: song, audioRepository: GetIt.I.get<AudioRepository>())
-          ..add(SongListTileFetch());
-      },
-      child: BlocBuilder<SongListTileBloc, SongListTileState>(
-        builder: (context, state) {
-          return SlideTransition(
-            position: animation.drive(_slideTween),
-            child: SongTile(
-              song: song,
-              onTap: onTap,
-              onLongPress: onLongPress,
-              percentage: _getPercent(state),
-              isPlaying: _getPlaying(state),
+    return BlocBuilder<SongListTileBloc, SongListTileState>(
+      cubit: bloc,
+      builder: (context, state) {
+        return SongTile(
+          song: song,
+          onTap: onTap,
+          onLongPress: onLongPress,
+          trailing: Container(
+            width: 3,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: const Alignment(0,1),
+                end: const Alignment(0,-1),
+                stops: _stops(state.cachePercent),
+                colors: _colours(state.isPlaying, context),
+              )
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

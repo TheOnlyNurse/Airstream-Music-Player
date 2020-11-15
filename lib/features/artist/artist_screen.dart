@@ -48,7 +48,7 @@ class SingleArtistScreen extends StatelessWidget {
                   const _SliverTitle(title: 'Albums'),
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   SliverAlbumGrid(
-                    albumList: state.albums,
+                    albums: state.albums,
                     onTap: (album) => Navigator.pushReplacementNamed(
                       context,
                       'library/singleAlbum',

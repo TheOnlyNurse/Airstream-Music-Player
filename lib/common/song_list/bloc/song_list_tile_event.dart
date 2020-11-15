@@ -10,7 +10,7 @@ abstract class SongListTileEvent extends Equatable {
 class SongListTileFetch extends SongListTileEvent {}
 
 class SongListTileDownload extends SongListTileEvent {
-  final int percentage;
+  final double percentage;
 
   const SongListTileDownload(this.percentage);
 

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:airstream/common/global_assets.dart';
+import 'package:airstream/common/models/download_percentage.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -20,30 +22,14 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
     AudioRepository audioRepository,
     DownloadRepository downloadRepository,
   })  : assert(tileSong != null),
-  _audioRepository = audioRepository ?? GetIt.I.get<AudioRepository>(),
-  _downloadRepository = downloadRepository ?? GetIt.I.get<DownloadRepository>(),
-        super(SongListTileInitial()) {
+        _audioRepository = getIt<AudioRepository>(audioRepository),
+        _downloadRepository = getIt<DownloadRepository>(downloadRepository),
+        super(const SongListTileState()) {
     onDownload = _downloadRepository.percentage.listen((event) {
-      if (tileSong.id == event.songId && event.isActive) {
-        if (event.percentage < 96) {
-          add(SongListTileDownload(event.percentage));
-        } else {
-          // TODO: Clean up this download finished behaviour.
-          add(SongListTileFinished());
-        }
-      }
+      _onDownload(event, this);
     });
     onPlaying = _audioRepository.audioState.listen((state) {
-      if (state == AudioState.playing) {
-        currentSong = audioRepository.current;
-        if (currentSong.id == tileSong.id) {
-          add(const SongListTilePlaying(isPlaying: true));
-        } else {
-          add(const SongListTilePlaying(isPlaying: false));
-        }
-      } else {
-        add(const SongListTilePlaying(isPlaying: false));
-      }
+      _onAudio(state, _audioRepository.current, this);
     });
   }
 
@@ -56,26 +42,17 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
 
   @override
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
-    final currentState = state;
     if (event is SongListTileFetch) {
       final response = await GetIt.I.get<SongRepository>().file(tileSong);
-      if (response != null) {
-        yield const SongListTileSuccess(cachePercent: 100);
-      } else {
-        yield const SongListTileSuccess();
-      }
+      if (response != null) yield state.copyWith(cachePercent: 1);
     }
 
-    if (currentState is SongListTileSuccess) {
-      if (event is SongListTileDownload) {
-        yield currentState.copyWith(cachePercent: event.percentage);
-      }
-      if (event is SongListTileFinished) {
-        yield currentState.copyWith(cachePercent: 100);
-      }
-      if (event is SongListTilePlaying) {
-        yield currentState.copyWith(isPlaying: event.isPlaying);
-      }
+    if (event is SongListTileDownload) {
+      yield state.copyWith(cachePercent: event.percentage);
+    }
+
+    if (event is SongListTilePlaying) {
+      yield state.copyWith(isPlaying: event.isPlaying);
     }
   }
 
@@ -84,5 +61,25 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
     onPlaying.cancel();
     onDownload.cancel();
     return super.close();
+  }
+}
+
+void _onDownload(DownloadPercentage event, SongListTileBloc bloc) {
+  if (bloc.tileSong.id == event.songId && event.isActive) {
+    if (event.percentage < 1) {
+      bloc.add(SongListTileDownload(event.percentage));
+    }
+  }
+}
+
+void _onAudio(AudioState state, Song current, SongListTileBloc bloc) {
+  if (state == AudioState.playing) {
+    if (current.id == bloc.tileSong.id) {
+      bloc.add(const SongListTilePlaying(isPlaying: true));
+    } else {
+      bloc.add(const SongListTilePlaying(isPlaying: false));
+    }
+  } else {
+    bloc.add(const SongListTilePlaying(isPlaying: false));
   }
 }

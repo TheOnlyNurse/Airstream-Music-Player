@@ -44,7 +44,7 @@ class PositionSlider extends StatelessWidget {
               return Center(
                 child: LinearProgressIndicator(
                   value:
-                      state is PositionLoading ? state.percentage / 100 : null,
+                      state is PositionLoading ? state.percentage : null,
                 ),
               );
             }

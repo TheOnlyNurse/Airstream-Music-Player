@@ -17,7 +17,7 @@ class PositionNew extends PositionEvent {
 }
 
 class PositionDownload extends PositionEvent {
-  final int percentage;
+  final double percentage;
 
   const PositionDownload(this.percentage);
 

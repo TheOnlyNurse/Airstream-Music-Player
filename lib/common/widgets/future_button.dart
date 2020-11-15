@@ -22,11 +22,11 @@ class FutureButton<T> extends StatelessWidget {
     return FutureBuilder<RepositoryResponse<T>>(
       future: future,
       builder: (_, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.done) {
           final response = snapshot.data;
           if (response.hasError) {
-            throw Exception(
-              'FutureButton received future with error: ${response.error}',
+            return Text(
+              'FutureButton error: ${response.error}',
             );
           } else {
             return GestureDetector(
@@ -34,10 +34,6 @@ class FutureButton<T> extends StatelessWidget {
               child: child,
             );
           }
-        }
-
-        if (snapshot.hasError) {
-          throw snapshot.error;
         }
 
         return child;

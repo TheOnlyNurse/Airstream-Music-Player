@@ -91,7 +91,7 @@ class SongRepository {
   /// Returns songs marked as starred, fetching from server if an empty list is received.
   Future<ListResponse<Song>> starred({bool forceSync = false}) async {
     final songs = await _database.starred();
-    if (songs.isNotEmpty || !forceSync) return ListResponse<Song>(data: songs);
+    if (songs.isNotEmpty || forceSync) return ListResponse<Song>(data: songs);
 
     return (await _server.starred('song')).fold(
       (error) => _removeEmptyLists(songs),

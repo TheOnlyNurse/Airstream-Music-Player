@@ -5,10 +5,11 @@ import '../providers/moor_database.dart';
 import '../widgets/album_card.dart';
 
 class SliverAlbumGrid extends StatelessWidget {
-  const SliverAlbumGrid({Key key, this.albumList, this.onTap})
-      : super(key: key);
+  const SliverAlbumGrid({Key key, @required this.albums, this.onTap})
+      : assert(albums != null),
+        super(key: key);
 
-  final List<Album> albumList;
+  final List<Album> albums;
   final void Function(Album) onTap;
 
   @override
@@ -19,10 +20,10 @@ class SliverAlbumGrid extends StatelessWidget {
         gridDelegate: WidgetProperties.albumsDelegate,
         delegate: SliverChildBuilderDelegate(
           (context, int index) => AlbumCard(
-            album: albumList[index],
+            album: albums[index],
             onTap: onTap,
           ),
-          childCount: albumList.length,
+          childCount: albums.length,
         ),
       ),
     );

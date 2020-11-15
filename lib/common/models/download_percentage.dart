@@ -14,7 +14,7 @@ class DownloadPercentage extends Equatable {
   final int current;
   final int total;
 
-  int get percentage => (current / total * 100).round();
+  double get percentage => current / total;
 
   @override
   List<Object> get props => [isActive, songId, current, total];

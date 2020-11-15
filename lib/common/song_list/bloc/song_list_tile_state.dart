@@ -1,22 +1,13 @@
 part of 'song_list_tile_bloc.dart';
 
-abstract class SongListTileState extends Equatable {
-  const SongListTileState();
-
-  @override
-  List<Object> get props => [];
-}
-
-class SongListTileInitial extends SongListTileState {}
-
-class SongListTileSuccess extends SongListTileState {
-  final int cachePercent;
+class SongListTileState extends Equatable {
+  final double cachePercent;
   final bool isPlaying;
 
-  const SongListTileSuccess({this.cachePercent = 0, this.isPlaying = false});
+  const SongListTileState({this.cachePercent = 0, this.isPlaying = false});
 
-  SongListTileSuccess copyWith({int cachePercent, bool isPlaying}) {
-    return SongListTileSuccess(
+  SongListTileState copyWith({double cachePercent, bool isPlaying}) {
+    return SongListTileState(
       cachePercent: cachePercent ?? this.cachePercent,
       isPlaying: isPlaying ?? this.isPlaying,
     );

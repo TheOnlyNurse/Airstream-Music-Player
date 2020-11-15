@@ -1,9 +1,8 @@
+import 'package:airstream/common/song_list/sliver_song_list.dart';
 import 'package:flutter/material.dart';
 
 /// Internal
 import '../../common/models/playlist_model.dart';
-import '../../common/models/song_list_delegate.dart';
-import '../../common/song_list/song_list.dart';
 
 class SinglePlaylistScreen extends StatelessWidget {
   final Playlist playlist;
@@ -12,18 +11,16 @@ class SinglePlaylistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: SongList(
-        delegate: PlaylistSongList(playlist: playlist),
-        sliverAppBar: SliverAppBar(
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           leading: RawMaterialButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Icon(Icons.close),
           ),
         ),
-        sliverTitle: SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -32,7 +29,8 @@ class SinglePlaylistScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
+        const SliverSongList(songs: []),
+      ],
     );
   }
 }

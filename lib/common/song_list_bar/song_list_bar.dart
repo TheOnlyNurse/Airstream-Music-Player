@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/playlist_model.dart';
-import '../song_list/bloc/song_list_bloc.dart';
 import 'widgets/playlist_dialog.dart';
 
 class SongListBar extends StatelessWidget {
@@ -23,9 +21,7 @@ class SongListBar extends StatelessWidget {
       title: selectedNumber != null ? Text('$selectedNumber selected') : null,
       leading: IconButton(
         icon: const Icon(Icons.close),
-        onPressed: () {
-          context.bloc<SongListBloc>().add(SongListClearSelection());
-        },
+        onPressed: () => throw UnimplementedError(),
       ),
       actions: <Widget>[
         _AddToPlaylist(),
@@ -48,7 +44,7 @@ class _AddToPlaylist extends StatelessWidget {
         ) as Playlist;
 
         if (response != null) {
-          context.bloc<SongListBloc>().add(SongListPlaylistSelection(response));
+          throw UnimplementedError();
         }
       },
     );
@@ -67,9 +63,9 @@ class _ChangeStar extends StatelessWidget {
       tooltip: canRemoveStar ? 'Remove star' : 'Star songs',
       onPressed: () {
         if (canRemoveStar) {
-          context.bloc<SongListBloc>().add(SongListRemoveSelection());
+          throw UnimplementedError();
         } else {
-          context.bloc<SongListBloc>().add(SongListStarSelection());
+          throw UnimplementedError();
         }
       },
     );

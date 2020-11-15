@@ -63,7 +63,7 @@ class AudioRepository {
   ValueStream<AudioState> get audioState => _provider.state.stream;
 
   /// The current [song] object being attempted to be played.
-  Song get current => _songQueue[_currentIndex];
+  Song get current => _songQueue.isNotEmpty ? _songQueue[_currentIndex] : null;
 
   /// Returns whether the next index is possible.
   bool get hasNext => _currentIndex < _songQueue.length;
@@ -133,7 +133,7 @@ class AudioRepository {
               customStopAction: (player) => _provider.stop(),
             ),
           );
-          // TODO: Implement prefetch once download provider is refactored.
+          // TODO: Implement prefetch.
           // _downloadProvider.prefetch();
         } else {
           onFailure();

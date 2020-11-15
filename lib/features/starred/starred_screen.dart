@@ -1,13 +1,12 @@
+import 'package:airstream/common/song_list/sliver_song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../common/global_assets.dart';
-import '../../common/models/song_list_delegate.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
-import '../../common/song_list/song_list.dart';
 import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/refresh_button.dart';
@@ -19,23 +18,17 @@ class StarredScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => StarredBloc(
-        album: GetIt.I.get<AlbumRepository>(),
-        song: GetIt.I.get<SongRepository>(),
-      )..add(StarredFetch()),
-      child: BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
-        if (state is StarredSuccess) {
-          if (state.songs.isEmpty) {
-            return _OnAlbumsOnly(albums: state.albums);
-          } else {
-            return _OnSongsAvailable(albums: state.albums, songs: state.songs);
-          }
+    return BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
+      if (state is StarredSuccess) {
+        if (state.songs.isEmpty) {
+          return _OnAlbumsOnly(albums: state.albums);
         } else {
-          return _OtherStarredStates(state: state);
+          return _OnSongsAvailable(albums: state.albums, songs: state.songs);
         }
-      }),
-    );
+      } else {
+        return _OtherStarredStates(state: state);
+      }
+    });
   }
 }
 
@@ -52,7 +45,7 @@ class _OnAlbumsOnly extends StatelessWidget {
       physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
         SliverToBoxAdapter(child: _Heading()),
-        SliverAlbumGrid(albumList: albums),
+        SliverAlbumGrid(albums: albums),
       ],
     );
   }
@@ -68,16 +61,17 @@ class _OnSongsAvailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SongList(
-      delegate: SimpleSongList(initialSongs: songs, canRemoveStar: true),
-      leading: <Widget>[
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
         SliverToBoxAdapter(child: _Heading()),
-        if (albums != null)
+        if (albums.isNotEmpty)
           SliverToBoxAdapter(child: HorizontalAlbumGrid(albums: albums)),
-        if (albums != null)
+        if (albums.isNotEmpty)
           SliverToBoxAdapter(
               child: _MoreAlbumsButton(
                   albumRepository: GetIt.I.get<AlbumRepository>())),
+        SliverSongList(songs: songs),
       ],
     );
   }

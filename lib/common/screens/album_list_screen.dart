@@ -32,7 +32,7 @@ class AlbumListScreen extends StatelessWidget {
                   if (title == null)
                     const SliverToBoxAdapter(child: SizedBox(height: 12)),
                   if (title != null) _Title(title: title),
-                  SliverAlbumGrid(albumList: response.data),
+                  SliverAlbumGrid(albums: response.data),
                 ],
               );
             }

@@ -35,7 +35,7 @@ class PositionSuccess extends PositionState {
 }
 
 class PositionLoading extends PositionState {
-  final int percentage;
+  final double percentage;
 
   const PositionLoading(this.percentage);
 

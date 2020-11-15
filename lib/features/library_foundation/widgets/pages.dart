@@ -14,7 +14,13 @@ class _Pages extends StatelessWidget {
             );
             break;
           case 1:
-            return const StarredScreen();
+            return BlocProvider(
+              create: (context) => StarredBloc(
+                album: GetIt.I.get<AlbumRepository>(),
+                song: GetIt.I.get<SongRepository>(),
+              )..add(StarredFetch()),
+              child: const StarredScreen(),
+            );
             break;
           default:
             throw UnimplementedError('Page index: ${state.pageIndex}');
