@@ -23,13 +23,7 @@ class DiscogsProvider {
   /// Fetches a custom artist image from the discogs api
   Future<Either<String, Uint8List>> image(String name) async {
     final query = name.toLowerCase().replaceAll(' ', '+');
-    final imageUrl = (await _search(query)).bind<String>((response) {
-      final json = jsonDecode(response.body);
-      final results = json['results'] as List<dynamic>;
-      return results.isEmpty
-          ? left('No images found.')
-          : right(results.first['cover_image'] as String);
-    });
+    final imageUrl = (await _search(query)).bind<String>(_decodeResponse);
     return imageUrl.fold((error) => left(error), (url) => _fetch(url));
   }
 
@@ -71,4 +65,13 @@ class DiscogsProvider {
       return left(e.toString());
     }
   }
+}
+
+/// Returns whether
+Either<String, String> _decodeResponse(http.Response response) {
+  final json = jsonDecode(response.body);
+  final results = json['results'] as List<dynamic>;
+  return results.isEmpty
+      ? left('No images found.')
+      : right(results.first['cover_image'] as String);
 }

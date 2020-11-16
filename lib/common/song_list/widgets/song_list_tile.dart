@@ -20,9 +20,7 @@ class _SongListTile extends StatelessWidget {
     if (cachePercent == 0.0) {
       return [1,1];
     } else if (cachePercent < 1.0) {
-      final lower = math.max(0.8 - cachePercent, 0.0);
-      final upper = 1.0 - cachePercent;
-      return [lower, upper];
+      return [math.max(0.8 - cachePercent, 0.0), 1.0 - cachePercent];
     } else {
       return [0,0];
     }

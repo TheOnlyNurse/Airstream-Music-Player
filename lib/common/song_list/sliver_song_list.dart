@@ -19,25 +19,22 @@ class SliverSongList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return _SongListTile(
-              song: songs[index],
-              bloc: SongListTileBloc(
-                tileSong: songs[index],
-                audioRepository: GetIt.I.get<AudioRepository>(),
-              )..add(SongListTileFetch()),
-              onTap: () {
-                final repository = GetIt.I.get<AudioRepository>();
-                repository.start(songs: songs, index: index);
-              },
-            );
-          },
-          childCount: songs.length,
-        ),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+            (context, index) {
+          return _SongListTile(
+            song: songs[index],
+            bloc: SongListTileBloc(
+              tileSong: songs[index],
+              audioRepository: GetIt.I.get<AudioRepository>(),
+            )..add(SongListTileFetch()),
+            onTap: () {
+              final repository = GetIt.I.get<AudioRepository>();
+              repository.start(songs: songs, index: index);
+            },
+          );
+        },
+        childCount: songs.length,
       ),
     );
   }

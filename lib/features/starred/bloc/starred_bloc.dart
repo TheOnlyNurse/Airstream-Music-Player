@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,6 +11,7 @@ import '../../../common/repository/settings_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'starred_event.dart';
+
 part 'starred_state.dart';
 
 class StarredBloc extends Bloc<StarredEvent, StarredState> {
@@ -21,9 +23,8 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
         _song = getIt<SongRepository>(song),
         _settings = getIt<SettingsRepository>(settings),
         super(StarredInitial()) {
-    onNetworkChange = _settings.connectivityChanged.listen((isOnline) {
-      if (isOnline) add(StarredFetch());
-    });
+    final onConnectivity = _settings.connectivityChanged;
+    onNetworkChange = onConnectivity.listen((_) => add(StarredFetch()));
   }
 
   final AlbumRepository _album;
@@ -34,8 +35,13 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
   @override
   Stream<StarredState> mapEventToState(StarredEvent event) async* {
     if (event is StarredFetch) {
-      final albumResponse = await _album.starred();
-      final songResponse = await _song.starred();
+      final responses = await Future.wait([
+      _album.starred(),
+      _song.starred(),
+      ]);
+
+      final albumResponse = responses[0] as ListResponse<Album>;
+      final songResponse = responses[1] as ListResponse<Song>;
       if (albumResponse.hasError && songResponse.hasError) {
         yield StarredFailure(songResponse.error);
       } else {

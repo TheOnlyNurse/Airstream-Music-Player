@@ -104,8 +104,8 @@ class DownloadProvider {
   Future<void> _onFinished(Completer<File> completer) async {
     await _clean();
     await _fileSink.close();
-    final isDownloaded = _percentage.value.percentage == 1;
-    completer.complete(isDownloaded ? _downloadFile : null);
+    // If the last emitted value is that a file is cached, then complete with it.
+    completer.complete(_percentage.value.isCached ? _downloadFile : null);
   }
 
   /// A timer that cancels the download stream after a set duration.

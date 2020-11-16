@@ -30,6 +30,7 @@ class _Success extends StatelessWidget {
                 state.album.title,
                 style: Theme.of(context).textTheme.headline4,
                 maxLines: 2,
+                maxFontSize: 25,
                 textAlign: TextAlign.center,
               ),
             ),

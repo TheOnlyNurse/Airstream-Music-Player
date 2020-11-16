@@ -27,6 +27,7 @@ class ServerRepository {
 
   final SubsonicProvider _provider;
   final DiscogsProvider _discogs;
+
   //ignore: unused_field
   final SettingsRepository _settings;
 
@@ -68,8 +69,8 @@ class ServerRepository {
     int id, {
     int count = 10,
   }) async {
-    return (await _provider.fetch('getArtistInfo2?id=$id&count=$count'))
-        .map(_extract('similarArtist'));
+    final request = 'getArtistInfo2?id=$id&count=$count';
+    return (await _provider.fetch(request)).map(_extract('similarArtist'));
   }
 
   /// Returns all playlists as XmlElements.
@@ -102,9 +103,8 @@ class ServerRepository {
     String artistName, {
     int count = 5,
   }) async {
-    return (await _provider
-            .fetch('getTopSongs?artist=$artistName&count=$count'))
-        .map(_extract('song'));
+    final request = 'getTopSongs?artist=$artistName&count=$count';
+    return (await _provider.fetch(request)).map(_extract('song'));
   }
 
   /// Return [count] song XmlElements given a search [query].
@@ -112,13 +112,11 @@ class ServerRepository {
     String query, {
     int count = 10,
   }) async {
-    return (await _provider.fetch(
-      'search3?query=$query&'
-      'artistCount=0&'
-      'albumCount=0&'
-      'songCount=$count',
-    ))
-        .map(_extract('song'));
+    final request = 'search3?query=$query&'
+        'artistCount=0&'
+        'albumCount=0&'
+        'songCount=$count';
+    return (await _provider.fetch(request)).map(_extract('song'));
   }
 
   /// Streams bytes from a file download.

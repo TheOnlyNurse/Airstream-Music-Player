@@ -16,6 +16,10 @@ class DownloadPercentage extends Equatable {
 
   double get percentage => current / total;
 
+  bool get isCached => percentage == 1;
+
+  bool get isNotCached => !isCached;
+
   @override
   List<Object> get props => [isActive, songId, current, total];
 

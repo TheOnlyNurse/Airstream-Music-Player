@@ -129,6 +129,7 @@ class _AppBar extends StatelessWidget {
           artist.name,
           style: Theme.of(context).textTheme.headline4,
           maxLines: 2,
+          maxFontSize: 25,
           textAlign: TextAlign.center,
         ),
         adapter: ImageAdapter(artist: artist, isHiDef: true),

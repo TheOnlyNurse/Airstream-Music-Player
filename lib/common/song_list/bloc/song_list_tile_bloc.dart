@@ -44,7 +44,7 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
   Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
     if (event is SongListTileFetch) {
       final response = await GetIt.I.get<SongRepository>().file(tileSong);
-      if (response != null) yield state.copyWith(cachePercent: 1);
+      if (response == null) yield state.copyWith(cachePercent: 0);
     }
 
     if (event is SongListTileDownload) {
@@ -66,9 +66,7 @@ class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
 
 void _onDownload(DownloadPercentage event, SongListTileBloc bloc) {
   if (bloc.tileSong.id == event.songId && event.isActive) {
-    if (event.percentage < 1) {
-      bloc.add(SongListTileDownload(event.percentage));
-    }
+    if (event.isNotCached) bloc.add(SongListTileDownload(event.percentage));
   }
 }
 

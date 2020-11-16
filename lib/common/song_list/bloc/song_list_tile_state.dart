@@ -4,7 +4,7 @@ class SongListTileState extends Equatable {
   final double cachePercent;
   final bool isPlaying;
 
-  const SongListTileState({this.cachePercent = 0, this.isPlaying = false});
+  const SongListTileState({this.cachePercent = 1, this.isPlaying = false});
 
   SongListTileState copyWith({double cachePercent, bool isPlaying}) {
     return SongListTileState(
