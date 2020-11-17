@@ -17,14 +17,14 @@ class _Success extends StatelessWidget {
           stretch: true,
           stretchTriggerOffset: 200,
           flexibleSpace: FlexibleImageWithTitle(
-            title: FutureButton<Artist>(
+            title: FutureButton<SingleResponse<Artist>>(
               future: GetIt.I.get<ArtistRepository>().byId(
                 state.album.artistId,
               ),
               onTap: (artist) => Navigator.pushReplacementNamed(
                 context,
                 'library/singleArtist',
-                arguments: artist,
+                arguments: artist.data,
               ),
               child: AutoSizeText(
                 state.album.title,

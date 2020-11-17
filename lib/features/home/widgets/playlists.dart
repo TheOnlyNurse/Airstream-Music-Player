@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../common/error/widgets/error_widgets.dart';
 import '../../../common/repository/playlist_repository.dart';
-import '../../../common/widgets/error_widgets.dart';
 import '../bloc/playlists_library_bloc.dart';
 import 'playlist_tile.dart';
 
@@ -32,7 +32,7 @@ class Playlists extends StatelessWidget {
           }
           if (state is PlaylistsLibraryFailure) {
             return SliverToBoxAdapter(
-              child: ErrorText(error: state.response.error),
+              child: CentredErrorText(error: state.response.error),
             );
           }
           return const SliverToBoxAdapter(

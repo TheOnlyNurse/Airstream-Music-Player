@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Internal Links
-import '../models/repository_response.dart';
-import 'circle_close_button.dart';
+import '../../models/repository_response.dart';
+import '../../widgets/circle_close_button.dart';
 
-class ErrorText extends StatelessWidget {
-  const ErrorText({Key key, this.error}) : super(key: key);
+class CentredErrorText extends StatelessWidget {
+  const CentredErrorText({Key key, this.error}) : super(key: key);
 
   final String error;
 
@@ -24,8 +23,8 @@ class ErrorText extends StatelessWidget {
   }
 }
 
-class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({Key key, this.response}) : super(key: key);
+class ErrorRepoResponseScreen extends StatelessWidget {
+  const ErrorRepoResponseScreen({Key key, this.response}) : super(key: key);
 
   final RepositoryResponse response;
 
@@ -40,7 +39,7 @@ class ErrorScreen extends StatelessWidget {
           child: const Icon(Icons.clear),
         ),
         const Spacer(),
-        ErrorText(error: response.error),
+        CentredErrorText(error: response.error),
         const SizedBox(height: 16),
         for (var solution in response.solutions)
           _SolutionText(solution: solution),

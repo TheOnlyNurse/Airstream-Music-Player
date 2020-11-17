@@ -206,10 +206,12 @@ class _OnSearchSuccess extends StatelessWidget {
           _SongTiles(
             songs: state.songs,
             onTap: (song) async {
-              final response = await albumRepository.byId(song.albumId);
-              if (response.hasData && onTap != null) {
-                onTap('library/singleAlbum', response.data);
-              }
+              (await albumRepository.byId(song.albumId)).fold(
+                (error) => null,
+                (album) {
+                  if (onTap != null) onTap('library/singleAlbum', album);
+                },
+              );
             },
           ),
         ]);

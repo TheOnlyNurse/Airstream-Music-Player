@@ -48,10 +48,10 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   /// SELECT * FROM table WHERE random() % k = 0 LIMIT n.
   /// k is an integer constant that determines how probable it is to select a given row.
   /// For instance, a k of 2 means (about) 50% probability of selecting a row,
-  /// k of 3 means 33%, k of 4 means 25% and so on.
-  /// http://blog.rodolfocarvalho.net/2012/05/how-to-select-random-rows-from-sqlite.html
+  /// k of 3 means 33%, k of 4 means 25% and so on. Link to the
+  /// [blog](http://blog.rodolfocarvalho.net/2012/05/how-to-select-random-rows-from-sqlite.html).
   Future<List<Album>> random(int length) async {
-    // k of 8 means 12.5% chance of selecting a row
+    // k of 8 means 12.5% chance of selecting a row.
     const randomWhere = 'WHERE random() % 8 = 0';
     final selectQuery = 'SELECT * FROM albums $randomWhere LIMIT $length';
     final query = await customSelect(selectQuery).get();

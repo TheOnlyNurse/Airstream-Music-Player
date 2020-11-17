@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../error/widgets/error_widgets.dart';
 import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../repository/artist_repository.dart';
 import '../widgets/alpha_grid_view.dart';
 import '../widgets/artist_circle.dart';
-import '../widgets/error_widgets.dart';
 
 class ArtistsScreen extends StatelessWidget {
   const ArtistsScreen({Key key, @required this.artistRepository})
@@ -50,10 +50,10 @@ class ArtistsScreen extends StatelessWidget {
               }
 
               if (response.hasError) {
-                return ErrorScreen(response: response);
+                return ErrorRepoResponseScreen(response: response);
               }
 
-              return Center(child: ErrorText(error: snapshot.error.toString()));
+              return Center(child: CentredErrorText(error: snapshot.error.toString()));
             }
 
             return const Center(child: CircularProgressIndicator());

@@ -10,6 +10,7 @@ import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
 part 'search_event.dart';
+
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
@@ -47,10 +48,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       if (query.length > 1) {
         final songResults = await songRepository.search(query);
         final artistResults = await artistRepository.search(query);
-        final albumResults = await albumRepository.search(query);
+        final albumResults = (await albumRepository.search(query))
+            .fold<List<Album>>((error) => [], (albums) => albums);
         final noResults = songResults.hasError &&
             artistResults.hasError &&
-            albumResults.hasError;
+            albumResults.isEmpty;
 
         if (noResults) {
           yield SearchFailure(songResults.error);
@@ -58,7 +60,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           yield SearchSuccess(
             songs: songResults.data ?? [],
             artists: artistResults.data ?? [],
-            albums: albumResults.data ?? [],
+            albums: albumResults,
           );
         }
       } else {

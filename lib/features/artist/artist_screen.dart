@@ -1,3 +1,4 @@
+import 'package:airstream/common/error/error_screen.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,6 @@ import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/song_list/sliver_song_list.dart';
-import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/sliver_album_grid.dart';
@@ -150,7 +150,7 @@ class _OtherStates extends StatelessWidget {
 
   Widget _processState(SingleArtistState state) {
     if (state is SingleArtistFailure) {
-      return ErrorScreen(response: state.response);
+      return ErrorScreen(message: state.error);
     }
     if (state is SingleArtistInitial) return const CircularProgressIndicator();
     return Text('Failed to read state: $state');

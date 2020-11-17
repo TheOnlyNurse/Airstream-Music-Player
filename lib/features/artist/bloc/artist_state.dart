@@ -43,7 +43,7 @@ class SingleArtistSuccess extends SingleArtistState {
 }
 
 class SingleArtistFailure extends SingleArtistState {
-  const SingleArtistFailure(this.response);
+  const SingleArtistFailure(this.error);
 
-  final RepositoryResponse response;
+  final String error;
 }

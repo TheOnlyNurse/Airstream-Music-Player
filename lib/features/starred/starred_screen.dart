@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/error/widgets/error_widgets.dart';
 import '../../common/global_assets.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
-import '../../common/widgets/error_widgets.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/refresh_button.dart';
 import '../../common/widgets/sliver_album_grid.dart';
@@ -132,7 +132,7 @@ class _Heading extends StatelessWidget {
           ),
           RefreshButton(
             onPressed: () async {
-              await GetIt.I.get<AlbumRepository>().forceSyncStarred();
+              await GetIt.I.get<AlbumRepository>().syncStarred();
               await GetIt.I.get<SongRepository>().starred(forceSync: true);
               context.bloc<StarredBloc>().add(StarredFetch());
             },
@@ -152,7 +152,7 @@ class _OtherStarredStates extends StatelessWidget {
 
   Widget _stateBasedWidget(StarredState state) {
     if (state is StarredInitial) return const  CircularProgressIndicator();
-    if (state is StarredFailure) return ErrorText(error: state.message);
+    if (state is StarredFailure) return CentredErrorText(error: state.message);
     return Text('Failed to read state: $state');
   }
 

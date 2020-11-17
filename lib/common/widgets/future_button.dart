@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Internal
-import '../models/repository_response.dart';
-
 class FutureButton<T> extends StatelessWidget {
-  final Future<RepositoryResponse<T>> future;
+  final Future<T> future;
   final Widget child;
   final void Function(T) onTap;
 
@@ -19,24 +16,32 @@ class FutureButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<RepositoryResponse<T>>(
+    return FutureBuilder<T>(
       future: future,
       builder: (_, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          final response = snapshot.data;
-          if (response.hasError) {
-            return Text(
-              'FutureButton error: ${response.error}',
-            );
-          } else {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return child;
+          case ConnectionState.done:
             return GestureDetector(
-              onTap: () => onTap(response.data),
+              onTap: () => onTap(snapshot.data),
               child: child,
             );
-          }
+          default:
+            return Stack(
+              children: [
+                Align(
+                  alignment: const Alignment(1, 1),
+                  child: Icon(
+                    Icons.warning_amber_outlined,
+                    color: Theme.of(context).errorColor,
+                    size: 12,
+                  ),
+                ),
+                child,
+              ],
+            );
         }
-
-        return child;
       },
     );
   }

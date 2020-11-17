@@ -1,9 +1,9 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
+import '../error/error_screen.dart';
 import '../global_assets.dart';
-import '../models/repository_response.dart';
 import '../repository/album_repository.dart';
-import '../widgets/error_widgets.dart';
 import '../widgets/sliver_close_bar.dart';
 
 class DecadeScreen extends StatelessWidget {
@@ -19,27 +19,23 @@ class DecadeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder<ListResponse<int>>(
+        child: FutureBuilder<Either<String, List<int>>>(
           future: albumRepository.decades(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              final response = snapshot.data;
-
-              if (response.hasData) {
-                return _DecadesGridScreen(
-                  decades: response.data,
-                  albumRepository: albumRepository,
+            switch(snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const Center(child: CircularProgressIndicator());
+              case ConnectionState.done:
+                return snapshot.data.fold(
+                      (error) => ErrorScreen(message: error),
+                      (decades) => _DecadesGridScreen(
+                    decades: decades,
+                    albumRepository: albumRepository,
+                  ),
                 );
-              }
-
-              if (response.hasError) {
-                return ErrorScreen(response: response);
-              }
-
-              return ErrorText(error: snapshot.error.toString());
+              default:
+                return const ErrorScreen(message: 'Snapshot error.');
             }
-
-            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),
