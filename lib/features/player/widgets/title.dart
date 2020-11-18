@@ -7,23 +7,17 @@ class _SongTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureButton<Either<String, Album>>(
+    return FutureButton<Album>(
       future: GetIt.I.get<AlbumRepository>().byId(state.song.albumId),
-      onTap: (potentialAlbum) {
-        potentialAlbum.fold(
-          // ignore: avoid_print
-          (error) => print('Future button should take Either types.'),
-          (album) {
-            if (libraryNavigator.currentState.canPop()) {
-              libraryNavigator.currentState.popUntil((route) => route.isFirst);
-            }
-            Navigator.of(libraryNavigator.currentContext).pushNamed(
-              'library/singleAlbum',
-              arguments: album,
-            );
-            Navigator.pop(context);
-          },
+      onTap: (album) {
+        if (libraryNavigator.currentState.canPop()) {
+          libraryNavigator.currentState.popUntil((route) => route.isFirst);
+        }
+        Navigator.of(libraryNavigator.currentContext).pushNamed(
+          'library/singleAlbum',
+          arguments: album,
         );
+        Navigator.pop(context);
       },
       child: _TitleColumn(song: state.song),
     );

@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
             title: 'Collections',
             onRefresh: () async {
               await albumRepository.syncLibrary();
-              await artistRepository.forceSync();
+              await artistRepository.sync();
             },
           ),
           SliverToBoxAdapter(

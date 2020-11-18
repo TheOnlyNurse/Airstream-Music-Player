@@ -47,11 +47,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       queryList.clear();
       if (query.length > 1) {
         final songResults = await songRepository.search(query);
-        final artistResults = await artistRepository.search(query);
+        final artistResults = (await artistRepository.search(query))
+            .fold<List<Artist>>((error) => [], (artists) => artists);
         final albumResults = (await albumRepository.search(query))
             .fold<List<Album>>((error) => [], (albums) => albums);
         final noResults = songResults.hasError &&
-            artistResults.hasError &&
+            artistResults.isEmpty &&
             albumResults.isEmpty;
 
         if (noResults) {
@@ -59,7 +60,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         } else {
           yield SearchSuccess(
             songs: songResults.data ?? [],
-            artists: artistResults.data ?? [],
+            artists: artistResults,
             albums: albumResults,
           );
         }

@@ -1,7 +1,8 @@
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
-
+import 'package:xml/xml.dart';
+import '../extensions/functional_lists.dart';
 import '../global_assets.dart';
-import '../models/repository_response.dart';
 import '../providers/artists_dao.dart';
 import '../providers/moor_database.dart';
 import '../repository/server_repository.dart';
@@ -14,22 +15,18 @@ class ArtistRepository {
   final ArtistsDao _database;
   final ServerRepository _server;
 
-  Future<ListResponse<Artist>> byAlphabet() async {
-    final artists = await _database.byAlphabet();
-    return _removeEmptyLists(artists);
+  Future<Either<String, List<Artist>>> byAlphabet() async {
+    return (await _database.byAlphabet())
+        .removeEmpty(onEmpty: _Error.artistsEmpty);
   }
 
-  Future<ListResponse<Artist>> search(String name) async {
-    final artists = await _database.search(name);
-    if (artists.isEmpty) {
-      return const ListResponse<Artist>(error: 'Nothing found.');
-    } else {
-      return ListResponse<Artist>(data: artists);
-    }
+  Future<Either<String, List<Artist>>> search(String name) async {
+    return (await _database.search(name))
+        .removeEmpty(onEmpty: _Error.artistsEmpty);
   }
 
   /// Clears the local database in favour for one from the server.
-  Future<void> forceSync() async {
+  Future<void> sync() async {
     return (await _server.artistList()).fold(
       (error) => throw UnimplementedError(error),
       (elements) async {
@@ -40,43 +37,36 @@ class ArtistRepository {
   }
 
   /// Returns an artist by their id.
-  Future<SingleResponse<Artist>> byId(int id) async {
+  Future<Either<String, Artist>> byId(int id) async {
     final artist = await _database.byId(id);
-    if (artist == null) {
-      return const SingleResponse<Artist>(
-        error: 'Failed to find artist.',
-        solutions: [ErrorSolutions.database],
-      );
-    } else {
-      return SingleResponse<Artist>(data: artist);
-    }
+    return artist == null ? left(_Error.noArtist) : right(artist);
   }
 
   /// Returns a list of artists similar to the artist given.
   ///
   /// Fetches information from the server only if the information is missing.
-  Future<ListResponse<Artist>> similar(Artist artist) async {
+  Future<Either<String, List<Artist>>> similar(Artist artist) async {
+    int extractId(XmlElement e) => int.parse(e.getAttribute('id'));
+
     var cachedIds = await _database.similarIds(artist.id);
     if (cachedIds == null) {
-      cachedIds = (await _server.similarArtists(artist.id)).fold(
+      cachedIds = (await _server.similarArtists(artist.id)).fold<List<int>>(
         (error) => [],
-        (elements) =>
-            elements.map((e) => int.parse(e.getAttribute('id'))).toList(),
+        (elements) => elements.map(extractId).toList(),
       );
-
       await _database.updateSimilar(artist.id, cachedIds);
     }
-    return _removeEmptyLists(await _database.byIdList(cachedIds));
+
+    return (await _database.byIdList(cachedIds))
+        .removeEmpty(onEmpty: _Error.artistsEmpty);
   }
 }
 
-ListResponse<Artist> _removeEmptyLists(List<Artist> artists) {
-  if (artists.isEmpty) {
-    return const ListResponse<Artist>(
-      error: 'No artists found within database.',
-      solutions: [ErrorSolutions.database, ErrorSolutions.network],
-    );
-  } else {
-    return ListResponse<Artist>(data: artists);
-  }
+class _Error {
+  // This class is not meant to be instantiated or extended.
+  _Error._();
+
+  static const artistsEmpty = 'Failed to find any artists in database.';
+
+  static const noArtist = 'Failed to find artist.';
 }

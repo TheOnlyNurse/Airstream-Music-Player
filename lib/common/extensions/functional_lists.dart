@@ -1,14 +1,10 @@
 import 'dart:collection';
-
+import 'package:meta/meta.dart';
 import 'package:dartz/dartz.dart';
 
 extension FunctionalLists<E> on List<E> {
-  Either<T, List<E>> removeEmpty<T>(T error) {
-    return isEmpty ? left(error) : right(this);
-  }
-
-  Option<List<E>> get removeNull {
-    return isEmpty ? none() : some(this);
+  Either<T, List<E>> removeEmpty<T>({@required T onEmpty}) {
+    return isEmpty ? left(onEmpty) : right(this);
   }
 
   List<E> get returnShuffle {

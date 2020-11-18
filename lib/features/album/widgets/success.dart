@@ -1,4 +1,4 @@
-part of '../screen.dart';
+part of '../album_screen.dart';
 
 class _Success extends StatelessWidget {
   const _Success(this.state, {Key key, this.cubit}) : super(key: key);
@@ -17,14 +17,14 @@ class _Success extends StatelessWidget {
           stretch: true,
           stretchTriggerOffset: 200,
           flexibleSpace: FlexibleImageWithTitle(
-            title: FutureButton<SingleResponse<Artist>>(
+            title: FutureButton<Artist>(
               future: GetIt.I.get<ArtistRepository>().byId(
                 state.album.artistId,
               ),
               onTap: (artist) => Navigator.pushReplacementNamed(
                 context,
                 'library/singleArtist',
-                arguments: artist.data,
+                arguments: artist,
               ),
               child: AutoSizeText(
                 state.album.title,

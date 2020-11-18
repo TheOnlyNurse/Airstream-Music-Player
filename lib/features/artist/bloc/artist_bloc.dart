@@ -42,10 +42,11 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
         currentState.artist,
         fallback: currentState.albums.first,
       );
-      final similar = await artistRepository.similar(currentState.artist);
+      final similar = (await artistRepository.similar(currentState.artist))
+          .fold<List<Artist>>((l) => [], (r) => r);
       yield currentState.copyWith(
         songs: topSongs.data,
-        similarArtists: similar.data,
+        similarArtists: similar,
       );
     }
   }

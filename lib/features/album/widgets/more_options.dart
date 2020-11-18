@@ -1,4 +1,4 @@
-part of '../screen.dart';
+part of '../album_screen.dart';
 
 class _MoreOptions extends StatelessWidget {
   const _MoreOptions({Key key, this.cubit}) : super(key: key);

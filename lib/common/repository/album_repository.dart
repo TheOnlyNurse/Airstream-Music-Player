@@ -12,8 +12,6 @@ import '../providers/moor_database.dart';
 import 'scheduler.dart';
 import 'server_repository.dart';
 
-const noAlbumsError = 'No albums matching wanted criteria found in database.';
-
 class AlbumRepository {
   AlbumRepository({
     AlbumsDao albumsDao,
@@ -32,13 +30,14 @@ class AlbumRepository {
   /// Since the album order should also be random, a subsequent shuffle is needed.
   Future<Either<String, List<Album>>> random() async {
     return (await _database.random(50))
-        .removeEmpty(noAlbumsError)
+        .removeEmpty(onEmpty: _Error.albumsEmpty)
         .map((albums) => albums.returnShuffle);
   }
 
   /// Returns the most recently added albums.
   Future<Either<String, List<Album>>> recentlyAdded() async {
-    return (await _database.recentlyAdded()).removeEmpty(noAlbumsError);
+    return (await _database.recentlyAdded())
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns the most played albums according to the server.
@@ -54,51 +53,56 @@ class AlbumRepository {
   /// Returns a list of genres available within albums.
   Future<Either<String, List<String>>> allGenres() async {
     return (await _database.extractGenres())
-        .removeEmpty('No genres found in database.')
+        .removeEmpty(onEmpty: 'No genres found in database.')
         .map((r) => r.removeDuplicates);
   }
 
   /// Returns a list of decades dictated by album years.
   Future<Either<String, List<int>>> decades() async {
     return (await _database.extractDecades())
-        .removeEmpty('No decades found in database.')
+        .removeEmpty(onEmpty: 'No decades found in database.')
         .map((r) => r.removeDuplicates);
   }
 
   /// Returns albums ordered by alphabet.
   Future<Either<String, List<Album>>> byAlphabet() async {
-    return (await _database.byAlphabet()).removeEmpty(noAlbumsError);
+    return (await _database.byAlphabet())
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns albums that match a given artist id.
   Future<Either<String, List<Album>>> fromArtist(Artist artist) async {
-    return (await _database.byArtistId(artist.id)).removeEmpty(noAlbumsError);
+    return (await _database.byArtistId(artist.id))
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns albums that are marked as starred, updating if an empty list is returned.
   Future<Either<String, List<Album>>> starred() async {
-    return (await _database.starred()).removeEmpty(noAlbumsError);
+    return (await _database.starred()).removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns an album by it's id.
   Future<Either<String, Album>> byId(int id) async {
     final album = await _database.byId(id);
-    return album == null ? left('Album not found.') : right(album);
+    return album == null ? left(_Error.noAlbum) : right(album);
   }
 
   /// Returns an album list that matches a genre.
   Future<Either<String, List<Album>>> genre(String genre) async {
-    return (await _database.byGenre(genre)).removeEmpty(noAlbumsError);
+    return (await _database.byGenre(genre))
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns an album list with years within the given decade.
   Future<Either<String, List<Album>>> decade(int decade) async {
-    return (await _database.byDecade(decade)).removeEmpty(noAlbumsError);
+    return (await _database.byDecade(decade))
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// Returns a list of albums whose title matches a given request.
   Future<Either<String, List<Album>>> search(String request) async {
-    return (await _database.search(request)).removeEmpty(noAlbumsError);
+    return (await _database.search(request))
+        .removeEmpty(onEmpty: _Error.albumsEmpty);
   }
 
   /// ========== DB MANAGEMENT ==========
@@ -152,10 +156,10 @@ class AlbumRepository {
   Future<Either<String, List<Album>>> _fromCache(String type) async {
     final cache = Hive.box('cache');
     final idList = cache.get('${type}Albums') as List<int>;
-    if (idList == null) return left('Cached album list needs to be updated.');
+    if (idList == null) return left(_Error.noCached);
 
     return (await _database.byIdList(idList))
-        .removeEmpty('No $type found in database.')
+        .removeEmpty(onEmpty: 'No $type found in database.')
         .map((r) => r.matchSort<int>(idList, (id, album) => id == album.id));
   }
 
@@ -164,9 +168,21 @@ class AlbumRepository {
 
     final ids = (await _server.albumList(type: type, specifics: 'size=50'))
         .map((elements) => elements.map(extractId).toList())
-        .flatMap((list) => list.removeEmpty('No albums found.'))
+        .flatMap((list) => list.removeEmpty(onEmpty: 'No albums found.'))
         .fold((l) => [], (ids) => ids);
 
     if (ids.isNotEmpty) Hive.box('cache').put('${type}Albums', ids);
   }
+}
+
+class _Error {
+  // This class is not meant to be instantiated or extended.
+  _Error._();
+
+  static const noAlbum = 'Album not found.';
+
+  static const albumsEmpty =
+      'No albums found in database. Try syncing with the server.';
+
+  static const noCached = 'Cached album list needs to be updated.';
 }
