@@ -16,13 +16,11 @@ class ArtistRepository {
   final ServerRepository _server;
 
   Future<Either<String, List<Artist>>> byAlphabet() async {
-    return (await _database.byAlphabet())
-        .removeEmpty(onEmpty: _Error.artistsEmpty);
+    return (await _database.byAlphabet()).removeEmpty(_Error.artistsEmpty);
   }
 
   Future<Either<String, List<Artist>>> search(String name) async {
-    return (await _database.search(name))
-        .removeEmpty(onEmpty: _Error.artistsEmpty);
+    return (await _database.search(name)).removeEmpty(_Error.artistsEmpty);
   }
 
   /// Clears the local database in favour for one from the server.
@@ -58,7 +56,7 @@ class ArtistRepository {
     }
 
     return (await _database.byIdList(cachedIds))
-        .removeEmpty(onEmpty: _Error.artistsEmpty);
+        .removeEmpty(_Error.artistsEmpty);
   }
 }
 

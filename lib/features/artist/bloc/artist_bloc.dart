@@ -38,16 +38,14 @@ class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
     }
 
     if (event is SingleArtistInfo && currentState is SingleArtistSuccess) {
-      final topSongs = await songRepository.topSongs(
+      final topSongs = (await songRepository.topSongs(
         currentState.artist,
         fallback: currentState.albums.first,
-      );
+      ))
+          .fold<List<Song>>((l) => [], (r) => r);
       final similar = (await artistRepository.similar(currentState.artist))
           .fold<List<Artist>>((l) => [], (r) => r);
-      yield currentState.copyWith(
-        songs: topSongs.data,
-        similarArtists: similar,
-      );
+      yield currentState.copyWith(songs: topSongs, similarArtists: similar);
     }
   }
 }

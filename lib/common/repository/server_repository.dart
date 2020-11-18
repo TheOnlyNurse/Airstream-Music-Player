@@ -103,7 +103,8 @@ class ServerRepository {
     String artistName, {
     int count = 5,
   }) async {
-    final request = 'getTopSongs?artist=$artistName&count=$count';
+    final adjustedName = artistName.replaceAll(' ', '+');
+    final request = 'getTopSongs?artist=$adjustedName&count=$count';
     return (await _provider.fetch(request)).map(_extract('song'));
   }
 

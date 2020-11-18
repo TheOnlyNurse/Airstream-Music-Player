@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:airstream/common/models/repository_response.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -35,19 +34,19 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
   @override
   Stream<StarredState> mapEventToState(StarredEvent event) async* {
     if (event is StarredFetch) {
-      final responses = await Future.wait([
-      _album.starred(),
-      _song.starred(),
-      ]);
-
-      final albumResponse = responses[0] as ListResponse<Album>;
-      final songResponse = responses[1] as ListResponse<Song>;
-      if (albumResponse.hasError && songResponse.hasError) {
-        yield StarredFailure(songResponse.error);
+      final albumResponse = await _album.starred();
+      final songResponse = await _song.starred();
+      if (albumResponse.isLeft() && songResponse.isLeft()) {
+        yield StarredFailure(
+          'Album Error: '
+          '${albumResponse.fold((l) => l, (_) => "Folded right, but shouldn't have.")}\n'
+          'Song Error: '
+          '${albumResponse.fold((l) => l, (_) => "Folded right, but shouldn't have.")}',
+        );
       } else {
         yield StarredSuccess(
-          albums: albumResponse.data ?? [],
-          songs: songResponse.data ?? [],
+          albums: albumResponse.fold((l) => [], (r) => r),
+          songs: songResponse.fold((l) => [], (r) => r),
         );
       }
     }

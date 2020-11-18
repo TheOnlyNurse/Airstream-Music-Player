@@ -22,8 +22,4 @@ class SearchSuccess extends SearchState {
   List<Object> get props => [songs, albums, artists];
 }
 
-class SearchFailure extends SearchState {
-  const SearchFailure(this.message);
-
-  final String message;
-}
+class SearchFailure extends SearchState {}

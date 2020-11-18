@@ -28,7 +28,7 @@ class _SongListTile extends StatelessWidget {
 
   List<Color> _colours(bool isPlaying, BuildContext context) {
     final playing = Theme.of(context).accentColor;
-    final cached = Colors.transparent;
+    const cached = Colors.transparent;
     final notCached = Theme.of(context).errorColor;
     return isPlaying ? [playing, playing] : [notCached, cached];
   }

@@ -19,4 +19,8 @@ class SingleAlbumSuccess extends SingleAlbumState {
   List<Object> get props => [album];
 }
 
-class SingleAlbumError extends SingleAlbumState {}
+class SingleAlbumError extends SingleAlbumState {
+  const SingleAlbumError(this.message);
+
+  final String message;
+}

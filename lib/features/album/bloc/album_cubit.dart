@@ -20,12 +20,10 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   final SongRepository songRepository;
 
   Future<void> fetchSongs(Album album) async {
-    final response = await songRepository.byAlbum(album);
-    if (response.hasData) {
-      emit(SingleAlbumSuccess(album: album, songs: response.data));
-    } else {
-      emit(SingleAlbumError());
-    }
+    emit((await songRepository.byAlbum(album)).fold(
+      (error) => SingleAlbumError(error),
+      (songs) => SingleAlbumSuccess(album: album, songs: songs),
+    ));
   }
 
   void change({bool isStarred}) {

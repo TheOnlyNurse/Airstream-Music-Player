@@ -1,8 +1,8 @@
+import 'package:airstream/common/error/error_screen.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../error/widgets/error_widgets.dart';
 import '../global_assets.dart';
-import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../repository/album_repository.dart';
 import '../widgets/album_card.dart';
@@ -18,43 +18,55 @@ class AlphabetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _scrollController = ScrollController();
 
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder(
+        child: FutureBuilder<Either<String, List<Album>>>(
           future: albumRepository.byAlphabet(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              final response = snapshot.data as ListResponse<Album>;
-
-              if (response.hasData) {
-                return AlphabeticalGridView(
-                  headerStrings: response.data.map((e) => e.title).toList(),
-                  cacheKey: 'albumHeaders',
-                  builder: GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    gridDelegate: WidgetProperties.albumsDelegate,
-                    itemBuilder: (context, index) {
-                      return AlbumCard(album: response.data[index]);
-                    },
-                    itemCount: response.data.length,
-                    controller: _scrollController,
-                  ),
-                  controller: _scrollController,
-                  leading: <Widget>[
-                    SliverCloseBar(),
-                  ],
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const Center(child: CircularProgressIndicator());
+              case ConnectionState.done:
+                return snapshot.data.fold(
+                  (error) => ErrorScreen(message: error),
+                  (albums) => _Success(albums: albums),
                 );
-              }
-
-              return ErrorRepoResponseScreen(response: response);
+              default:
+                return const ErrorScreen(message: 'Snapshot error.');
             }
-
-            return const Center(child: CircularProgressIndicator());
           },
         ),
       ),
+    );
+  }
+}
+
+class _Success extends StatelessWidget {
+  const _Success({Key key, this.albums}) : super(key: key);
+
+  final List<Album> albums;
+
+  @override
+  Widget build(BuildContext context) {
+    final _scrollController = ScrollController();
+
+    return AlphabeticalGridView(
+      headerStrings: albums.map((e) => e.title).toList(),
+      cacheKey: 'albumHeaders',
+      builder: GridView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        gridDelegate: WidgetProperties.albumsDelegate,
+        itemBuilder: (context, index) {
+          return AlbumCard(album: albums[index]);
+        },
+        itemCount: albums.length,
+        controller: _scrollController,
+      ),
+      controller: _scrollController,
+      leading: <Widget>[
+        SliverCloseBar(),
+      ],
     );
   }
 }

@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
 import 'package:xml/xml.dart';
+import '../extensions/functional_lists.dart';
 
 import '../global_assets.dart';
 import '../models/playlist_model.dart';
-import '../models/repository_response.dart';
 import '../providers/audio_files_dao.dart';
 import '../providers/moor_database.dart';
 import '../providers/songs_dao.dart';
@@ -38,130 +39,115 @@ class SongRepository {
   final String _cacheFolder;
   final _cacheCheckLocker = Mutex();
 
-  /// Returns an error message with possible solutions instead of an empty list.
-  ListResponse<Song> _removeEmptyLists(List<Song> songs) {
-    if (songs.isEmpty) {
-      return const ListResponse<Song>(
-          error: "No songs found in database.",
-          solutions: [
-            ErrorSolutions.network,
-          ]);
-    } else {
-      return ListResponse<Song>(data: songs);
-    }
-  }
-
   /// Returns a song by id.
-  Future<SingleResponse<Song>> byId(int id) async {
+  Future<Either<String, Song>> byId(int id) async {
     final song = await _database.id(id);
-    return song != null ? SingleResponse<Song>(data: song) : null;
+    return song == null ? left(_Error.noSong) : right(song);
   }
 
   /// Get songs that match a given [album].
   ///
   /// Fetches from the server if the number of songs retrieved doesn't match
   /// the songs expected in the album.
-  Future<ListResponse<Song>> byAlbum(Album album) async {
+  Future<Either<String, List<Song>>> byAlbum(Album album) async {
     final songs = await _database.album(album.id);
-    if (songs.length == album.songCount) return ListResponse<Song>(data: songs);
+    if (songs.length == album.songCount) return right(songs);
 
     return (await _server.albumSongs(album.id)).fold(
-      (error) => ListResponse<Song>(error: error),
+      (error) => left(error),
       (elements) async {
         final songs = await _process(elements);
         songs.sort((a, b) => a.title.compareTo(b.title));
-        return _removeEmptyLists(songs);
+        return songs.removeEmpty(_Error.songsEmpty);
       },
     );
   }
 
   /// Convert playlist song id list to song details from database.
-  Future<ListResponse<Song>> byPlaylist(Playlist playlist) async {
+  Future<Either<String, List<Song>>> byPlaylist(Playlist playlist) async {
     final songs = await _database.idList(playlist.songIds);
-    if (songs.length == playlist.songIds.length) {
-      return ListResponse<Song>(data: songs);
-    }
+    if (songs.length == playlist.songIds.length) return right(songs);
 
     return (await _server.playlistSongs(playlist.id)).fold(
-      (error) => ListResponse<Song>(error: error),
-      (elements) async => _removeEmptyLists(await _process(elements)),
+      (error) => left(error),
+      (elements) async =>
+          (await _process(elements)).removeEmpty(_Error.songsEmpty),
     );
   }
 
   /// Returns songs marked as starred, fetching from server if an empty list is received.
-  Future<ListResponse<Song>> starred({bool forceSync = false}) async {
+  Future<Either<String, List<Song>>> starred({bool forceSync = false}) async {
     final songs = await _database.starred();
-    if (songs.isNotEmpty || forceSync) return ListResponse<Song>(data: songs);
+    if (songs.isNotEmpty || forceSync) return right(songs);
 
     return (await _server.starred('song')).fold(
-      (error) => _removeEmptyLists(songs),
+      (error) => left(error),
       (elements) async {
         await _database.clearStarred();
         final processed = await _process(elements);
         await _database.updateStarred(processed.map((e) => e.id).toList());
-        return ListResponse<Song>(data: processed);
+        return right(processed);
       },
     );
   }
 
   /// Returns "top" songs of a given [artist].
   ///
-  /// Falls back to the songs within a [fallback] album.
-  /// TODO: A lot of repeated code. Needs cleaning up.
-  Future<ListResponse<Song>> topSongs(
+  /// If the fetched list is empty, falls back to 5 songs within the [fallback] album.
+  Future<Either<String, List<Song>>> topSongs(
     Artist artist, {
     @required Album fallback,
   }) async {
     assert(fallback != null);
 
     final markedSongs = await _database.topSongs(artist.name);
-    if (markedSongs.isNotEmpty) return ListResponse<Song>(data: markedSongs);
+    if (markedSongs.isNotEmpty) return right(markedSongs);
 
-    final compactName = artist.name.replaceAll(' ', '+');
-    return (await _server.topSongs(compactName)).fold(
-      (error) async {
-        final fromAlbum = await byAlbum(fallback);
-        if (fromAlbum.hasError) throw UnimplementedError(fromAlbum.error);
-        final songs =
-            fromAlbum.data.sublist(0, math.min(fromAlbum.data.length, 5));
-        await _database.markTopSongs(
-          artist.name,
-          songs.map((e) => e.id).toList(),
-        );
-        return _removeEmptyLists(songs);
-      },
-      (elements) async {
-        final songs = await _process(elements);
-        if (songs.isNotEmpty) {
-          await _database.markTopSongs(
-            artist.name,
-            songs.map((e) => e.id).toList(),
-          );
-        }
-        return _removeEmptyLists(songs);
-      },
+    return (await _server.topSongs(artist.name)).fold(
+      // Fallback on an empty list.
+      (_) async => (await byAlbum(fallback))
+          .map((songs) => songs.sublist(0, math.min(songs.length, 5)))
+          .fold(
+            (error) => left(error),
+            (songs) async => right(await _markTopSongs(artist, songs)),
+          ),
+      // Register fetched songs.
+      (elements) async =>
+          (await _process(elements)).removeEmpty(_Error.songsEmpty).fold(
+                (error) => left(error),
+                (songs) async => right(await _markTopSongs(artist, songs)),
+              ),
     );
   }
 
+  /// Marks a list of [songs] as an [artist]'s "top songs".
+  Future<List<Song>> _markTopSongs(Artist artist, List<Song> songs) async {
+    // Checks for empty song lists should be done before this call.
+    assert(songs.isNotEmpty);
+    final ids = songs.map((e) => e.id).toList();
+    await _database.markTopSongs(artist.name, ids);
+    return songs;
+  }
+
   /// Searches both titles and artist names assigned to songs by a query string.
-  Future<ListResponse<Song>> search(String query) async {
+  Future<Either<String, List<Song>>> search(String query) async {
     final byTitle = await _database.title(query);
     final byName = await _database.artistName(query);
 
-    // Converting to set to remove duplicates
-    final songs = <Song>{...byTitle, ...byName}.toList();
-    if (songs.length > 4) return ListResponse<Song>(data: songs);
+    final songs = <Song>[...byTitle, ...byName].removeDuplicates;
+    if (songs.length > 4) return right(songs);
 
     return (await _server.search(query)).fold(
-      (error) => ListResponse<Song>(error: error),
-      (elements) async => _removeEmptyLists(await _process(elements)),
+      (error) => left(error),
+      (elements) async =>
+          (await _process(elements)).removeEmpty(_Error.songsEmpty),
     );
   }
 
   /// Returns the file (is it exists) associated with a song id.
-  Future<File> file(Song song) async {
+  Future<Either<String, File>> file(Song song) async {
     final path = await _fileDatabase.filePath(song.id);
-    return path != null ? File(path) : null;
+    return path != null ? right(File(path)) : left(_Error.noFile);
   }
 
   /// Deletes the file associated with a song.
@@ -245,4 +231,14 @@ class SongRepository {
 
 String _folderConstructor() {
   return path.join(GetIt.I.get<String>(instanceName: 'cachePath'), 'audio/');
+}
+
+class _Error {
+  _Error._();
+
+  static const noSong = 'Failed to find song.';
+
+  static const songsEmpty = 'Failed to find songs.';
+
+  static const noFile = 'Failed to find audio file in database.';
 }
