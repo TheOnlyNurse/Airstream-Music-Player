@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:rxdart/rxdart.dart';
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:meta/meta.dart';
-import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
 
 import '../global_assets.dart';
@@ -15,136 +14,116 @@ import 'server_repository.dart';
 class ImageRepository {
   ImageRepository({ImageFileProvider provider, ServerRepository server})
       : _provider = provider ?? _initProvider(),
-        _server = getIt<ServerRepository>(server);
+        _server = getIt<ServerRepository>(server) {
+    _cacheCheck.stream
+        .debounce((_) => TimerStream(true, const Duration(seconds: 3)))
+        .listen((_) {
+      // print('Checking cache size');
+      _provider.checkSize();
+    });
+  }
 
   /// Provider instance that servers as a database.
   final ImageFileProvider _provider;
 
+  /// Provider used to fetch images.
   final ServerRepository _server;
 
-  /// Mutex to "queue" checkSize jobs instead of having concurrent checks
-  final _sizeLocker = Mutex();
-
-  /// Timer used to "queue" cache size checks
-  Timer _cacheCheckTimer;
+  final _cacheCheck = StreamController<bool>();
 
   /// ========== QUERYING ==========
 
   /// Returns a low resolution image given an id.
-  Future<File> preview(String artId) async {
+  Future<Option<File>> preview(String artId) async {
     const type = ImageType.lowRes;
-    return _query(
-      id: artId,
-      type: type,
-      onNone: _fromServer(artId, type),
-    );
+    return _provider
+        .state(artId, type)
+        .fold(() => none(), _resolveState(artId, type, _fromSubsonic));
   }
 
   /// Returns a high resolution image given an id.
-  Future<File> highDefinition(String artId) async {
+  Future<Option<File>> highDefinition(String artId) async {
     const type = ImageType.highRes;
-    final query = await _query(
-      id: artId,
-      type: type,
-      onNone: _fromServer(artId, type),
+    return _provider.state(artId, type).fold(
+      () => none(),
+      // Fallback to low resolution if unable to get high definition image.
+      (state) async {
+        final file = await _resolveState(artId, type, _fromSubsonic)(state);
+        return file.isNone() ? await preview(artId) : file;
+      },
     );
-    return query ?? await preview(artId);
   }
 
   /// Returns an artist's image and fetches from discogs if prompted.
   ///
   /// Falls back to cover art image if no image is available.
-  Future<File> fromArtist(Artist artist, {bool fetch = false}) async {
+  Future<Option<File>> fromArtist(Artist artist, {bool fetch = false}) async {
     const type = ImageType.artist;
     final id = artist.art ?? artist.id.toString();
-    final query = await _query(
-      id: id,
-      type: type,
-      onNone: fetch ? _fromDiscogs(artist.name, id, type) : null,
-    );
 
-    // Fallback to high-definition if possible.
-    if (query != null) {
-      return query;
-    } else if (artist.art != null) {
-      // High resolution images are only required if also fetching from discogs.
-      return fetch ? highDefinition(artist.art) : preview(artist.art);
-    } else {
-      return null;
-    }
+    // Resolve the state from the database.
+    final query = _provider.state(id, type).fold<Future<Option<File>>>(
+          () async => none(),
+          _resolveState(
+            id,
+            type,
+            fetch ? _fromDiscogs(artist.name) : (_, __) async => none(),
+          ),
+        );
+
+    // If the state is still none after resolving, fallback to album artwork.
+    return (await query).fold(() async {
+      // Only fallback if artwork id is available.
+      return artist.art != null
+          ? fetch
+              ? await highDefinition(artist.art)
+              : await preview(artist.art)
+          : none();
+    }, (file) => some(file));
   }
 
-  /// ========== DB MANAGEMENT ==========
-
+  /// Deletes all cache files and clears their references in the database.
   Future<void> clear() => _provider.clear();
 
-  Future<File> _fromServer(String id, ImageType type) async {
-    final resolution = type == ImageType.lowRes ? 256 : 512;
-    return (await _server.image(id, resolution)).fold(
-      (error) => null,
-      (bytes) {
-        _queueSizeCheck();
-        return _provider.addBytes(bytes, id, type);
-      },
-    );
-  }
-
-  Future<File> _fromDiscogs(String name, String id, ImageType type) async {
-    return (await _server.discogsImage(name)).fold(
-      (error) {
-        _provider.setNull(id, type);
-        return null;
-      },
-      (bytes) {
-        _queueSizeCheck();
-        return _provider.addBytes(bytes, id, type);
-      },
-    );
-  }
-
-  /// Queues size check calls
+  /// Resolves a file state given from the provider.
   ///
-  /// Size checks once initiated ensures that the cache stays within user set
-  /// limits. Therefore, only one check should be submitted, this "queues" up
-  /// the calls with a timer.
-  void _queueSizeCheck() {
-    if (_cacheCheckTimer != null) {
-      _cacheCheckTimer.cancel();
-    }
-    _cacheCheckTimer = Timer(const Duration(seconds: 5), _initiateSizeCheck);
+  /// Fetches from Subsonic if the file is missing.
+  Future<Option<File>> Function(bool) _resolveState(
+    String artId,
+    ImageType type,
+    Future<Option<File>> Function(String id, ImageType type) onMissing,
+  ) {
+    return (bool fileExists) async {
+      return fileExists
+          ? some(_provider.resolveFile(artId, type))
+          : await onMissing(artId, type);
+    };
   }
 
-  Future<void> _initiateSizeCheck() async {
-    if (!_sizeLocker.isLocked) {
-      await _sizeLocker.protect(() => _provider.checkSize());
-    }
+  Future<Option<File>> _fromSubsonic(String artId, ImageType type) async {
+    final resolution = type == ImageType.lowRes ? 256 : 512;
+    return (await _server.image(artId, resolution))
+        .toOption()
+        .fold(() => none(), (bytes) async {
+      _cacheCheck.add(true);
+      return some(await _provider.addBytes(bytes, artId, type));
+    });
   }
 
-  /// ========== COMMON FUNCTIONS ==========
-
-  Future<File> _query({
-    @required String id,
-    @required ImageType type,
-    Future<File> onNone,
-  }) async {
-    assert(id != null);
-    assert(type != null);
-
-    final fileState = _provider.getState(id, type);
-
-    switch (fileState) {
-      case ImageFileState.exists:
-        return _provider.getFile(id, type);
-        break;
-      case ImageFileState.nullFile:
-        return null;
-        break;
-      case ImageFileState.none:
-        return onNone;
-        break;
-      default:
-        throw UnimplementedError('Failed to interpret: $type');
-    }
+  Future<Option<File>> Function(String, ImageType) _fromDiscogs(String name) {
+    return (String id, ImageType type) async {
+      return (await _server.discogsImage(name)).fold(
+        // Add a null file to prevent more fetch attempts of the same artist.
+        (error) {
+          _provider.addNull(id, type);
+          return none();
+        },
+        (bytes) async {
+          _cacheCheck.add(true);
+          return some(await _provider.addBytes(bytes, id, type));
+        },
+      );
+    };
   }
 
   Future<List<File>> collage(List<int> songIds) async {
