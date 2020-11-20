@@ -1,32 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/playlist_model.dart';
 import 'widgets/playlist_dialog.dart';
 
-class SongListBar extends StatelessWidget {
-  final int selectedNumber;
-  final bool canRemoveStar;
+class SliverSelectionBar extends StatelessWidget {
+  final double expandedHeight;
+  final bool stretch;
+  final double stretchTriggerOffset;
+  final Widget flexibleSpace;
+  final List<Widget> actions;
 
-  const SongListBar({
+  const SliverSelectionBar({
     Key key,
-    this.selectedNumber,
-    this.canRemoveStar,
+    this.expandedHeight,
+    this.stretch,
+    this.stretchTriggerOffset,
+    this.flexibleSpace,
+    this.actions,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
-      backgroundColor: Theme.of(context).cardColor,
-      pinned: true,
-      title: selectedNumber != null ? Text('$selectedNumber selected') : null,
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () => throw UnimplementedError(),
-      ),
-      actions: <Widget>[
-        _AddToPlaylist(),
-        _ChangeStar(canRemoveStar: canRemoveStar),
-      ],
+    return BlocBuilder(
+      builder: (context, state) {
+        return SliverAppBar(
+          expandedHeight: expandedHeight,
+          stretch: stretch,
+          stretchTriggerOffset: stretchTriggerOffset,
+          flexibleSpace: flexibleSpace,
+          backgroundColor: Theme.of(context).backgroundColor,
+          pinned: true,
+          title: selectedNumber != null ? Text('$selectedNumber selected') : null,
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => throw UnimplementedError(),
+          ),
+          actions: <Widget>[
+            _AddToPlaylist(),
+            _ChangeStar(canRemoveStar: canRemoveStar),
+          ],
+        );
+      },
     );
   }
 }

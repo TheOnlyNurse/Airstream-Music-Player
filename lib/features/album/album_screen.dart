@@ -20,8 +20,8 @@ part 'widgets/shuffle_button.dart';
 part 'widgets/star_button.dart';
 part 'widgets/success.dart';
 
-class SingleAlbumScreen extends StatelessWidget {
-  const SingleAlbumScreen({
+class AlbumScreen extends StatelessWidget {
+  const AlbumScreen({
     Key key,
     @required this.cubit,
   })  : assert(cubit != null),

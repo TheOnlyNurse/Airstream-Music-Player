@@ -7,7 +7,7 @@ Widget _route(String route, dynamic arguments) {
     case 'library/singleArtist':
       return SingleArtistScreen(artist: arguments as Artist);
     case 'library/singleAlbum':
-      return SingleAlbumScreen(
+      return AlbumScreen(
         cubit: SingleAlbumCubit(
           albumRepository: GetIt.I.get<AlbumRepository>(),
           songRepository: GetIt.I.get<SongRepository>(),

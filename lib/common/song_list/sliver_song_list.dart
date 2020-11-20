@@ -1,7 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../providers/moor_database.dart';
 import '../repository/audio_repository.dart';
@@ -12,26 +12,27 @@ part 'widgets/song_list_tile.dart';
 
 class SliverSongList extends StatelessWidget {
   final List<Song> songs;
+  final AudioRepository audioRepository;
 
-  const SliverSongList({Key key, @required this.songs})
+  const SliverSongList(
+      {Key key, @required this.songs, @required this.audioRepository})
       : assert(songs != null),
+        assert(audioRepository != null),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-            (context, index) {
+        (context, index) {
           return _SongListTile(
             song: songs[index],
             bloc: SongListTileBloc(
               tileSong: songs[index],
-              audioRepository: GetIt.I.get<AudioRepository>(),
-            )..add(SongListTileFetch()),
-            onTap: () {
-              final repository = GetIt.I.get<AudioRepository>();
-              repository.start(songs: songs, index: index);
-            },
+              audioRepository: audioRepository,
+            )
+              ..add(SongListTileFetch()),
+            onTap: () => audioRepository.start(songs: songs, index: index),
           );
         },
         childCount: songs.length,
