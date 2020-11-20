@@ -39,7 +39,7 @@ class SongListTileCubit extends Cubit<SongListTileState> {
 
   Future<void> checkCache() async {
     final response = await GetIt.I.get<SongRepository>().file(song);
-    if (response == null) emit(state.copyWith(cachePercent: 0));
+    if (response.isLeft()) emit(state.copyWith(cachePercent: 0));
   }
 
   void onLongPress() => selectionBarCubit.selected(song);

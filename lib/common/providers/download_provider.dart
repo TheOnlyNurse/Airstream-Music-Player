@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:rxdart/rxdart.dart';
@@ -43,12 +44,12 @@ class DownloadProvider {
   Timer _timeoutTimer;
 
   /// Begin a download that might return a file if the download isn't interrupted.
-  Future<File> start(Song song) async {
+  Future<Either<String, File>> start(Song song) async {
     // Interrupt any previous downloads
     if (_downloadSubscription != null) _downloadSubscription.cancel();
     await _limiter.acquire();
     _renewFile();
-    final futureFile = Completer<File>();
+    final futureFile = Completer<Either<String, File>>();
     final byteStream = StreamController<List<int>>();
     // Broadcast download has begun.
     _percentage.add(DownloadPercentage(songId: song.id));
@@ -57,7 +58,7 @@ class DownloadProvider {
     return (await _server.stream('stream?id=${song.id}', byteStream)).fold(
       (error) {
         _percentage.add(_percentage.value.copyWith(isActive: false));
-        return null;
+        return left('Streaming error.');
       },
       (size) {
         _percentage.add(_percentage.value.copyWith(total: size));
@@ -101,11 +102,13 @@ class DownloadProvider {
   /// Cleans up resources when the download has finished.
   ///
   /// This can be either because of an interruption or because the file is completed.
-  Future<void> _onFinished(Completer<File> completer) async {
+  Future<void> _onFinished(Completer<Either<String, File>> completer) async {
     await _clean();
     await _fileSink.close();
     // If the last emitted value is that a file is cached, then complete with it.
-    completer.complete(_percentage.value.isCached ? _downloadFile : null);
+    completer.complete(_percentage.value.isCached
+        ? right(_downloadFile)
+        : left('Audio download was interrupted.'));
   }
 
   /// A timer that cancels the download stream after a set duration.

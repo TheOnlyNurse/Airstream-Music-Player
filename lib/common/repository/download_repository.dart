@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 
@@ -24,13 +25,13 @@ class DownloadRepository {
   Stream<DownloadPercentage> get percentage => _manager.percentage;
 
   /// Downloads the file associated with a [Song].
-  Future<File> download(Song song) async {
-    final file = await _manager.start(song);
-    if (file != null) {
-      return _songRepository.cacheFile(song: song, file: file);
-    } else {
-      return null;
-    }
+  Future<Either<String, File>> download(Song song) async {
+    return (await _manager.start(song)).fold(
+      (error) => left(error),
+      (file) async {
+        return right(await _songRepository.cacheFile(song: song, file: file));
+      },
+    );
   }
 }
 

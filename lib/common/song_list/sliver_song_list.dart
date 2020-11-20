@@ -25,8 +25,6 @@ class SliverSongList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectionBarCubit = context.read<SelectionBarCubit>();
-
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
@@ -37,7 +35,7 @@ class SliverSongList extends StatelessWidget {
               cubit: SongListTileCubit(
                 song: songs[index],
                 audio: audioRepository,
-                selectionBarCubit: selectionBarCubit,
+                selectionBarCubit: context.read<SelectionBarCubit>(),
               )..checkCache(),
               onTap: () => audioRepository.start(songs: songs, index: index),
             );

@@ -94,52 +94,33 @@ class AudioRepository {
 
     _songState.add(current);
 
-    // Prime the ensurePlayable function with artwork.
-    final _ensurePlayable = ensurePlayable(
-      artwork: await _imageRepository.highDefinition(current.art),
-    );
-
-    // First filepath is from what's already downloaded.
-    // First failure results in a download attempt.
-    _ensurePlayable(
-      file: await _songRepository.file(current),
-      onFailure: () async {
+    final artwork = await _imageRepository.highDefinition(current.art);
+    (await _songRepository.file(current)).fold(
+      // If file isn't cached, download it.
+      (error) async {
         _provider.pause();
-        // Second filepath is a new download.
-        // Second failure results in an exception.
-        _ensurePlayable(
-          file: await _downloadRepository.download(current),
+        (await _downloadRepository.download(current)).fold(
           // ignore: avoid_print
-          onFailure: () => print('Download file was null'),
+          (error) => print(error),
+          (file) => _startAudio(file, artwork),
         );
       },
+      (file) => _startAudio(file, artwork),
     );
   }
 
-  /// Checks whether a given [filepath] can be played.
-  ///
-  /// It's a curried function, so insert [artwork] first. This is used to allow,
-  /// the same artwork to be used for multiple filepath checks.
-  /// [onFailure] is used when the filepath is null.
-  Function ensurePlayable({Option<File> artwork}) =>
-      ({File file, Function onFailure}) {
-        if (file != null) {
-          _provider.start(
-            songFile: file,
-            artwork: artwork,
-            metas: _toMetas(current),
-            notificationSettings: NotificationSettings(
-              customPrevAction: (player) => previous(),
-              customNextAction: (player) => next(),
-              customStopAction: (player) => _provider.stop(),
-            ),
-          );
-          // TODO: Implement prefetch.
-          // _downloadProvider.prefetch();
-        } else {
-          onFailure();
-        }
-      };
+  void _startAudio(File file, Option<File> artwork) {
+    _provider.start(
+      songFile: file,
+      artwork: artwork,
+      metas: _toMetas(current),
+      notificationSettings: NotificationSettings(
+        customPrevAction: (player) => previous(),
+        customNextAction: (player) => next(),
+        customStopAction: (player) => _provider.stop(),
+      ),
+    );
+  }
 
   /// Either plays or pauses the song depending on the current audio state.
   Future<void> playPause() {
