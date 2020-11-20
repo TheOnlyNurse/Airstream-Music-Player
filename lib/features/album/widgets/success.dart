@@ -34,7 +34,7 @@ class _Success extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            adapter: ImageAdapter(album: state.album, isHiDef: true),
+            adapter: AlbumImageAdapter(album: state.album, isHiDef: true),
           ),
           automaticallyImplyLeading: false,
           titleSpacing: 8,

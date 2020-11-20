@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:dartz/dartz.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../repository/audio_repository.dart';
@@ -76,7 +77,7 @@ class AudioProvider {
   /// [artwork] is used as an image within the notification shade.
   Future<bool> start({
     File songFile,
-    File artwork,
+    Option<File> artwork,
     Metas metas,
     NotificationSettings notificationSettings,
   }) async {
@@ -88,9 +89,11 @@ class AudioProvider {
         showNotification: true,
         notificationSettings: notificationSettings,
       );
-      if (artwork != null) {
-        audio.updateMetas(image: MetasImage.file(artwork.path));
-      }
+      // Update with artwork if possible.
+      artwork.fold(
+        () => null,
+        (image) => audio.updateMetas(image: MetasImage.file(image.path)),
+      );
       isPlaying.complete(true);
     } catch (e) {
       isPlaying.complete(false);

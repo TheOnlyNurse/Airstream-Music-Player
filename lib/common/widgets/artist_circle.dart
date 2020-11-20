@@ -24,7 +24,7 @@ class ArtistCircle extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: _ImageWithInk(
-              image: AirstreamImage(adapter: ImageAdapter(artist: artist)),
+              image: AirstreamImage(adapter: ArtistImageAdapter(artist: artist)),
               onTap: () {
                 onTap != null ? onTap(artist) : _defaultOnTap(context);
               }),

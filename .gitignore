@@ -1,3 +1,7 @@
+# Project specific
+*.g.dart
+lib/temp_password_holder.dart
+
 # Miscellaneous
 *.class
 *.log

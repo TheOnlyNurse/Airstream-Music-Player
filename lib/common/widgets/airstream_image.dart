@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-/// Internal
 import '../models/image_adapter.dart';
 import '../repository/image_repository.dart';
 
@@ -32,20 +32,26 @@ class AirstreamImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<File>(
+    return FutureBuilder<Option<File>>(
       future: adapter.resolve(GetIt.I.get<ImageRepository>()),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (adapter.shouldAnimate) {
-            return _AnimatedImage(child: _child(snapshot.data));
-          } else {
-            return _child(snapshot.data);
-          }
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const SizedBox.expand(
+              child: Center(child: CircularProgressIndicator()),
+            );
+          case ConnectionState.done:
+            return snapshot.data.fold(
+              () => _EmptyImage(),
+              (image) => adapter.shouldAnimate
+                  ? _AnimatedImage(child: _child(image))
+                  : _child(image),
+            );
+          default:
+            return const SizedBox.expand(
+              child: Center(child: Text('Snapshot error.')),
+            );
         }
-
-        return const SizedBox.expand(
-          child: Center(child: CircularProgressIndicator()),
-        );
       },
     );
   }

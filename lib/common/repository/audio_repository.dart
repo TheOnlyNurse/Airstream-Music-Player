@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
@@ -120,7 +121,7 @@ class AudioRepository {
   /// It's a curried function, so insert [artwork] first. This is used to allow,
   /// the same artwork to be used for multiple filepath checks.
   /// [onFailure] is used when the filepath is null.
-  Function ensurePlayable({File artwork}) =>
+  Function ensurePlayable({Option<File> artwork}) =>
       ({File file, Function onFailure}) {
         if (file != null) {
           _provider.start(

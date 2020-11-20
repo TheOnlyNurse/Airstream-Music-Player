@@ -32,7 +32,8 @@ class AlbumCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Expanded(
-                  child: AirstreamImage(adapter: ImageAdapter(album: album)),
+                  child:
+                      AirstreamImage(adapter: AlbumImageAdapter(album: album)),
                 ),
                 const SizedBox(height: 8),
                 _Titles(title: album.title, isSubtitle: false),

@@ -18,7 +18,7 @@ class _Artwork extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          AirstreamImage(adapter: ImageAdapter(song: song, isHiDef: true)),
+          AirstreamImage(adapter: SongImageAdapter(song: song, isHiDef: true)),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

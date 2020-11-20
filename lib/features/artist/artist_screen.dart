@@ -132,7 +132,7 @@ class _AppBar extends StatelessWidget {
           maxFontSize: 25,
           textAlign: TextAlign.center,
         ),
-        adapter: ImageAdapter(artist: artist, isHiDef: true),
+        adapter: ArtistImageAdapter(artist: artist, isHiDef: true),
       ),
       automaticallyImplyLeading: false,
       title: _CloseButton(),

@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:rxdart/rxdart.dart';
+
 import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:path/path.dart' as path;
+import 'package:rxdart/rxdart.dart';
 
 import '../global_assets.dart';
 import '../providers/image_provider.dart';
@@ -126,18 +127,8 @@ class ImageRepository {
     };
   }
 
-  Future<List<File>> collage(List<int> songIds) async {
-    throw UnimplementedError();
-    // final images = <File>[];
-    // for (var id in songIds) {
-    //   final response = await Repository().song.byId(id);
-    //   final art =
-    //       response.hasData ? await highDefinition(response.data.first.art) : null;
-    //   if (response != null) images.add(art);
-    // }
-    // if (images.isEmpty) return null;
-    // return images;
-  }
+  Future<List<File>> collage(List<int> songIds) async =>
+      throw UnimplementedError();
 }
 
 ImageFileProvider _initProvider() {
