@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:airstream/common/global_assets.dart';
 import 'package:airstream/common/models/download_percentage.dart';
+import 'package:airstream/common/song_list_bar/bloc/selection_bar_cubit.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -16,68 +17,58 @@ part 'song_list_tile_event.dart';
 
 part 'song_list_tile_state.dart';
 
-class SongListTileBloc extends Bloc<SongListTileEvent, SongListTileState> {
+class SongListTileBloc extends Cubit<SongListTileState> {
   SongListTileBloc({
-    @required this.tileSong,
-    AudioRepository audioRepository,
-    DownloadRepository downloadRepository,
-  })  : assert(tileSong != null),
-        _audioRepository = getIt<AudioRepository>(audioRepository),
-        _downloadRepository = getIt<DownloadRepository>(downloadRepository),
+    @required this.song,
+    @required this.selectionBarCubit,
+    AudioRepository audio,
+    DownloadRepository download,
+  })  : assert(song != null),
+        _audio = getIt<AudioRepository>(audio),
+        _download = getIt<DownloadRepository>(download),
         super(const SongListTileState()) {
-    onDownload = _downloadRepository.percentage.listen((event) {
-      _onDownload(event, this);
-    });
-    onPlaying = _audioRepository.audioState.listen((state) {
-      _onAudio(state, _audioRepository.current, this);
-    });
+    _onInit();
   }
 
-  final Song tileSong;
-  final AudioRepository _audioRepository;
-  final DownloadRepository _downloadRepository;
-  Song currentSong;
+  final Song song;
+  final SelectionBarCubit selectionBarCubit;
+  final AudioRepository _audio;
+  final DownloadRepository _download;
   StreamSubscription onDownload;
   StreamSubscription onPlaying;
+  StreamSubscription onSelection;
 
-  @override
-  Stream<SongListTileState> mapEventToState(SongListTileEvent event) async* {
-    if (event is SongListTileFetch) {
-      final response = await GetIt.I.get<SongRepository>().file(tileSong);
-      if (response == null) yield state.copyWith(cachePercent: 0);
-    }
+  Future<void> checkCache() async {
+    final response = await GetIt.I.get<SongRepository>().file(song);
+    if (response == null) emit(state.copyWith(cachePercent: 0));
+  }
 
-    if (event is SongListTileDownload) {
-      yield state.copyWith(cachePercent: event.percentage);
-    }
+  void onLongPress() {}
 
-    if (event is SongListTilePlaying) {
-      yield state.copyWith(isPlaying: event.isPlaying);
-    }
+  void _onInit() {
+    // When the song represented by the tile is being downloaded.
+    onDownload = _download.percentage.listen((event) {
+      if (song.id == event.songId && event.isActive) {
+        if (event.isNotCached) {
+          emit(state.copyWith(cachePercent: event.percentage));
+        }
+      }
+    });
+    // When audio state changes update this tile to match.
+    onPlaying = _audio.audioState.listen((audioState) {
+      final isPlayingState = audioState == AudioState.playing;
+      final isThisSong = song.id == _audio.current.id;
+      emit(state.copyWith(isPlaying: isPlayingState && isThisSong));
+    });
+    // When songs have been selected.
+    onSelection = selectionBarCubit.listen((state) {});
   }
 
   @override
   Future<void> close() {
     onPlaying.cancel();
     onDownload.cancel();
+    onSelection.cancel();
     return super.close();
-  }
-}
-
-void _onDownload(DownloadPercentage event, SongListTileBloc bloc) {
-  if (bloc.tileSong.id == event.songId && event.isActive) {
-    if (event.isNotCached) bloc.add(SongListTileDownload(event.percentage));
-  }
-}
-
-void _onAudio(AudioState state, Song current, SongListTileBloc bloc) {
-  if (state == AudioState.playing) {
-    if (current.id == bloc.tileSong.id) {
-      bloc.add(const SongListTilePlaying(isPlaying: true));
-    } else {
-      bloc.add(const SongListTilePlaying(isPlaying: false));
-    }
-  } else {
-    bloc.add(const SongListTilePlaying(isPlaying: false));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:airstream/common/error/error_screen.dart';
+import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +44,11 @@ class SingleArtistScreen extends StatelessWidget {
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   if (state.songs != null)
                     const _SliverTitle(title: 'Top Songs'),
-                  if (state.songs != null) SliverSongList(songs: state.songs),
+                  if (state.songs != null)
+                    SliverSongList(
+                      songs: state.songs,
+                      audioRepository: GetIt.I.get<AudioRepository>(),
+                    ),
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   const _SliverTitle(title: 'Albums'),
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),

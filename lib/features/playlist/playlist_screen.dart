@@ -1,4 +1,3 @@
-import 'package:airstream/common/song_list/sliver_song_list.dart';
 import 'package:flutter/material.dart';
 
 /// Internal
@@ -29,7 +28,6 @@ class SinglePlaylistScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SliverSongList(songs: []),
       ],
     );
   }

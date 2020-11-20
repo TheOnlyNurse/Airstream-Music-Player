@@ -19,8 +19,8 @@ class _Success extends StatelessWidget {
           flexibleSpace: FlexibleImageWithTitle(
             title: FutureButton<Artist>(
               future: GetIt.I.get<ArtistRepository>().byId(
-                state.album.artistId,
-              ),
+                    state.album.artistId,
+                  ),
               onTap: (artist) => Navigator.pushReplacementNamed(
                 context,
                 'library/singleArtist',
@@ -45,7 +45,10 @@ class _Success extends StatelessWidget {
           ],
         ),
         SliverToBoxAdapter(child: _ShuffleButton(songs: state.songs)),
-        SliverSongList(songs: state.songs),
+        SliverSongList(
+          songs: state.songs,
+          audioRepository: GetIt.I.get<AudioRepository>(),
+        ),
       ],
     );
   }

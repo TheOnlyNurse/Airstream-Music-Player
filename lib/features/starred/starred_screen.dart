@@ -1,3 +1,4 @@
+import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:airstream/common/song_list/sliver_song_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,7 +72,10 @@ class _OnSongsAvailable extends StatelessWidget {
           SliverToBoxAdapter(
               child: _MoreAlbumsButton(
                   albumRepository: GetIt.I.get<AlbumRepository>())),
-        SliverSongList(songs: songs),
+        SliverSongList(
+          songs: songs,
+          audioRepository: GetIt.I.get<AudioRepository>(),
+        ),
       ],
     );
   }
@@ -151,7 +155,7 @@ class _OtherStarredStates extends StatelessWidget {
         super(key: key);
 
   Widget _stateBasedWidget(StarredState state) {
-    if (state is StarredInitial) return const  CircularProgressIndicator();
+    if (state is StarredInitial) return const CircularProgressIndicator();
     if (state is StarredFailure) return CentredErrorText(error: state.message);
     return Text('Failed to read state: $state');
   }
