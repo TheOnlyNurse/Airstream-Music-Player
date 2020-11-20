@@ -3,12 +3,12 @@ part of '../sliver_song_list.dart';
 class _SongListTile extends StatelessWidget {
   const _SongListTile({
     @required this.song,
-    @required this.bloc,
+    @required this.cubit,
     this.onTap,
   }) : assert(song != null);
 
   final Song song;
-  final SongListTileBloc bloc;
+  final SongListTileCubit cubit;
   final void Function() onTap;
 
   /// Shows download percent or play arrow if applicable to this tile.
@@ -31,15 +31,19 @@ class _SongListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SongListTileBloc, SongListTileState>(
-      cubit: bloc,
+    return BlocBuilder<SongListTileCubit, SongListTileState>(
+      cubit: cubit,
       builder: (context, state) {
         return SongTile(
           song: song,
           onTap: onTap,
-          onLongPress: () {
-            context.bloc<SelectionBarCubit>().selected(song);
-          },
+          onLongPress: () => cubit.onLongPress(),
+          leading: state.isSelected
+              ? Icon(
+                  Icons.check_circle_outline,
+                  color: Theme.of(context).accentColor,
+                )
+              : null,
           trailing: Container(
             width: 3,
             decoration: BoxDecoration(

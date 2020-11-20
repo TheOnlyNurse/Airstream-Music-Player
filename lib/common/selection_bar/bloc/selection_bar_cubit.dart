@@ -1,12 +1,11 @@
 import 'package:airstream/common/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 part 'selection_bar_state.dart';
 
 class SelectionBarCubit extends Cubit<SelectionBarState> {
-  SelectionBarCubit() : super(SelectionBarInactive());
+  SelectionBarCubit() : super(const SelectionBarInactive());
 
   void selected(Song song) {
     final currentState = state;
@@ -15,10 +14,12 @@ class SelectionBarCubit extends Cubit<SelectionBarState> {
       // Remove the song if within the list, else add.
       selected.contains(song) ? selected.remove(song) : selected.add(song);
       emit(selected.isEmpty
-          ? SelectionBarInactive()
+          ? const SelectionBarInactive()
           : SelectionBarActive(selected: selected));
     } else {
       emit(SelectionBarActive(selected: [song]));
     }
   }
+
+  void clear() => emit(const SelectionBarInactive());
 }

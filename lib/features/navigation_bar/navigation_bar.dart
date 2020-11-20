@@ -82,7 +82,7 @@ class _IconButton extends StatelessWidget {
         height: height,
         child: InkWell(
           onTap: () {
-            context.bloc<NavigationBarBloc>().add(
+            context.read<NavigationBarBloc>().add(
                   NavigationBarTapped(index: assignedIndex),
                 );
           },

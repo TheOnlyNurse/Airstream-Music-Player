@@ -43,7 +43,7 @@ class LibraryFoundation extends StatelessWidget {
         )),
         BlocProvider<NavigationBarBloc>(
           create: (context) => NavigationBarBloc(
-            playerBloc: context.bloc<MiniPlayerBloc>(),
+            playerBloc: context.read<MiniPlayerBloc>(),
           ),
         ),
       ],

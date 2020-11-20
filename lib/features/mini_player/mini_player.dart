@@ -8,7 +8,7 @@ class MiniPlayerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void blocAdd(MiniPlayerEvent event) {
-      context.bloc<MiniPlayerBloc>().add(event);
+      context.read<MiniPlayerBloc>().add(event);
     }
 
     return BlocBuilder<MiniPlayerBloc, MiniPlayerState>(

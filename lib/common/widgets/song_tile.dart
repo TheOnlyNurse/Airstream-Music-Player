@@ -26,6 +26,7 @@ class SongTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return ListTile(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
       trailing: trailing,
       leading: leading,

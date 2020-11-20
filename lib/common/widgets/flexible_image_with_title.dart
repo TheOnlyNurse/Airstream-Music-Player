@@ -13,14 +13,8 @@ class FlexibleImageWithTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlexibleSpaceBar(
-      // Gives a constant width, so that the auto adjusting text doesn't keep re-rendering.
-      title: ConstrainedBox(
-        constraints: BoxConstraints.tightFor(
-          width: MediaQuery.of(context).size.width - 160,
-        ),
-        child: title,
-      ),
       centerTitle: true,
+      collapseMode: CollapseMode.pin,
       stretchModes: const [
         StretchMode.zoomBackground,
         StretchMode.fadeTitle,
@@ -43,6 +37,15 @@ class FlexibleImageWithTitle extends StatelessWidget {
                 begin: Alignment(0, -1),
                 end: Alignment(0, 1),
               ),
+            ),
+          ),
+          // Gives a constant width, so that the auto adjusting text doesn't keep re-rendering.
+          Align(
+            alignment: const Alignment(0, 1),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width - 50,
+              height: 100,
+              child: Center(child: title),
             ),
           ),
         ],

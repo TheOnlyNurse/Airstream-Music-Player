@@ -11,9 +11,8 @@ class _Success extends StatelessWidget {
     return CustomScrollView(
       physics: WidgetProperties.scrollPhysics,
       slivers: [
-        SliverAppBar(
+        SliverSelectionBar(
           expandedHeight: 400,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           stretch: true,
           stretchTriggerOffset: 200,
           flexibleSpace: FlexibleImageWithTitle(
@@ -30,15 +29,12 @@ class _Success extends StatelessWidget {
                 state.album.title,
                 style: Theme.of(context).textTheme.headline4,
                 maxLines: 2,
-                maxFontSize: 25,
+                maxFontSize: 35,
                 textAlign: TextAlign.center,
               ),
             ),
             adapter: AlbumImageAdapter(album: state.album, isHiDef: true),
           ),
-          automaticallyImplyLeading: false,
-          titleSpacing: 8,
-          title: CircleCloseButton(),
           actions: [
             _StarButton(isStarred: state.album.isStarred, cubit: cubit),
             const _MoreOptions(),

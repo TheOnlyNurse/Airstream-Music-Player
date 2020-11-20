@@ -92,7 +92,7 @@ class StateErrorScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleCloseButton(),
+        const CircleCloseButton(),
         Expanded(
           child: Center(
             child: Padding(

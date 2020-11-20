@@ -76,13 +76,13 @@ class _PlaylistOptions extends StatelessWidget {
     final _nameController = TextEditingController();
     final _commentController = TextEditingController();
     void dialogBloc(PlaylistDialogEvent event) =>
-        context.bloc<PlaylistDialogBloc>().add(event);
+        context.read<PlaylistDialogBloc>().add(event);
     final _allowedText = <TextInputFormatter>[
       FilteringTextInputFormatter(RegExp("[a-zA-z ]"), allow: true),
     ];
 
     return PageView(
-      onPageChanged: (index) => context.bloc<PlaylistDialogBloc>().add(
+      onPageChanged: (index) => context.read<PlaylistDialogBloc>().add(
             PlaylistDialogViewChange(index),
           ),
       physics: WidgetProperties.scrollPhysics,

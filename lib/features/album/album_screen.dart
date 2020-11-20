@@ -9,8 +9,9 @@ import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/audio_repository.dart';
+import '../../common/selection_bar/bloc/selection_bar_cubit.dart';
+import '../../common/selection_bar/sliver_selection_bar.dart';
 import '../../common/song_list/sliver_song_list.dart';
-import '../../common/widgets/circle_close_button.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/future_button.dart';
 import 'bloc/album_cubit.dart';
@@ -39,7 +40,10 @@ class AlbumScreen extends StatelessWidget {
         }
 
         if (state is SingleAlbumSuccess) {
-          return _Success(state, cubit: cubit);
+          return BlocProvider(
+            create: (context) => SelectionBarCubit(),
+            child: _Success(state, cubit: cubit),
+          );
         }
 
         if (state is SingleAlbumError) {

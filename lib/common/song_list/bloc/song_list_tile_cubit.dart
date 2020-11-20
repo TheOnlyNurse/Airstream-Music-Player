@@ -1,24 +1,23 @@
 import 'dart:async';
 
-import 'package:airstream/common/global_assets.dart';
-import 'package:airstream/common/models/download_percentage.dart';
-import 'package:airstream/common/song_list_bar/bloc/selection_bar_cubit.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../global_assets.dart';
 import '../../providers/moor_database.dart';
 import '../../repository/audio_repository.dart';
 import '../../repository/download_repository.dart';
 import '../../repository/song_repository.dart';
+import '../../selection_bar/bloc/selection_bar_cubit.dart';
 
 part 'song_list_tile_event.dart';
 
 part 'song_list_tile_state.dart';
 
-class SongListTileBloc extends Cubit<SongListTileState> {
-  SongListTileBloc({
+class SongListTileCubit extends Cubit<SongListTileState> {
+  SongListTileCubit({
     @required this.song,
     @required this.selectionBarCubit,
     AudioRepository audio,
@@ -43,7 +42,7 @@ class SongListTileBloc extends Cubit<SongListTileState> {
     if (response == null) emit(state.copyWith(cachePercent: 0));
   }
 
-  void onLongPress() {}
+  void onLongPress() => selectionBarCubit.selected(song);
 
   void _onInit() {
     // When the song represented by the tile is being downloaded.
@@ -57,11 +56,15 @@ class SongListTileBloc extends Cubit<SongListTileState> {
     // When audio state changes update this tile to match.
     onPlaying = _audio.audioState.listen((audioState) {
       final isPlayingState = audioState == AudioState.playing;
-      final isThisSong = song.id == _audio.current.id;
+      final isThisSong = song.id == (_audio.current?.id ?? 0);
       emit(state.copyWith(isPlaying: isPlayingState && isThisSong));
     });
     // When songs have been selected.
-    onSelection = selectionBarCubit.listen((state) {});
+    onSelection = selectionBarCubit.listen((selectionState) {
+      final isSelected = selectionState is SelectionBarActive &&
+          selectionState.selected.contains(song);
+      emit(state.copyWith(isSelected: isSelected));
+    });
   }
 
   @override

@@ -1,10 +1,12 @@
-import 'package:airstream/common/song_list_bar/bloc/selection_bar_cubit.dart';
 import 'package:airstream/common/widgets/circle_close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/playlist_model.dart';
+import 'bloc/selection_bar_cubit.dart';
 import 'widgets/playlist_dialog.dart';
+
+part 'widgets/selection_title.dart';
 
 class SliverSelectionBar extends StatelessWidget {
   final double expandedHeight;
@@ -32,11 +34,12 @@ class SliverSelectionBar extends StatelessWidget {
           stretchTriggerOffset: stretchTriggerOffset,
           flexibleSpace: flexibleSpace,
           backgroundColor: Theme.of(context).backgroundColor,
-          pinned: state is SelectionBarActive,
+          pinned: true,
           titleSpacing: 8,
+          automaticallyImplyLeading: false,
           title: state is SelectionBarActive
-              ? Text('${state.selected.length} selected')
-              : CircleCloseButton(),
+              ? _SelectionTitle(state: state)
+              : const CircleCloseButton(),
           actions: state is SelectionBarInactive
               ? actions
               : <Widget>[
@@ -48,6 +51,7 @@ class SliverSelectionBar extends StatelessWidget {
     );
   }
 }
+
 
 class _AddToPlaylist extends StatelessWidget {
   @override

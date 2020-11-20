@@ -113,7 +113,7 @@ class _SearchBar extends StatelessWidget {
                     ),
                   ],
                   onChanged: (query) =>
-                      context.bloc<SearchBloc>().add(SearchQuery(query)),
+                      context.read<SearchBloc>().add(SearchQuery(query)),
                   autofocus: textController.value.text.isEmpty,
                   maxLength: 25,
                   decoration: const InputDecoration(
@@ -132,7 +132,7 @@ class _SearchBar extends StatelessWidget {
                   Navigator.pop(context);
                 } else {
                   textController.clear();
-                  context.bloc<SearchBloc>().add(const SearchQuery(''));
+                  context.read<SearchBloc>().add(const SearchQuery(''));
                 }
               },
               child: const Icon(Icons.clear, color: Colors.white),

@@ -138,7 +138,7 @@ class _Heading extends StatelessWidget {
             onPressed: () async {
               await GetIt.I.get<AlbumRepository>().syncStarred();
               await GetIt.I.get<SongRepository>().starred(forceSync: true);
-              context.bloc<StarredBloc>().add(StarredFetch());
+              context.read<StarredBloc>().add(StarredFetch());
             },
           ),
         ],

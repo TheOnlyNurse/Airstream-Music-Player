@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Internal
 import '../widgets/circle_close_button.dart';
 
 class SliverCloseBar extends StatelessWidget {
@@ -22,7 +21,7 @@ class SliverCloseBar extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(30),
         ),
-        child: CircleCloseButton(),
+        child: const CircleCloseButton(),
       ),
     );
   }
