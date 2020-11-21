@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
 import 'package:hive/hive.dart';
 import 'package:xml/xml.dart';
@@ -22,11 +23,12 @@ class PlaylistProvider {
   }
 
   /// Returns a playlist by it's name.
-  Playlist byName(String name) {
-    return _hive.values.firstWhere(
+  Option<Playlist> byName(String name) {
+    final result = _hive.values.firstWhere(
       (playlist) => playlist.name == name,
       orElse: () => null,
     );
+    return result == null ? none() : some(result);
   }
 
   /// ========== DB MANAGEMENT ==========

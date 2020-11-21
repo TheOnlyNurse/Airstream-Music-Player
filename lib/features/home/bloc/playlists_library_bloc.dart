@@ -4,15 +4,16 @@ import 'package:bloc/bloc.dart';
 
 import '../../../common/global_assets.dart';
 import '../../../common/models/playlist_model.dart';
-import '../../../common/models/repository_response.dart';
 import '../../../common/repository/playlist_repository.dart';
 import '../../../common/repository/settings_repository.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
-  PlaylistsLibraryBloc({PlaylistRepository playlist, SettingsRepository settings,})
-      : _playlist = getIt<PlaylistRepository>(playlist),
-  _settings = getIt<SettingsRepository>(settings),
+  PlaylistsLibraryBloc({
+    PlaylistRepository playlist,
+    SettingsRepository settings,
+  })  : _playlist = getIt<PlaylistRepository>(playlist),
+        _settings = getIt<SettingsRepository>(settings),
         super(PlaylistsLibraryInitial()) {
     onNetworkChange = _settings.connectivityChanged.listen((isOnline) {
       if (isOnline) add(PlaylistsLibraryEvent.fetch);
@@ -32,12 +33,10 @@ class PlaylistsLibraryBloc
       PlaylistsLibraryEvent event) async* {
     switch (event) {
       case PlaylistsLibraryEvent.fetch:
-        final response = _playlist.byAlphabet();
-        if (response.hasData) {
-          yield PlaylistsLibrarySuccess(response.data);
-        } else {
-          yield PlaylistsLibraryFailure(response);
-        }
+        yield (_playlist.byAlphabet()).fold(
+          (error) => PlaylistsLibraryFailure(error),
+          (playlists) => PlaylistsLibrarySuccess(playlists),
+        );
     }
   }
 
@@ -62,7 +61,7 @@ class PlaylistsLibrarySuccess extends PlaylistsLibraryState {
 class PlaylistsLibraryInitial extends PlaylistsLibraryState {}
 
 class PlaylistsLibraryFailure extends PlaylistsLibraryState {
-  final RepositoryResponse response;
+  final String message;
 
-  PlaylistsLibraryFailure(this.response);
+  PlaylistsLibraryFailure(this.message);
 }

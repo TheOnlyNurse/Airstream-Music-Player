@@ -31,7 +31,7 @@ class AlbumRepository {
   Future<Either<String, List<Album>>> random() async {
     return (await _database.random(50))
         .removeEmpty(_Error.albumsEmpty)
-        .map((albums) => albums.returnShuffle);
+        .map((albums) => albums.fShuffle);
   }
 
   /// Returns the most recently added albums.

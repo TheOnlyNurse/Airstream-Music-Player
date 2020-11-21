@@ -29,9 +29,9 @@ class PlaylistDialogSuccess extends PlaylistDialogState {
 }
 
 class PlaylistDialogFailure extends PlaylistDialogState {
-  final RepositoryResponse response;
+  final String message;
 
-  const PlaylistDialogFailure(this.response);
+  const PlaylistDialogFailure(this.message);
 }
 
 class PlaylistDialogComplete extends PlaylistDialogState {

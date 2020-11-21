@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:hive/hive.dart';
-
+import 'package:dartz/dartz.dart';
+import '../extensions/functional_lists.dart';
 import '../global_assets.dart';
 import '../models/playlist_model.dart';
-import '../models/repository_response.dart';
 import '../providers/moor_database.dart';
 import '../providers/playlist_provider.dart';
-import 'communication.dart';
 import 'scheduler.dart';
 import 'server_repository.dart';
+
+enum PlaylistChange { songsRemoved, songsAdded, fetched }
 
 class PlaylistRepository {
   PlaylistRepository({
@@ -29,16 +30,8 @@ class PlaylistRepository {
   Stream<PlaylistChange> get changed => _onChange.stream;
 
   /// Returns all playlists in alphabetical order.
-  ListResponse<Playlist> byAlphabet() {
-    final playlists = _database.byAlphabet();
-    if (playlists.isEmpty) {
-      return const ListResponse<Playlist>(
-        error: 'No playlists found in local database.',
-        solutions: [ErrorSolutions.database, ErrorSolutions.network],
-      );
-    } else {
-      return ListResponse<Playlist>(data: playlists);
-    }
+  Either<String, List<Playlist>> byAlphabet() {
+    return (_database.byAlphabet()).removeEmpty(_Error.playlistsEmpty);
   }
 
   /// Remove songs from an existing playlist.
@@ -71,26 +64,23 @@ class PlaylistRepository {
   ///
   /// Since the id required to stay in sync with the server is created by the
   /// server, an active connection is required.
-  Future<SingleResponse<Playlist>> create(String name, String comment) async {
+  Future<Either<String, Playlist>> create(String name, String comment) async {
     await _scheduler.schedule('createPlaylist?name=$name');
     await forceSync();
     // Since we don't have the id, we have to get a playlist by it's name.
-    final created = _database.byName(name);
-    if (created == null) {
-      return const SingleResponse(error: 'Creation failed.');
-    }
+    return (_database.byName(name))
+        .toEither(() => _Error.failedCreation)
+        .map((playlist) {
+      if (comment == null) return playlist;
 
-    if (comment != null) {
-      _database.changeComment(created.id, comment);
-      await _scheduler.schedule(
+      _database.changeComment(playlist.id, comment);
+      _scheduler.schedule(
         'updatePlaylist?'
-        'playlistId=${created.id}&'
+        'playlistId=${playlist.id}&'
         'comment=$comment',
       );
-      return SingleResponse<Playlist>(data: created.copyWith(comment: comment));
-    } else {
-      return SingleResponse<Playlist>(data: created);
-    }
+      return playlist.copyWith(comment: comment);
+    });
   }
 
   /// Clears the local database in favour of one from the server.
@@ -114,4 +104,12 @@ class PlaylistRepository {
       },
     );
   }
+}
+
+class _Error {
+  _Error._();
+
+  static const playlistsEmpty = 'No playlists found in local database.';
+
+  static const failedCreation = 'Failed to create playlist.';
 }

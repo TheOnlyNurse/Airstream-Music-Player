@@ -1,3 +1,4 @@
+import 'package:airstream/common/error/widgets/error_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +43,7 @@ class PlaylistDialog extends StatelessWidget {
               }
 
               if (state is PlaylistDialogFailure) {
-                return Center(child: Text(state.response.error));
+                return CentredErrorText(error: state.message);
               }
 
               if (state is PlaylistDialogInitial) {

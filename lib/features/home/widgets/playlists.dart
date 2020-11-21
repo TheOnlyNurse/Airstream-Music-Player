@@ -32,7 +32,7 @@ class Playlists extends StatelessWidget {
           }
           if (state is PlaylistsLibraryFailure) {
             return SliverToBoxAdapter(
-              child: CentredErrorText(error: state.response.error),
+              child: CentredErrorText(error: state.message),
             );
           }
           return const SliverToBoxAdapter(

@@ -10,18 +10,19 @@ extension FunctionalLists<E> on List<E> {
   Either<T, List<E>> onError<T>(
     bool Function(List<E> t) test, {
     @required T onError,
-  }) {
-    return test(this) ? right(this) : left(onError);
-  }
+  }) => test(this) ? right(this) : left(onError);
 
-  List<E> get returnShuffle {
+  List<E> get fShuffle {
     shuffle();
     return this;
   }
 
-  List<E> get removeDuplicates {
-    return LinkedHashSet<E>.from(this).toList();
+  List<E> fSort(int Function(E a,E b) compare) {
+    sort(compare);
+    return this;
   }
+
+  List<E> get removeDuplicates => LinkedHashSet<E>.from(this).toList();
 
   /// Matches the order of the list with a new given one.
   ///

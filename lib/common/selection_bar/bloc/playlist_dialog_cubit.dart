@@ -5,7 +5,6 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../models/playlist_model.dart';
-import '../../models/repository_response.dart';
 import '../../repository/playlist_repository.dart';
 
 part 'playlist_dialog_state.dart';
@@ -18,12 +17,9 @@ class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
   final PlaylistRepository playlistRepository;
 
   void fetch() {
-    final response = playlistRepository.byAlphabet();
-    if (response.hasData) {
-      emit(PlaylistDialogSuccess(response.data));
-    } else {
-      emit(PlaylistDialogFailure(response));
-    }
+    playlistRepository.byAlphabet().fold(
+        (error) => emit(PlaylistDialogFailure(error)),
+        (playlists) => emit(PlaylistDialogSuccess(playlists)));
   }
 
   void pageChange(int index) {
@@ -35,12 +31,10 @@ class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
 
   Future<void> create(String name, String comment) async {
     emit(PlaylistDialogInitial());
-    final newPlaylist = await playlistRepository.create(name, comment);
-    if (newPlaylist.hasData) {
-      selected(newPlaylist.data);
-    } else {
-      emit(PlaylistDialogFailure(newPlaylist));
-    }
+    (await playlistRepository.create(name, comment)).fold(
+      (error) => emit(PlaylistDialogFailure(error)),
+      (playlist) => selected(playlist),
+    );
   }
 
   void selected(Playlist playlist) => emit(PlaylistDialogComplete(playlist));
