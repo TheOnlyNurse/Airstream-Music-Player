@@ -1,40 +1,33 @@
-import 'package:airstream/common/error/error_screen.dart';
-import 'package:airstream/common/repository/audio_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../common/error/error_screen.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
-import '../../common/repository/album_repository.dart';
-import '../../common/repository/artist_repository.dart';
-import '../../common/repository/song_repository.dart';
+import '../../common/repository/audio_repository.dart';
 import '../../common/song_list/sliver_song_list.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/sliver_album_grid.dart';
 import '../../global_assets.dart';
-import 'bloc/artist_bloc.dart';
+import 'bloc/artist_cubit.dart';
 
-class SingleArtistScreen extends StatelessWidget {
+class ArtistScreen extends StatelessWidget {
   final Artist artist;
 
-  const SingleArtistScreen({this.artist});
+  const ArtistScreen({this.artist});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return SingleArtistBloc(
-          albumRepository: GetIt.I.get<AlbumRepository>(),
-          artistRepository: GetIt.I.get<ArtistRepository>(),
-          songRepository: GetIt.I.get<SongRepository>(),
-        )..add(SingleArtistAlbums(artist: artist));
+        return ArtistCubit()..fetch(artist);
       },
       child: Container(
         color: Theme.of(context).scaffoldBackgroundColor,
-        child: BlocBuilder<SingleArtistBloc, SingleArtistState>(
+        child: BlocBuilder<ArtistCubit, ArtistState>(
           builder: (context, state) {
             if (state is SingleArtistSuccess) {
               return CustomScrollView(
@@ -147,13 +140,13 @@ class _AppBar extends StatelessWidget {
 }
 
 class _OtherStates extends StatelessWidget {
-  final SingleArtistState state;
+  final ArtistState state;
 
   const _OtherStates({Key key, @required this.state})
       : assert(state != null),
         super(key: key);
 
-  Widget _processState(SingleArtistState state) {
+  Widget _processState(ArtistState state) {
     if (state is SingleArtistFailure) {
       return ErrorScreen(message: state.error);
     }

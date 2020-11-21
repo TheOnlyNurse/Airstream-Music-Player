@@ -38,7 +38,7 @@ Widget _route(String route, dynamic arguments) {
     case 'library/':
       return LibraryFoundationPages();
     case 'library/singleArtist':
-      return SingleArtistScreen(artist: arguments as Artist);
+      return ArtistScreen(artist: arguments as Artist);
     case 'library/singleAlbum':
       return AlbumScreen(
         cubit: SingleAlbumCubit()..fetchSongs(arguments as Album),

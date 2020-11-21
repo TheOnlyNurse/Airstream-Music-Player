@@ -4,16 +4,16 @@ import 'package:equatable/equatable.dart';
 
 import '../../../common/providers/moor_database.dart';
 
-abstract class SingleArtistState extends Equatable {
-  const SingleArtistState() : super();
+abstract class ArtistState extends Equatable {
+  const ArtistState() : super();
 
   @override
   List<Object> get props => [];
 }
 
-class SingleArtistInitial extends SingleArtistState {}
+class SingleArtistInitial extends ArtistState {}
 
-class SingleArtistSuccess extends SingleArtistState {
+class SingleArtistSuccess extends ArtistState {
   const SingleArtistSuccess(
     this.artist, {
     this.songs,
@@ -46,7 +46,7 @@ class SingleArtistSuccess extends SingleArtistState {
   List<Object> get props => [songs, albums, similarArtists, image];
 }
 
-class SingleArtistFailure extends SingleArtistState {
+class SingleArtistFailure extends ArtistState {
   const SingleArtistFailure(this.error);
 
   final String error;
