@@ -1,4 +1,4 @@
-part of 'playlist_dialog_bloc.dart';
+part of 'playlist_dialog_cubit.dart';
 
 abstract class PlaylistDialogState extends Equatable {
   const PlaylistDialogState() : super();
@@ -11,20 +11,20 @@ class PlaylistDialogInitial extends PlaylistDialogState {}
 
 class PlaylistDialogSuccess extends PlaylistDialogState {
   final List<Playlist> playlists;
-  final int currentView;
+  final int index;
 
   @override
-  List<Object> get props => [currentView];
+  List<Object> get props => [index];
 
-  const PlaylistDialogSuccess(this.playlists, {this.currentView = 0});
+  const PlaylistDialogSuccess(this.playlists, {this.index = 0});
 
   PlaylistDialogSuccess copyWith({
     List<Playlist> playlists,
-    int currentView,
+    int index,
   }) =>
       PlaylistDialogSuccess(
         playlists ?? this.playlists,
-        currentView: currentView ?? this.currentView,
+        index: index ?? this.index,
       );
 }
 

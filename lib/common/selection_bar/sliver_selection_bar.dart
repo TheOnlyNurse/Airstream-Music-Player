@@ -1,11 +1,15 @@
-import 'package:airstream/common/widgets/circle_close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../models/playlist_model.dart';
+import '../repository/playlist_repository.dart';
+import '../widgets/circle_close_button.dart';
+import 'bloc/playlist_dialog_cubit.dart';
 import 'bloc/selection_bar_cubit.dart';
 import 'widgets/playlist_dialog.dart';
 
+part 'widgets/playlist_button.dart';
 part 'widgets/selection_title.dart';
 
 class SliverSelectionBar extends StatelessWidget {
@@ -43,7 +47,7 @@ class SliverSelectionBar extends StatelessWidget {
           actions: state is SelectionBarInactive
               ? actions
               : <Widget>[
-                  _AddToPlaylist(),
+                  _PlaylistButton(),
                   const _ChangeStar(canRemoveStar: false),
                 ],
         );
@@ -53,25 +57,7 @@ class SliverSelectionBar extends StatelessWidget {
 }
 
 
-class _AddToPlaylist extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.add_circle_outline),
-      tooltip: 'Add to playlist',
-      onPressed: () async {
-        final response = await showDialog(
-          context: context,
-          builder: (_) => PlaylistDialog(),
-        ) as Playlist;
 
-        if (response != null) {
-          throw UnimplementedError();
-        }
-      },
-    );
-  }
-}
 
 class _ChangeStar extends StatelessWidget {
   final bool canRemoveStar;

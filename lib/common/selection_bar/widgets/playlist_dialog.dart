@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../global_assets.dart';
 import '../../models/playlist_model.dart';
-import '../../repository/playlist_repository.dart';
-import '../bloc/playlist_dialog_bloc.dart';
+import '../bloc/playlist_dialog_cubit.dart';
 
 class PlaylistDialog extends StatelessWidget {
   @override
@@ -14,49 +12,45 @@ class PlaylistDialog extends StatelessWidget {
     return SimpleDialog(
       title: const Text('Select playlist'),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Theme.of(context).cardColor,
       children: [
         SizedBox(
           height: 250,
           width: 50,
-          child: BlocProvider(
-            create: (context) => PlaylistDialogBloc(
-              playlistRepository: GetIt.I.get<PlaylistRepository>(),
-            )..add(PlaylistDialogFetch()),
-            child: BlocBuilder<PlaylistDialogBloc, PlaylistDialogState>(
-              builder: (context, state) {
-                if (state is PlaylistDialogSuccess) {
-                  return Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 220,
-                        child: _PlaylistOptions(playlists: state.playlists),
-                      ),
-                      _Indicator(currentIndex: state.currentView),
-                    ],
-                  );
-                }
+          child: BlocBuilder<PlaylistDialogCubit, PlaylistDialogState>(
+            builder: (context, state) {
+              if (state is PlaylistDialogSuccess) {
+                return Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 220,
+                      child: _PlaylistOptions(playlists: state.playlists),
+                    ),
+                    _Indicator(currentIndex: state.index),
+                  ],
+                );
+              }
 
-                if (state is PlaylistDialogComplete) {
-                  Future.delayed(
-                    const Duration(milliseconds: 500),
-                    () => Navigator.pop(context, state.playlist),
-                  );
-                  return const Center(
-                    child: Icon(Icons.check, color: Colors.green, size: 60),
-                  );
-                }
+              if (state is PlaylistDialogComplete) {
+                Future.delayed(
+                  const Duration(milliseconds: 500),
+                  () => Navigator.pop(context, state.playlist),
+                );
+                return const Center(
+                  child: Icon(Icons.check, color: Colors.green, size: 60),
+                );
+              }
 
-                if (state is PlaylistDialogFailure) {
-                  return Center(child: Text(state.response.error));
-                }
+              if (state is PlaylistDialogFailure) {
+                return Center(child: Text(state.response.error));
+              }
 
-                if (state is PlaylistDialogInitial) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+              if (state is PlaylistDialogInitial) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                return const Center(child: Text('Could not read state'));
-              },
-            ),
+              return const Center(child: Text('Could not read state'));
+            },
           ),
         ),
       ],
@@ -75,16 +69,12 @@ class _PlaylistOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final _nameController = TextEditingController();
     final _commentController = TextEditingController();
-    void dialogBloc(PlaylistDialogEvent event) =>
-        context.read<PlaylistDialogBloc>().add(event);
     final _allowedText = <TextInputFormatter>[
       FilteringTextInputFormatter(RegExp("[a-zA-z ]"), allow: true),
     ];
 
     return PageView(
-      onPageChanged: (index) => context.read<PlaylistDialogBloc>().add(
-            PlaylistDialogViewChange(index),
-          ),
+      onPageChanged: context.read<PlaylistDialogCubit>().pageChange,
       physics: WidgetProperties.scrollPhysics,
       children: <Widget>[
         // Current playlists
@@ -97,7 +87,9 @@ class _PlaylistOptions extends StatelessWidget {
               color: Theme.of(context).primaryColor,
               child: ListTile(
                 title: Text(playlists[index].name),
-                onTap: () => dialogBloc(PlaylistDialogChosen(playlists[index])),
+                onTap: () {
+                  context.read<PlaylistDialogCubit>().selected(playlists[index]);
+                },
               ),
             );
           },
@@ -130,10 +122,10 @@ class _PlaylistOptions extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4)),
                 fillColor: Theme.of(context).primaryColor,
-                onPressed: () => dialogBloc(PlaylistDialogCreate(
-                  _nameController.value.text,
-                  _commentController.value.text,
-                )),
+                onPressed: () => context.read<PlaylistDialogCubit>().create(
+                      _nameController.value.text,
+                      _commentController.value.text,
+                    ),
                 child: const Text('Create'),
               ),
             ],
