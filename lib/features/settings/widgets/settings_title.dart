@@ -1,4 +1,4 @@
-part of '../settings_foundation.dart';
+import 'package:flutter/material.dart';
 
 class SettingsTitle extends StatefulWidget {
   final int current;
@@ -44,7 +44,7 @@ class _SettingsTitleState extends State<SettingsTitle> {
       child: ListView.builder(
         controller: controller,
         scrollDirection: Axis.horizontal,
-        physics: WidgetProperties.scrollPhysics,
+        physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           return Center(
             child: AnimatedDefaultTextStyle(

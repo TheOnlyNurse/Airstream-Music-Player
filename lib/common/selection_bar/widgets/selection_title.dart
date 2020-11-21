@@ -1,7 +1,12 @@
-part of '../sliver_selection_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class _SelectionTitle extends StatelessWidget {
-  const _SelectionTitle({Key key, @required this.state})
+import '../../widgets/circle_close_button.dart';
+import '../bloc/selection_bar_cubit.dart';
+
+class SelectionTitle extends StatelessWidget {
+  const SelectionTitle({Key key, @required this.state})
       : assert(state != null),
         super(key: key);
   final SelectionBarActive state;

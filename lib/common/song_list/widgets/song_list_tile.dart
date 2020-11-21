@@ -1,7 +1,14 @@
-part of '../sliver_song_list.dart';
+import 'dart:math' as math;
 
-class _SongListTile extends StatelessWidget {
-  const _SongListTile({
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../providers/moor_database.dart';
+import '../../widgets/song_tile.dart';
+import '../bloc/song_list_tile_cubit.dart';
+
+class SongListTile extends StatelessWidget {
+  const SongListTile({
     @required this.song,
     @required this.cubit,
     this.onTap,

@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../../../common/repository/audio_repository.dart';
 
-part 'mini_player_event.dart';
-part 'mini_player_state.dart';
+import 'mini_player_event.dart';
+import 'mini_player_state.dart';
+
+export 'mini_player_event.dart';
+export 'mini_player_state.dart';
 
 class MiniPlayerBloc extends Bloc<MiniPlayerEvent, MiniPlayerState> {
   MiniPlayerBloc({

@@ -1,7 +1,9 @@
-part of '../album_screen.dart';
+import 'package:flutter/material.dart';
 
-class _StarButton extends StatefulWidget {
-  const _StarButton({Key key, this.isStarred = false, @required this.cubit})
+import '../bloc/album_cubit.dart';
+
+class AlbumStarButton extends StatefulWidget {
+  const AlbumStarButton({Key key, this.isStarred = false, @required this.cubit})
       : assert(cubit != null),
         super(key: key);
 
@@ -9,10 +11,10 @@ class _StarButton extends StatefulWidget {
   final SingleAlbumCubit cubit;
 
   @override
-  __StarButtonState createState() => __StarButtonState();
+  _AlbumStarButtonState createState() => _AlbumStarButtonState();
 }
 
-class __StarButtonState extends State<_StarButton> {
+class _AlbumStarButtonState extends State<AlbumStarButton> {
   bool isStarred;
 
   @override

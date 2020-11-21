@@ -1,4 +1,4 @@
-part of 'position_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class PositionState extends Equatable {
   const PositionState();

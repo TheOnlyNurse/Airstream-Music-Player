@@ -1,4 +1,5 @@
-part of 'selection_bar_cubit.dart';
+import 'package:meta/meta.dart';
+import '../../providers/moor_database.dart';
 
 abstract class SelectionBarState {
   const SelectionBarState();

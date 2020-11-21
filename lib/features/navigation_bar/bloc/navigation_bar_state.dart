@@ -1,4 +1,4 @@
-part of 'navigation_bar_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 class NavigationBarState extends Equatable {
   const NavigationBarState({

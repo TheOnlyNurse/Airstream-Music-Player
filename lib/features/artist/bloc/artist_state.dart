@@ -1,4 +1,8 @@
-part of 'artist_bloc.dart';
+import 'dart:io';
+
+import 'package:equatable/equatable.dart';
+
+import '../../../common/providers/moor_database.dart';
 
 abstract class SingleArtistState extends Equatable {
   const SingleArtistState() : super();

@@ -1,4 +1,6 @@
-part of 'album_cubit.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../../common/providers/moor_database.dart';
 
 abstract class SingleAlbumState extends Equatable {
   const SingleAlbumState();

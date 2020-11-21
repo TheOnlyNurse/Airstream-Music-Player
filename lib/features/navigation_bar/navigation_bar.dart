@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Internal
 import 'bloc/navigation_bar_bloc.dart';
 
 class NavigationBar extends StatelessWidget {

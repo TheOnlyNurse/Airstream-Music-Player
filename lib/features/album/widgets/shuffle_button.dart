@@ -1,7 +1,11 @@
-part of '../album_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
-class _ShuffleButton extends StatelessWidget {
-  const _ShuffleButton({Key key, @required this.songs})
+import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/audio_repository.dart';
+
+class AlbumShuffleButton extends StatelessWidget {
+  const AlbumShuffleButton({Key key, @required this.songs})
       : assert(songs != null),
         super(key: key);
 

@@ -1,4 +1,4 @@
-part of 'song_list_tile_cubit.dart';
+import 'package:equatable/equatable.dart';
 
 class SongListTileState extends Equatable {
   final double cachePercent;

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../../common/providers/moor_database.dart';
@@ -9,9 +8,10 @@ import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
-part 'search_event.dart';
-
-part 'search_state.dart';
+import 'search_event.dart';
+import 'search_state.dart';
+export 'search_event.dart';
+export 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   SearchBloc({

@@ -3,21 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../common/error/widgets/error_widgets.dart';
-import '../../common/models/image_adapter.dart';
-import '../../common/providers/moor_database.dart';
-import '../../common/repository/album_repository.dart';
 import '../../common/repository/audio_repository.dart';
-import '../../common/widgets/airstream_image.dart';
-import '../../common/widgets/future_button.dart';
-import '../../global_assets.dart';
 import 'bloc/player_bloc.dart';
+import 'widgets/artwork.dart';
+import 'widgets/header_buttons.dart';
 import 'widgets/player_controls.dart';
 import 'widgets/position_slider.dart';
-import 'widgets/queue_dialog.dart';
-
-part 'widgets/artwork.dart';
-part 'widgets/header_buttons.dart';
-part 'widgets/title.dart';
+import 'widgets/song_title.dart';
 
 class PlayerScreen extends StatelessWidget {
   const PlayerScreen({Key key}) : super(key: key);
@@ -61,11 +53,11 @@ class _Success extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        _Artwork(
+        PlayerArtwork(
           song: state.song,
           overlay: <Widget>[
-            _HeaderButtons(),
-            _SongTitle(state: state),
+            const PlayerHeaderButtons(),
+            PlayerSongTitle(state: state),
           ],
         ),
         const Spacer(),

@@ -1,4 +1,6 @@
-part of 'search_bloc.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../../common/providers/moor_database.dart';
 
 abstract class SearchState extends Equatable {
   const SearchState();

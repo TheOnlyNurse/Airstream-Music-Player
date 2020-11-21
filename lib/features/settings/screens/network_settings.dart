@@ -1,4 +1,11 @@
-part of '../settings_foundation.dart';
+import 'package:flutter/material.dart';
+
+import '../../../common/repository/image_repository.dart';
+import '../../../common/repository/settings_repository.dart';
+import '../../../common/repository/song_repository.dart';
+import '../../../common/widgets/custom_alert_dialog.dart';
+import '../widgets/switch.dart';
+
 
 class NetworkSettingsScreen extends StatelessWidget {
   const NetworkSettingsScreen({Key key, @required this.settings})
@@ -10,7 +17,7 @@ class NetworkSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: WidgetProperties.scrollPhysics,
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(

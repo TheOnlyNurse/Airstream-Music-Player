@@ -1,4 +1,4 @@
-part of 'mini_player_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class MiniPlayerState extends Equatable {
   const MiniPlayerState();
@@ -18,8 +18,7 @@ class MiniPlayerShown extends MiniPlayerState {
   @override
   List<Object> get props => [isPlaying, isMoving];
 
-  MiniPlayerShown copyWith({bool isPlaying, bool isMoving}) =>
-      MiniPlayerShown(
+  MiniPlayerShown copyWith({bool isPlaying, bool isMoving}) => MiniPlayerShown(
         isPlaying: isPlaying ?? this.isPlaying,
         isMoving: isMoving ?? false,
       );

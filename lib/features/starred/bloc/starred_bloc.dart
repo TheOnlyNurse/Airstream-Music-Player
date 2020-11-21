@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 
-import '../../../common/providers/moor_database.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/settings_repository.dart';
 import '../../../common/repository/song_repository.dart';
 import '../../../global_assets.dart';
 
-part 'starred_event.dart';
-part 'starred_state.dart';
+import 'starred_event.dart';
+import 'starred_state.dart';
+export 'starred_event.dart';
+export 'starred_state.dart';
 
 class StarredBloc extends Bloc<StarredEvent, StarredState> {
   StarredBloc({
@@ -21,8 +21,7 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
         _song = getIt<SongRepository>(song),
         _settings = getIt<SettingsRepository>(settings),
         super(StarredInitial()) {
-    final onConnectivity = _settings.connectivityChanged;
-    onNetworkChange = onConnectivity.listen((_) => add(StarredFetch()));
+    _init();
   }
 
   final AlbumRepository _album;
@@ -49,6 +48,12 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
         );
       }
     }
+  }
+
+  void _init() {
+    onNetworkChange = _settings.connectivityChanged.listen((_) {
+      add(StarredFetch());
+    });
   }
 
   @override

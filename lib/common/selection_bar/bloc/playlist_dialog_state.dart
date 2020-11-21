@@ -1,4 +1,6 @@
-part of 'playlist_dialog_cubit.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../models/playlist_model.dart';
 
 abstract class PlaylistDialogState extends Equatable {
   const PlaylistDialogState() : super();

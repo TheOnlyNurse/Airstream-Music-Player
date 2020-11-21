@@ -1,8 +1,9 @@
 import 'package:airstream/common/providers/moor_database.dart';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
-part 'selection_bar_state.dart';
+import 'selection_bar_state.dart';
+
+export 'selection_bar_state.dart';
 
 class SelectionBarCubit extends Cubit<SelectionBarState> {
   SelectionBarCubit() : super(const SelectionBarInactive());

@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../models/playlist_model.dart';
 import '../../repository/playlist_repository.dart';
 
-part 'playlist_dialog_state.dart';
+import 'playlist_dialog_state.dart';
+export 'playlist_dialog_state.dart';
 
 class PlaylistDialogCubit extends Cubit<PlaylistDialogState> {
   PlaylistDialogCubit({@required this.playlistRepository})

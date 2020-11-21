@@ -1,14 +1,17 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+
 
 import '../../../common/repository/audio_repository.dart';
 import '../../../common/repository/download_repository.dart';
 import '../../../global_assets.dart';
 
-part 'position_event.dart';
-part 'position_state.dart';
+import 'position_event.dart';
+import 'position_state.dart';
+export 'position_event.dart';
+export 'position_state.dart';
+
 
 class PositionBloc extends Bloc<PositionEvent, PositionState> {
   PositionBloc({

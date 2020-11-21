@@ -1,33 +1,15 @@
-import 'package:airstream/features/starred/bloc/starred_bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../common/models/playlist_model.dart';
-import '../../common/providers/moor_database.dart';
-import '../../common/repository/album_repository.dart';
-import '../../common/repository/artist_repository.dart';
 import '../../common/repository/audio_repository.dart';
-import '../../common/repository/playlist_repository.dart';
-import '../../common/repository/song_repository.dart';
 import '../../global_assets.dart';
-import '../album/album_screen.dart';
-import '../album/bloc/album_cubit.dart';
-import '../artist/artist_screen.dart';
-import '../collections/screens/album_list_screen.dart';
-import '../home/home_screen.dart';
 import '../mini_player/bloc/mini_player_bloc.dart';
 import '../mini_player/mini_player.dart';
 import '../mini_player/mini_player_shade.dart';
 import '../navigation_bar/bloc/navigation_bar_bloc.dart';
 import '../navigation_bar/navigation_bar.dart';
-import '../playlist/playlist_screen.dart';
-import '../starred/starred_screen.dart';
-
-part 'widgets/pages.dart';
-part 'widgets/route_transition.dart';
-part 'widgets/routes.dart';
+import 'widgets/route_transition.dart';
 
 class LibraryFoundation extends StatelessWidget {
   const LibraryFoundation({Key key}) : super(key: key);
@@ -63,7 +45,7 @@ class LibraryFoundation extends StatelessWidget {
                 Navigator(
                   key: libraryNavigator,
                   initialRoute: 'library/',
-                  onGenerateRoute: _routeTransition,
+                  onGenerateRoute: libraryRouteTransitions,
                 ),
                 MiniPlayerShade(),
               ],

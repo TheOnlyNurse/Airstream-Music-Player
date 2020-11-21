@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../common/providers/moor_database.dart';
 import '../../../common/repository/audio_repository.dart';
 
-part 'player_events.dart';
-
-part 'player_state.dart';
+import 'player_events.dart';
+import 'player_state.dart';
+export 'player_events.dart';
+export 'player_state.dart';
 
 class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
   PlayerBloc({AudioRepository audioRepository})

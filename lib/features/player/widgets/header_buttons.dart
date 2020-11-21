@@ -1,6 +1,10 @@
-part of '../player_screen.dart';
+import 'package:flutter/material.dart';
 
-class _HeaderButtons extends StatelessWidget {
+import 'queue_dialog.dart';
+
+class PlayerHeaderButtons extends StatelessWidget {
+  const PlayerHeaderButtons();
+
   @override
   Widget build(BuildContext context) {
     return Row(

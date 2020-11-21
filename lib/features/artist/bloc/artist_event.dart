@@ -1,4 +1,6 @@
-part of 'artist_bloc.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../../common/providers/moor_database.dart';
 
 abstract class SingleArtistEvent extends Equatable {
   const SingleArtistEvent();

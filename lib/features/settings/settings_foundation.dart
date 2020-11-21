@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../common/repository/image_repository.dart';
 import '../../common/repository/settings_repository.dart';
-import '../../common/repository/song_repository.dart';
-import '../../common/widgets/custom_alert_dialog.dart';
 import '../../global_assets.dart';
-
-part 'screens/account_settings.dart';
-part 'screens/network_settings.dart';
-part 'screens/playback_settings.dart';
-part 'screens/settings_title.dart';
-part 'widgets/switch.dart';
+import 'screens/account_settings.dart';
+import 'screens/network_settings.dart';
+import 'screens/playback_settings.dart';
+import 'widgets/settings_title.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override

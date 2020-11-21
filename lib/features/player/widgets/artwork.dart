@@ -1,7 +1,11 @@
-part of '../player_screen.dart';
+import 'package:flutter/material.dart';
 
-class _Artwork extends StatelessWidget {
-  const _Artwork({Key key, @required this.song, List<Widget> overlay})
+import '../../../common/models/image_adapter.dart';
+import '../../../common/providers/moor_database.dart';
+import '../../../common/widgets/airstream_image.dart';
+
+class PlayerArtwork extends StatelessWidget {
+  const PlayerArtwork({Key key, @required this.song, List<Widget> overlay})
       : _overlay = overlay ?? const [],
         assert(song != null),
         super(key: key);

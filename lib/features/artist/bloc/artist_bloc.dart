@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../../common/providers/moor_database.dart';
@@ -10,9 +8,10 @@ import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/artist_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
-part 'artist_event.dart';
-
-part 'artist_state.dart';
+import 'artist_event.dart';
+import 'artist_state.dart';
+export 'artist_event.dart';
+export 'artist_state.dart';
 
 class SingleArtistBloc extends Bloc<SingleArtistEvent, SingleArtistState> {
   SingleArtistBloc({

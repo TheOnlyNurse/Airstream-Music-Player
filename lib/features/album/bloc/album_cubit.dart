@@ -1,26 +1,24 @@
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
-/// Internal
 import '../../../common/providers/moor_database.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/song_repository.dart';
-
-part 'album_state.dart';
+import '../../../global_assets.dart';
+import 'album_state.dart';
+export 'album_state.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   SingleAlbumCubit(
-      {@required this.albumRepository, @required this.songRepository})
-      : assert(albumRepository != null),
-        assert(songRepository != null),
+      {AlbumRepository albumRepository, SongRepository songRepository})
+      : _albumRepo = getIt<AlbumRepository>(albumRepository),
+        _songRepo = getIt<SongRepository>(songRepository),
         super(SingleAlbumInitial());
 
-  final AlbumRepository albumRepository;
-  final SongRepository songRepository;
+  final AlbumRepository _albumRepo;
+  final SongRepository _songRepo;
 
   Future<void> fetchSongs(Album album) async {
-    emit((await songRepository.byAlbum(album)).fold(
+    emit((await _songRepo.byAlbum(album)).fold(
       (error) => SingleAlbumError(error),
       (songs) => SingleAlbumSuccess(album: album, songs: songs),
     ));
@@ -29,7 +27,7 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
   void change({bool isStarred}) {
     final currentState = state;
     if (currentState is SingleAlbumSuccess) {
-      albumRepository.updateStarred(currentState.album, starred: isStarred);
+      _albumRepo.updateStarred(currentState.album, starred: isStarred);
     }
   }
 
@@ -45,8 +43,5 @@ class SingleAlbumCubit extends Cubit<SingleAlbumState> {
 }
 
 SingleAlbumState _refreshAlbum(SingleAlbumCubit cubit) {
-  // TODO: Update album reference in dao
-  // TODO: Delete album art
-  // TODO: Refresh current page with a new album screen
   throw UnimplementedError();
 }

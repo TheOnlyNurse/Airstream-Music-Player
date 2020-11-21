@@ -19,7 +19,8 @@ import '../../../common/repository/server_repository.dart';
 import '../../../common/repository/settings_repository.dart';
 import '../../../common/repository/song_repository.dart';
 
-part 'loading_splash_state.dart';
+import 'loading_splash_state.dart';
+export 'loading_splash_state.dart';
 
 class SplashScreenCubit extends Cubit<SplashScreenState> {
   SplashScreenCubit() : super(SplashScreenLoading());

@@ -1,7 +1,9 @@
-part of '../album_screen.dart';
+import 'package:flutter/material.dart';
 
-class _MoreOptions extends StatelessWidget {
-  const _MoreOptions({Key key, this.cubit}) : super(key: key);
+import '../bloc/album_cubit.dart';
+
+class AlbumMoreOptions extends StatelessWidget {
+  const AlbumMoreOptions({Key key, this.cubit}) : super(key: key);
 
   final SingleAlbumCubit cubit;
 

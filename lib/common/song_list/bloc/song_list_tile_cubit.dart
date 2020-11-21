@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -12,9 +12,9 @@ import '../../repository/download_repository.dart';
 import '../../repository/song_repository.dart';
 import '../../selection_bar/bloc/selection_bar_cubit.dart';
 
-part 'song_list_tile_event.dart';
+import 'song_list_tile_state.dart';
 
-part 'song_list_tile_state.dart';
+export 'song_list_tile_state.dart';
 
 class SongListTileCubit extends Cubit<SongListTileState> {
   SongListTileCubit({

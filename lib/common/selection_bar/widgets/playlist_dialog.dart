@@ -1,9 +1,9 @@
-import 'package:airstream/common/error/widgets/error_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../global_assets.dart';
+import '../../error/widgets/error_widgets.dart';
 import '../../models/playlist_model.dart';
 import '../bloc/playlist_dialog_cubit.dart';
 

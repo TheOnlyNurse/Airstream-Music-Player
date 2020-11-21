@@ -1,4 +1,4 @@
-part of 'mini_player_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class MiniPlayerEvent extends Equatable {
   const MiniPlayerEvent();

@@ -1,5 +1,3 @@
-part of 'loading_splash_cubit.dart';
-
 abstract class SplashScreenState {
   const SplashScreenState();
 }

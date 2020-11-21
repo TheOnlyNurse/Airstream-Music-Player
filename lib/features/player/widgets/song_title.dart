@@ -1,9 +1,16 @@
-part of '../player_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
-class _SongTitle extends StatelessWidget {
+import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/widgets/future_button.dart';
+import '../../../global_assets.dart';
+import '../bloc/player_bloc.dart';
+
+class PlayerSongTitle extends StatelessWidget {
+  const PlayerSongTitle({Key key, this.state}) : super(key: key);
+
   final PlayerSuccess state;
-
-  const _SongTitle({Key key, this.state}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

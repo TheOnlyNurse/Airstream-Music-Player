@@ -1,4 +1,6 @@
-part of 'starred_bloc.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../../common/providers/moor_database.dart';
 
 abstract class StarredState extends Equatable {
   const StarredState();

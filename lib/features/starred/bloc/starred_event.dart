@@ -1,4 +1,4 @@
-part of 'starred_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class StarredEvent extends Equatable {
   const StarredEvent();

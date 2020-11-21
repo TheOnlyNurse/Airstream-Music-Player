@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,10 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../providers/moor_database.dart';
 import '../repository/audio_repository.dart';
 import '../selection_bar/bloc/selection_bar_cubit.dart';
-import '../widgets/song_tile.dart';
 import 'bloc/song_list_tile_cubit.dart';
-
-part 'widgets/song_list_tile.dart';
+import 'widgets/song_list_tile.dart';
 
 class SliverSongList extends StatelessWidget {
   final List<Song> songs;
@@ -30,7 +27,7 @@ class SliverSongList extends StatelessWidget {
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            return _SongListTile(
+            return SongListTile(
               song: songs[index],
               cubit: SongListTileCubit(
                 song: songs[index],
