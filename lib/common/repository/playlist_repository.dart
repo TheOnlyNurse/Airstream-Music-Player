@@ -1,9 +1,10 @@
 import 'dart:async';
 
-import 'package:hive/hive.dart';
 import 'package:dartz/dartz.dart';
+import 'package:hive/hive.dart';
+
+import '../../global_assets.dart';
 import '../extensions/functional_lists.dart';
-import '../global_assets.dart';
 import '../models/playlist_model.dart';
 import '../providers/moor_database.dart';
 import '../providers/playlist_provider.dart';

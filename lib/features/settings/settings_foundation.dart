@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../common/global_assets.dart';
 import '../../common/repository/image_repository.dart';
 import '../../common/repository/settings_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/widgets/custom_alert_dialog.dart';
+import '../../global_assets.dart';
 
 part 'screens/account_settings.dart';
 part 'screens/network_settings.dart';

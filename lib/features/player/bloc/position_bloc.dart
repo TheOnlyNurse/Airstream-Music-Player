@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../common/global_assets.dart';
 import '../../../common/repository/audio_repository.dart';
 import '../../../common/repository/download_repository.dart';
+import '../../../global_assets.dart';
 
 part 'position_event.dart';
 part 'position_state.dart';

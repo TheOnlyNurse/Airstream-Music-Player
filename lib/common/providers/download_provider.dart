@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../global_assets.dart';
+import '../../global_assets.dart';
 import '../models/download_percentage.dart';
 import '../repository/server_repository.dart';
 import 'moor_database.dart';

@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-import '../../../common/global_assets.dart';
 import '../../../common/models/playlist_model.dart';
 import '../../../common/repository/playlist_repository.dart';
 import '../../../common/repository/settings_repository.dart';
+import '../../../global_assets.dart';
 
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {

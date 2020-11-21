@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../common/error/widgets/error_widgets.dart';
-import '../../common/global_assets.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/audio_repository.dart';
 import '../../common/widgets/airstream_image.dart';
 import '../../common/widgets/future_button.dart';
+import '../../global_assets.dart';
 import 'bloc/player_bloc.dart';
 import 'widgets/player_controls.dart';
 import 'widgets/position_slider.dart';

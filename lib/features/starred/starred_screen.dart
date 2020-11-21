@@ -5,13 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../common/error/widgets/error_widgets.dart';
-import '../../common/global_assets.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/song_repository.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/refresh_button.dart';
 import '../../common/widgets/sliver_album_grid.dart';
+import '../../global_assets.dart';
 import 'bloc/starred_bloc.dart';
 
 class StarredScreen extends StatelessWidget {
@@ -97,7 +97,7 @@ class _MoreAlbumsButton extends StatelessWidget {
           Navigator.pushNamed(
             context,
             'library/albumList',
-            arguments: () => albumRepository.starred(),
+            arguments: [() => albumRepository.starred(), 'Starred Albums'],
           );
         },
         child: SizedBox(

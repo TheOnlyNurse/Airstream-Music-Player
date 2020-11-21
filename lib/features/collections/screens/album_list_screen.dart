@@ -2,15 +2,18 @@ import 'package:airstream/common/error/error_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../providers/moor_database.dart';
-import '../widgets/sliver_album_grid.dart';
-import '../widgets/sliver_close_bar.dart';
+import '../../../common/providers/moor_database.dart';
+import '../../../common/widgets/sliver_album_grid.dart';
+import '../../../common/widgets/sliver_close_bar.dart';
 
 class AlbumListScreen extends StatelessWidget {
   final Future<Either<String, List<Album>>> Function() future;
   final String title;
 
-  const AlbumListScreen({Key key, this.future, this.title}) : super(key: key);
+  const AlbumListScreen({Key key, @required this.future, @required this.title})
+      : assert(future != null),
+        assert(title != null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +28,7 @@ class AlbumListScreen extends StatelessWidget {
               case ConnectionState.done:
                 return snapshot.data.fold(
                   (error) => ErrorScreen(message: error),
-                  (albums) => CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    slivers: <Widget>[
-                      SliverCloseBar(),
-                      if (title == null)
-                        const SliverToBoxAdapter(child: SizedBox(height: 12)),
-                      if (title != null) _Title(title: title),
-                      SliverAlbumGrid(albums: albums),
-                    ],
-                  ),
+                  (albums) => _Success(title: title, albums: albums),
                 );
               default:
                 return const ErrorScreen(message: 'Snapshot error.');
@@ -46,18 +40,26 @@ class AlbumListScreen extends StatelessWidget {
   }
 }
 
-class _Title extends StatelessWidget {
-  final String title;
+class _Success extends StatelessWidget {
+  const _Success({Key key, this.title, this.albums}) : super(key: key);
 
-  const _Title({Key key, this.title}) : super(key: key);
+  final String title;
+  final List<Album> albums;
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(title, style: Theme.of(context).textTheme.headline4),
-      ),
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: <Widget>[
+        const SliverCloseBar(),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(title, style: Theme.of(context).textTheme.headline4),
+          ),
+        ),
+        SliverAlbumGrid(albums: albums),
+      ],
     );
   }
 }

@@ -1,13 +1,13 @@
-import 'package:airstream/common/error/error_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../global_assets.dart';
-import '../providers/moor_database.dart';
-import '../repository/album_repository.dart';
-import '../widgets/album_card.dart';
-import '../widgets/alpha_grid_view.dart';
-import '../widgets/sliver_close_bar.dart';
+import '../../../common/error/error_screen.dart';
+import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/widgets/album_card.dart';
+import '../../../common/widgets/alpha_grid_view.dart';
+import '../../../common/widgets/sliver_close_bar.dart';
+import '../../../global_assets.dart';
 
 class AlphabetScreen extends StatelessWidget {
   const AlphabetScreen({Key key, @required this.albumRepository})
@@ -18,7 +18,6 @@ class AlphabetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder<Either<String, List<Album>>>(
@@ -64,9 +63,7 @@ class _Success extends StatelessWidget {
         controller: _scrollController,
       ),
       controller: _scrollController,
-      leading: <Widget>[
-        SliverCloseBar(),
-      ],
+      leading: const <Widget>[SliverCloseBar()],
     );
   }
 }

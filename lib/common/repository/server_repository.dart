@@ -10,8 +10,8 @@ import 'package:meta/meta.dart';
 import 'package:mutex/mutex.dart';
 import 'package:xml/xml.dart';
 
+import '../../global_assets.dart';
 import '../../temp_password_holder.dart';
-import '../global_assets.dart';
 import '../providers/discogs_provider.dart';
 import '../providers/subsonic_provider.dart';
 import 'settings_repository.dart';

@@ -5,8 +5,8 @@ import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:xml/xml.dart';
 
+import '../../global_assets.dart';
 import '../extensions/functional_lists.dart';
-import '../global_assets.dart';
 import '../providers/albums_dao.dart';
 import '../providers/moor_database.dart';
 import 'scheduler.dart';

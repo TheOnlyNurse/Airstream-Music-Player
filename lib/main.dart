@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'common/global_assets.dart';
 import 'features/library_foundation/foundation.dart';
 import 'features/loading_splash/splash_screen.dart';
 import 'features/player/player_screen.dart';
 import 'features/search/search_screen.dart';
 import 'features/settings/settings_foundation.dart';
+import 'global_assets.dart';
 
 void main() => runApp(_Foundation());
 

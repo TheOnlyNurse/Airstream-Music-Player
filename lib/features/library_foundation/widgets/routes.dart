@@ -17,7 +17,8 @@ Widget _route(String route, dynamic arguments) {
       return SinglePlaylistScreen(playlist: arguments as Playlist);
     case 'library/albumList':
       return AlbumListScreen(
-        future: arguments as Future<Either<String, List<Album>>> Function(),
+        future: arguments[0] as Future<Either<String, List<Album>>> Function(),
+        title: arguments[1] as String,
       );
     default:
       throw Exception('Unknown route $route');

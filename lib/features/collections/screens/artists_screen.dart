@@ -2,10 +2,10 @@ import 'package:airstream/common/error/error_screen.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../providers/moor_database.dart';
-import '../repository/artist_repository.dart';
-import '../widgets/alpha_grid_view.dart';
-import '../widgets/artist_circle.dart';
+import '../../../common/providers/moor_database.dart';
+import '../../../common/repository/artist_repository.dart';
+import '../../../common/widgets/alpha_grid_view.dart';
+import '../../../common/widgets/artist_circle.dart';
 
 class ArtistsScreen extends StatelessWidget {
   const ArtistsScreen({Key key, @required this.artistRepository})

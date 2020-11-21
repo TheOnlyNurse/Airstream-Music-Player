@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../error/error_screen.dart';
-import '../global_assets.dart';
-import '../repository/album_repository.dart';
-import '../widgets/sliver_close_bar.dart';
+import '../../../common/error/error_screen.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/widgets/sliver_close_bar.dart';
+import '../../../global_assets.dart';
 
 class GenreScreen extends StatelessWidget {
   const GenreScreen({Key key, @required this.albumRepository})
@@ -56,7 +56,7 @@ class _GenreSuccess extends StatelessWidget {
     return CustomScrollView(
       physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
-        SliverCloseBar(),
+        const SliverCloseBar(),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -85,7 +85,7 @@ class _GenreSuccess extends StatelessWidget {
                     Navigator.pushNamed(
                       context,
                       'library/albumList',
-                      arguments: () => albumRepository.genre(genres[index]),
+                      arguments: [() => albumRepository.genre(genres[index]), genres[index]],
                     );
                   },
                 );

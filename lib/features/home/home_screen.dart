@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../common/global_assets.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
 import '../../common/repository/playlist_repository.dart';
 import '../../common/widgets/refresh_button.dart';
-import 'widgets/collections.dart';
+import '../../global_assets.dart';
+import '../collections/overview.dart';
 import 'widgets/playlists.dart';
 import 'widgets/search_bar.dart';
 

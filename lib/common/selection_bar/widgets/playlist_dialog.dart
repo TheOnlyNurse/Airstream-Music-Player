@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../global_assets.dart';
+import '../../../global_assets.dart';
 import '../../models/playlist_model.dart';
 import '../bloc/playlist_dialog_cubit.dart';
 

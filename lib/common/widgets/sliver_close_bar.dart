@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../widgets/circle_close_button.dart';
 
 class SliverCloseBar extends StatelessWidget {
+  const SliverCloseBar();
+
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(

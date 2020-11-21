@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../common/global_assets.dart';
 import '../../common/models/image_adapter.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
@@ -15,6 +14,7 @@ import '../../common/song_list/sliver_song_list.dart';
 import '../../common/widgets/flexible_image_with_title.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/sliver_album_grid.dart';
+import '../../global_assets.dart';
 import 'bloc/artist_bloc.dart';
 
 class SingleArtistScreen extends StatelessWidget {
@@ -134,7 +134,7 @@ class _AppBar extends StatelessWidget {
           artist.name,
           style: Theme.of(context).textTheme.headline4,
           maxLines: 2,
-          maxFontSize: 25,
+          maxFontSize: 35,
           textAlign: TextAlign.center,
         ),
         adapter: ArtistImageAdapter(artist: artist, isHiDef: true),

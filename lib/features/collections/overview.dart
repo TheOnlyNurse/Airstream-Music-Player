@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../common/global_assets.dart';
-import '../../../common/repository/album_repository.dart';
-import '../../../common/repository/artist_repository.dart';
-import '../../../common/screens/album_list_screen.dart';
-import '../../../common/screens/alphabet_screen.dart';
-import '../../../common/screens/artists_screen.dart';
-import '../../../common/screens/decade_screen.dart';
-import '../../../common/screens/genre_screen.dart';
+import '../../common/repository/album_repository.dart';
+import '../../common/repository/artist_repository.dart';
+import '../../global_assets.dart';
+import 'screens/album_list_screen.dart';
+import 'screens/alphabet_screen.dart';
+import 'screens/artists_screen.dart';
+import 'screens/decade_screen.dart';
+import 'screens/genre_screen.dart';
 
 class Collections extends StatelessWidget {
   const Collections(

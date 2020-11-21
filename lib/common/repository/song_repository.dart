@@ -8,9 +8,9 @@ import 'package:moor/moor.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
 import 'package:xml/xml.dart';
-import '../extensions/functional_lists.dart';
 
-import '../global_assets.dart';
+import '../../global_assets.dart';
+import '../extensions/functional_lists.dart';
 import '../models/playlist_model.dart';
 import '../providers/audio_files_dao.dart';
 import '../providers/moor_database.dart';

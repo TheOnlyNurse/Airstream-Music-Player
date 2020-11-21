@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:get_it/get_it.dart';
 import 'package:xml/xml.dart';
+
+import '../../global_assets.dart';
 import '../extensions/functional_lists.dart';
-import '../global_assets.dart';
 import '../providers/artists_dao.dart';
 import '../providers/moor_database.dart';
 import '../repository/server_repository.dart';

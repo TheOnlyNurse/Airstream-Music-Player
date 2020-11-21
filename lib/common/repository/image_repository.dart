@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:path/path.dart' as path;
 import 'package:rxdart/rxdart.dart';
 
-import '../global_assets.dart';
+import '../../global_assets.dart';
 import '../providers/image_provider.dart';
 import '../providers/moor_database.dart';
 import 'server_repository.dart';

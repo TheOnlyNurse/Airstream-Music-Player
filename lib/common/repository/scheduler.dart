@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '../global_assets.dart';
+import '../../global_assets.dart';
 import '../repository/server_repository.dart';
 import '../repository/settings_repository.dart';
 

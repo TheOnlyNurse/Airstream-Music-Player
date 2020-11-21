@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../common/global_assets.dart';
 import '../../../common/providers/moor_database.dart';
 import '../../../common/repository/album_repository.dart';
 import '../../../common/repository/settings_repository.dart';
 import '../../../common/repository/song_repository.dart';
+import '../../../global_assets.dart';
 
 part 'starred_event.dart';
-
 part 'starred_state.dart';
 
 class StarredBloc extends Bloc<StarredEvent, StarredState> {

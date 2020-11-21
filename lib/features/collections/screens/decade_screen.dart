@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 
-import '../error/error_screen.dart';
-import '../global_assets.dart';
-import '../repository/album_repository.dart';
-import '../widgets/sliver_close_bar.dart';
+import '../../../common/error/error_screen.dart';
+import '../../../common/repository/album_repository.dart';
+import '../../../common/widgets/sliver_close_bar.dart';
+import '../../../global_assets.dart';
 
 class DecadeScreen extends StatelessWidget {
   const DecadeScreen({Key key, @required this.albumRepository})
@@ -60,7 +60,7 @@ class _DecadesGridScreen extends StatelessWidget {
     return CustomScrollView(
       physics: WidgetProperties.scrollPhysics,
       slivers: <Widget>[
-        SliverCloseBar(),
+        const SliverCloseBar(),
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -71,7 +71,7 @@ class _DecadesGridScreen extends StatelessWidget {
                   Navigator.pushNamed(
                     context,
                     'library/albumList',
-                    arguments: () => albumRepository.decade(decades[index]),
+                    arguments: [() => albumRepository.decade(decades[index]), "${decades[index]}'s"],
                   );
                 },
               );

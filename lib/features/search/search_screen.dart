@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../common/global_assets.dart';
 import '../../common/providers/moor_database.dart';
 import '../../common/repository/album_repository.dart';
 import '../../common/repository/artist_repository.dart';
@@ -11,6 +10,7 @@ import '../../common/repository/song_repository.dart';
 import '../../common/widgets/horizontal_album_grid.dart';
 import '../../common/widgets/horizontal_artist_grid.dart';
 import '../../common/widgets/song_tile.dart';
+import '../../global_assets.dart';
 import 'bloc/search_bloc.dart';
 
 class SearchScreen extends StatefulWidget {

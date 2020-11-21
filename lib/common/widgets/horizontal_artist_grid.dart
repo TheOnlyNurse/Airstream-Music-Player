@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../global_assets.dart';
+import '../../global_assets.dart';
 import '../providers/moor_database.dart';
 import 'artist_circle.dart';
 

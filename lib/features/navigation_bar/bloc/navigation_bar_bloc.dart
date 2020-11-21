@@ -4,8 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../../common/global_assets.dart';
 import '../../../common/repository/settings_repository.dart';
+import '../../../global_assets.dart';
 import '../../mini_player/bloc/mini_player_bloc.dart';
 
 part 'navigation_bar_event.dart';
