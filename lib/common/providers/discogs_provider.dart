@@ -24,16 +24,16 @@ class DiscogsProvider {
   Future<Either<String, Uint8List>> image(String name) async {
     final query = name.toLowerCase().replaceAll(' ', '+');
     final imageUrl = (await _search(query)).bind<String>(_decodeResponse);
-    return imageUrl.fold((error) => left(error), (url) => _fetch(url));
+    return imageUrl.fold((error) => left(error), (url) => _fetch(Uri.parse(url)));
   }
 
   /// Fetch a JSON response given a [query] from the discogs database
   Future<Either<String, http.Response>> _search(String query) async {
-    final url = 'https://api.discogs.com/database/search?'
+    final url = Uri.parse('https://api.discogs.com/database/search?'
         'q=$query'
         '&key=$_key&secret=$_secret'
         '&type=artist'
-        '&page=1&per_page=1';
+        '&page=1&per_page=1');
 
     await _locker.acquire();
     final response = _client.get(url).timeout(const Duration(seconds: 2));
@@ -53,7 +53,7 @@ class DiscogsProvider {
   }
 
   /// Fetches an image given an [url].
-  Future<Either<String, Uint8List>> _fetch(String url) async {
+  Future<Either<String, Uint8List>> _fetch(Uri url) async {
     final response = _client.get(url).timeout(const Duration(seconds: 2));
     try {
       final result = await response;

@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Container(
       color: const Color(0xFF32407b),
       child: BlocConsumer(
-        cubit: cubit,
+        bloc: cubit,
         listener: (context, state) {
           if (state is SplashScreenSuccess && state.shouldReplace) {
             Navigator.pushReplacementNamed(context, '/library');

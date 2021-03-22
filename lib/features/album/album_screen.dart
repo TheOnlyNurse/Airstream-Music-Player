@@ -19,7 +19,7 @@ class AlbumScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SingleAlbumCubit, SingleAlbumState>(
-      cubit: cubit,
+      bloc: cubit,
       builder: (_, state) {
         if (state is SingleAlbumInitial) {
           return const Center(child: CircularProgressIndicator());

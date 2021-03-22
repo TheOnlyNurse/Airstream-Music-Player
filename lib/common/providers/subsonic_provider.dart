@@ -31,7 +31,7 @@ class SubsonicProvider {
   ///
   /// Returns null when an invalid response is received.
   Future<Either<String, XmlDocument>> fetch(String request) async {
-    final url = _constructUrl(request);
+    final url = Uri.parse(_constructUrl(request));
     final response = _httpClient.get(url).timeout(const Duration(seconds: 2));
     try {
       return _extractError(await response);
@@ -44,7 +44,7 @@ class SubsonicProvider {
   ///
   /// Returns null when an invalid response is received.
   Future<Either<String, Uint8List>> image(String request) async {
-    final url = _constructUrl(request);
+    final url = Uri.parse(_constructUrl(request));
     final response = _httpClient.get(url).timeout(const Duration(seconds: 2));
     try {
       final result = await response;

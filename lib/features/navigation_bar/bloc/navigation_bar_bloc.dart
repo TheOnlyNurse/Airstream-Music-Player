@@ -19,7 +19,7 @@ class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   })  : assert(playerBloc != null),
         _settings = getIt<SettingsRepository>(settings),
         super(const NavigationBarState()) {
-    _buttonState = playerBloc.listen((state) {
+    _buttonState = playerBloc.stream.listen((state) {
       if (state is MiniPlayerHidden) {
         add(const NavigationBarNotch(isNotched: false));
       } else {

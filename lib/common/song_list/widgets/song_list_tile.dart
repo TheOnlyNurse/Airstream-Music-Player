@@ -39,7 +39,7 @@ class SongListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SongListTileCubit, SongListTileState>(
-      cubit: cubit,
+      bloc: cubit,
       builder: (context, state) {
         return SongTile(
           song: song,

@@ -9,7 +9,7 @@ class PlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AudioState>(
-      initialData: audioRepository.audioState.value,
+      initialData: audioRepository.audioState.valueWrapper.value,
       stream: audioRepository.audioState,
       builder: (context, state) {
         final isPlaying = state.data == AudioState.playing;

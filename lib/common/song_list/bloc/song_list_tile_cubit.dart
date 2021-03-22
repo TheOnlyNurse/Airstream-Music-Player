@@ -60,7 +60,7 @@ class SongListTileCubit extends Cubit<SongListTileState> {
       emit(state.copyWith(isPlaying: isPlayingState && isThisSong));
     });
     // When songs have been selected.
-    onSelection = selectionBarCubit.listen((selectionState) {
+    onSelection = selectionBarCubit.stream.listen((selectionState) {
       final isSelected = selectionState is SelectionBarActive &&
           selectionState.selected.contains(song);
       emit(state.copyWith(isSelected: isSelected));

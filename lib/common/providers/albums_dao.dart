@@ -67,7 +67,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
 
   /// Returns all the genres recorded within albums.
   Future<List<String>> extractGenres() async {
-    final query = select(albums)..where((a) => isNotNull(a.genre));
+    final query = select(albums)..where((a) => a.genre.isNotNull());
     query.orderBy([(a) => OrderingTerm(expression: a.genre)]);
     return query.map((row) => row.genre).get();
   }
@@ -75,7 +75,7 @@ class AlbumsDao extends DatabaseAccessor<MoorDatabase> with _$AlbumsDaoMixin {
   /// Returns a list of decades as an int list
   Future<List<int>> extractDecades() async {
     final query = select(albums);
-    query.where((a) => isNotNull(a.year));
+    query.where((a) => a.year.isNotNull());
     // Order by descending year
     query.orderBy([(a) => OrderingTerm.desc(a.year)]);
     // Round year down to decade
