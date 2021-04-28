@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:moor/moor.dart';
 import 'package:dartz/dartz.dart';
 import 'package:xml/xml.dart';
+import 'package:airstream/common/extensions/functional_http.dart';
 
 /// Name used to identify the app to the server.
 const clientName = 'Airstream';
@@ -34,7 +35,7 @@ class SubsonicProvider {
     final url = Uri.parse(_constructUrl(request));
     final response = _httpClient.get(url).timeout(const Duration(seconds: 2));
     try {
-      return _extractError(await response);
+      return (await response).resolveStatus().flatMap(_extractError);
     } catch (error) {
       return left(error.toString());
     }
@@ -84,7 +85,9 @@ class SubsonicProvider {
 
 /// Returns the error code within a subsonic xml response or null.
 Either<String, XmlDocument> _extractError(http.Response response) {
+  print('Extracting response: ${response.statusCode}');
   final document = XmlDocument.parse(response.body);
+  print('Response: ${document.children}');
   final status = document
       .findAllElements('subsonic-response')
       .first
@@ -96,3 +99,4 @@ Either<String, XmlDocument> _extractError(http.Response response) {
     return right(document);
   }
 }
+

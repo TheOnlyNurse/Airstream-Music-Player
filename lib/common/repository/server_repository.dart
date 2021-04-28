@@ -167,7 +167,7 @@ String _randomString({int length = 6}) {
   final random = Random.secure();
   final buffer = StringBuffer();
   for (var i = 0; i < length; i++) {
-    buffer.write([random.nextInt(characters.length)]);
+    buffer.write(characters[random.nextInt(characters.length)]);
   }
   return buffer.toString();
 }

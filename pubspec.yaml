@@ -63,10 +63,10 @@ dev_dependencies:
     sdk: flutter
   # To run build runner for both moor and Hive:
   # flutter packages pub run build_runner build --delete-conflicting-outputs
+  analyzer:
   build_runner:
   hive_generator:
   moor_generator:
-  analyzer:
   lint: ^1.5.3
 
 # The following section is specific to Flutter.
