@@ -29,13 +29,13 @@ class AudioFilesDao extends DatabaseAccessor<MoorDatabase>
   /// Returns a file path (if it exists) given a song id.
   Future<String> filePath(int songId) {
     final query = select(audioFiles)..where((tbl) => tbl.songId.equals(songId));
-    return query.map((row) => row.path).getSingle();
+    return query.map((row) => row.path).getSingleOrNull();
   }
 
   /// Returns the AudioFile entry associated with a song id.
   Future<AudioFile> query(int songId) {
     final query = select(audioFiles)..where((tbl) => tbl.songId.equals(songId));
-    return query.getSingle();
+    return query.getSingleOrNull();
   }
 
   Future<int> cacheSize() {

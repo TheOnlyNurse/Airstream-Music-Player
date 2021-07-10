@@ -61,6 +61,7 @@ class DownloadProvider {
         return left('Streaming error.');
       },
       (size) {
+        print('Got size: $size');
         _percentage.add(_percentage.value.copyWith(total: size));
         _downloadSubscription = byteStream.stream.listen(_onData);
         byteStream.onCancel = () => _onFinished(futureFile);
@@ -106,6 +107,7 @@ class DownloadProvider {
     await _clean();
     await _fileSink.close();
     // If the last emitted value is that a file is cached, then complete with it.
+    print('Current: ${_percentage.value.current} Total: ${_percentage.value.total}');
     completer.complete(_percentage.value.isCached
         ? right(_downloadFile)
         : left('Audio download was interrupted.'));

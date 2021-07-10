@@ -69,6 +69,7 @@ class SubsonicProvider {
       final uri = Uri.parse(_constructUrl(request));
       final response = await _httpClient.send(http.Request('GET', uri));
       response.stream.pipe(controller);
+      print('Headers: ${response.headers}');
       return right(response.contentLength);
     } catch (e) {
       return left(e.toString());
@@ -85,9 +86,7 @@ class SubsonicProvider {
 
 /// Returns the error code within a subsonic xml response or null.
 Either<String, XmlDocument> _extractError(http.Response response) {
-  print('Extracting response: ${response.statusCode}');
   final document = XmlDocument.parse(response.body);
-  print('Response: ${document.children}');
   final status = document
       .findAllElements('subsonic-response')
       .first
