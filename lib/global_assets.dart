@@ -55,6 +55,4 @@ class AirstreamTheme {
 
 final rootNavigator = GlobalKey<NavigatorState>();
 final libraryNavigator = GlobalKey<NavigatorState>();
-
-/// Returns the singleton stored in get it if the value is null.
-T getIt<T>(T value) => value ?? GetIt.I.get<T>();
+final getIt = GetIt.instance;

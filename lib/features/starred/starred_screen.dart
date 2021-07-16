@@ -22,9 +22,9 @@ class StarredScreen extends StatelessWidget {
     return BlocBuilder<StarredBloc, StarredState>(builder: (context, state) {
       if (state is StarredSuccess) {
         if (state.songs.isEmpty) {
-          return _OnAlbumsOnly(albums: state.albums);
+          return _AlbumsOnly(albums: state.albums);
         } else {
-          return _OnSongsAvailable(albums: state.albums, songs: state.songs);
+          return _Success(albums: state.albums, songs: state.songs);
         }
       } else {
         return _OtherStarredStates(state: state);
@@ -33,10 +33,10 @@ class StarredScreen extends StatelessWidget {
   }
 }
 
-class _OnAlbumsOnly extends StatelessWidget {
+class _AlbumsOnly extends StatelessWidget {
   final List<Album> albums;
 
-  const _OnAlbumsOnly({Key key, @required this.albums})
+  const _AlbumsOnly({Key key, @required this.albums})
       : assert(albums != null),
         super(key: key);
 
@@ -52,11 +52,11 @@ class _OnAlbumsOnly extends StatelessWidget {
   }
 }
 
-class _OnSongsAvailable extends StatelessWidget {
+class _Success extends StatelessWidget {
   final List<Album> albums;
   final List<Song> songs;
 
-  const _OnSongsAvailable({Key key, this.albums, @required this.songs})
+  const _Success({Key key, this.albums, @required this.songs})
       : assert(songs != null),
         super(key: key);
 
@@ -70,8 +70,10 @@ class _OnSongsAvailable extends StatelessWidget {
           SliverToBoxAdapter(child: HorizontalAlbumGrid(albums: albums)),
         if (albums.isNotEmpty)
           SliverToBoxAdapter(
-              child: _MoreAlbumsButton(
-                  albumRepository: GetIt.I.get<AlbumRepository>())),
+            child: _MoreAlbumsButton(
+              albumRepository: GetIt.I.get<AlbumRepository>(),
+            ),
+          ),
         SliverSongList(
           songs: songs,
           audioRepository: GetIt.I.get<AudioRepository>(),

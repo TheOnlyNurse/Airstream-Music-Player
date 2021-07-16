@@ -69,7 +69,6 @@ class SubsonicProvider {
       final uri = Uri.parse(_constructUrl(request));
       final response = await _httpClient.send(http.Request('GET', uri));
       response.stream.pipe(controller);
-      print('Headers: ${response.headers}');
       return right(response.contentLength);
     } catch (e) {
       return left(e.toString());
@@ -98,4 +97,3 @@ Either<String, XmlDocument> _extractError(http.Response response) {
     return right(document);
   }
 }
-

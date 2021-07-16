@@ -8,10 +8,9 @@ import 'album_state.dart';
 export 'album_state.dart';
 
 class SingleAlbumCubit extends Cubit<SingleAlbumState> {
-  SingleAlbumCubit(
-      {AlbumRepository albumRepository, SongRepository songRepository})
-      : _albumRepo = getIt<AlbumRepository>(albumRepository),
-        _songRepo = getIt<SongRepository>(songRepository),
+  SingleAlbumCubit({AlbumRepository mockAlbumRepo, SongRepository mockSongRepo})
+      : _albumRepo = mockAlbumRepo ?? getIt.get<AlbumRepository>(),
+        _songRepo = mockSongRepo ?? getIt.get<SongRepository>(),
         super(SingleAlbumInitial());
 
   final AlbumRepository _albumRepo;

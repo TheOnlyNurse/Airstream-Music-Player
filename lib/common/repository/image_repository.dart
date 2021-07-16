@@ -15,7 +15,7 @@ import 'server_repository.dart';
 class ImageRepository {
   ImageRepository({ImageFileProvider provider, ServerRepository server})
       : _provider = provider ?? _initProvider(),
-        _server = getIt<ServerRepository>(server) {
+        _server = server ?? getIt.get<ServerRepository>() {
     _cacheCheck.stream
         .debounce((_) => TimerStream(true, const Duration(seconds: 3)))
         .listen((_) {

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../common/error/widgets/error_widgets.dart';
-import '../../../common/repository/playlist_repository.dart';
 import '../bloc/playlists_library_bloc.dart';
 import 'playlist_tile.dart';
 
@@ -11,9 +9,8 @@ class Playlists extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PlaylistsLibraryBloc(
-        playlist: GetIt.I.get<PlaylistRepository>(),
-      )..add(PlaylistsLibraryEvent.fetch),
+      create: (context) =>
+          PlaylistsLibraryBloc()..add(PlaylistsLibraryEvent.fetch),
       child: BlocBuilder<PlaylistsLibraryBloc, PlaylistsLibraryState>(
         builder: (context, state) {
           if (state is PlaylistsLibrarySuccess) {

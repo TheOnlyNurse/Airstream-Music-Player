@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:get_it/get_it.dart';
 import 'package:xml/xml.dart';
 
 import '../../global_assets.dart';
@@ -10,8 +9,8 @@ import '../repository/server_repository.dart';
 
 class ArtistRepository {
   ArtistRepository({ArtistsDao artistsDao, ServerRepository server})
-      : _server = getIt<ServerRepository>(server),
-        _database = artistsDao ?? ArtistsDao(GetIt.I.get<MoorDatabase>());
+      : _server = server ?? getIt.get<ServerRepository>(),
+        _database = artistsDao ?? ArtistsDao(getIt.get<MoorDatabase>());
 
   final ArtistsDao _database;
   final ServerRepository _server;

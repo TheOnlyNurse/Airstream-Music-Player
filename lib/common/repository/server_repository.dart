@@ -23,7 +23,7 @@ class ServerRepository {
     SettingsRepository settings,
   })  : _provider = provider ?? _initProvider(),
         _discogs = discogs ?? _initDiscogs(),
-        _settings = getIt<SettingsRepository>(settings);
+        _settings = settings ?? getIt.get<SettingsRepository>();
 
   final SubsonicProvider _provider;
   final DiscogsProvider _discogs;

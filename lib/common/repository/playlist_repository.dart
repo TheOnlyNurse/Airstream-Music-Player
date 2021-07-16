@@ -15,12 +15,13 @@ enum PlaylistChange { songsRemoved, songsAdded, fetched }
 
 class PlaylistRepository {
   PlaylistRepository({
-    PlaylistProvider provider,
-    Scheduler scheduler,
-    ServerRepository server,
-  })  : _database = provider ?? PlaylistProvider(hive: Hive.box('playlists')),
-        _scheduler = getIt<Scheduler>(scheduler),
-        _server = getIt<ServerRepository>(server);
+    PlaylistProvider mockProvider,
+    Scheduler mockScheduler,
+    ServerRepository mockServer,
+  })  : _database =
+            mockProvider ?? PlaylistProvider(hive: Hive.box('playlists')),
+        _scheduler = mockScheduler ?? getIt.get<Scheduler>(),
+        _server = mockServer ?? getIt.get<ServerRepository>();
 
   final PlaylistProvider _database;
   final Scheduler _scheduler;

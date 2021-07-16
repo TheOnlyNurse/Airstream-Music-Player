@@ -1,1 +1,3 @@
-/home/rohit/Android/Sdk/emulator/emulator -no-boot-anim -netdelay none -netspeed full -dns-server 8.8.8.8 -avd Pixel_3a_API_30_x86
+/opt/android-sdk/tools/emulator -dns-server 1.1.1.1 -window-size 0.5 -avd SimpleEmulation
+
+# avdmanager --verbose create avd --name "SimpleEmulation" -k "system-images;android-30;google_apis;x86_64" --abi "x86_64"

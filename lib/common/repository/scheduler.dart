@@ -7,8 +7,8 @@ import '../repository/settings_repository.dart';
 
 class Scheduler {
   Scheduler({ServerRepository server, SettingsRepository settings, Box hive})
-      : _server = getIt<ServerRepository>(server),
-        _settings = getIt<SettingsRepository>(settings),
+      : _server = server ?? getIt.get<ServerRepository>(),
+        _settings = settings ?? getIt.get<SettingsRepository>(),
         _hive = hive ?? Hive.box<String>('scheduler') {
     _onConnectivityChange();
   }
@@ -21,7 +21,6 @@ class Scheduler {
   Future<bool> get hasJobs async => !(await _completeJobs());
 
   final _scheduleLocker = Mutex();
-
 
   /// Schedule jobs to be done.
   Future<void> schedule(String request) async {

@@ -1,4 +1,4 @@
-
+import 'package:airstream/global_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,12 +12,12 @@ class SliverSongList extends StatelessWidget {
   final List<Song> songs;
   final AudioRepository audioRepository;
 
-  const SliverSongList({
+  SliverSongList({
     Key key,
     @required this.songs,
-    @required this.audioRepository,
+    AudioRepository audioRepository,
   })  : assert(songs != null),
-        assert(audioRepository != null),
+        audioRepository = audioRepository ?? getIt.get<AudioRepository>(),
         super(key: key);
 
   @override
@@ -31,7 +31,6 @@ class SliverSongList extends StatelessWidget {
               song: songs[index],
               cubit: SongListTileCubit(
                 song: songs[index],
-                audio: audioRepository,
                 selectionBarCubit: context.read<SelectionBarCubit>(),
               )..checkCache(),
               onTap: () => audioRepository.start(songs: songs, index: index),

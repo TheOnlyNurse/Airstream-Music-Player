@@ -10,10 +10,10 @@ import '../../../global_assets.dart';
 class PlaylistsLibraryBloc
     extends Bloc<PlaylistsLibraryEvent, PlaylistsLibraryState> {
   PlaylistsLibraryBloc({
-    PlaylistRepository playlist,
-    SettingsRepository settings,
-  })  : _playlist = getIt<PlaylistRepository>(playlist),
-        _settings = getIt<SettingsRepository>(settings),
+    PlaylistRepository mockPlaylistRepo,
+    SettingsRepository mockSettingsRepo,
+  })  : _playlist = mockPlaylistRepo ?? getIt.get<PlaylistRepository>(),
+        _settings = mockSettingsRepo ?? getIt.get<SettingsRepository>(),
         super(PlaylistsLibraryInitial()) {
     onNetworkChange = _settings.connectivityChanged.listen((isOnline) {
       if (isOnline) add(PlaylistsLibraryEvent.fetch);

@@ -17,18 +17,6 @@ import 'song_list_tile_state.dart';
 export 'song_list_tile_state.dart';
 
 class SongListTileCubit extends Cubit<SongListTileState> {
-  SongListTileCubit({
-    @required this.song,
-    @required this.selectionBarCubit,
-    AudioRepository audio,
-    DownloadRepository download,
-  })  : assert(song != null),
-        _audio = getIt<AudioRepository>(audio),
-        _download = getIt<DownloadRepository>(download),
-        super(const SongListTileState()) {
-    _onInit();
-  }
-
   final Song song;
   final SelectionBarCubit selectionBarCubit;
   final AudioRepository _audio;
@@ -36,6 +24,18 @@ class SongListTileCubit extends Cubit<SongListTileState> {
   StreamSubscription onDownload;
   StreamSubscription onPlaying;
   StreamSubscription onSelection;
+
+  SongListTileCubit({
+    @required this.song,
+    @required this.selectionBarCubit,
+    AudioRepository audioRepository,
+    DownloadRepository downloadRepository,
+  })  : assert(song != null),
+        _audio = audioRepository ?? getIt.get<AudioRepository>(),
+        _download = downloadRepository ?? getIt.get<DownloadRepository>(),
+        super(const SongListTileState()) {
+    _onInit();
+  }
 
   Future<void> checkCache() async {
     final response = await GetIt.I.get<SongRepository>().file(song);

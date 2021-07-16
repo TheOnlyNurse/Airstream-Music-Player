@@ -28,8 +28,8 @@ class SongRepository {
   })  : _database = songsDao ?? SongsDao(GetIt.I.get<MoorDatabase>()),
         _fileDatabase =
             audioFilesDao ?? AudioFilesDao(GetIt.I.get<MoorDatabase>()),
-        _server = getIt<ServerRepository>(server),
-        _settings = getIt<SettingsRepository>(settings),
+        _server = server ?? getIt.get<ServerRepository>(),
+        _settings = settings ?? getIt.get<SettingsRepository>(),
         _cacheFolder = cacheFolder ?? _folderConstructor();
 
   final SongsDao _database;

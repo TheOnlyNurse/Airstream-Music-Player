@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 
-
 import '../../../common/repository/audio_repository.dart';
 import '../../../common/repository/download_repository.dart';
 import '../../../global_assets.dart';
@@ -12,13 +11,13 @@ import 'position_state.dart';
 export 'position_event.dart';
 export 'position_state.dart';
 
-
 class PositionBloc extends Bloc<PositionEvent, PositionState> {
   PositionBloc({
-    AudioRepository audioRepository,
-    DownloadRepository downloadRepository,
-  })  : _audioRepository = getIt<AudioRepository>(audioRepository),
-        _downloadRepository = getIt<DownloadRepository>(downloadRepository),
+    AudioRepository mockAudioRepo,
+    DownloadRepository mockDownloadRepo,
+  })  : _audioRepository = mockAudioRepo ?? getIt.get<AudioRepository>(),
+        _downloadRepository =
+            mockDownloadRepo ?? getIt.get<DownloadRepository>(),
         super(PositionInitial()) {
     onPosition = _audioRepository.audioPosition.listen((duration) {
       add(PositionNew(duration));

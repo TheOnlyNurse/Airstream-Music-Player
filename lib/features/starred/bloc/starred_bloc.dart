@@ -17,9 +17,9 @@ class StarredBloc extends Bloc<StarredEvent, StarredState> {
     AlbumRepository album,
     SongRepository song,
     SettingsRepository settings,
-  })  : _album = getIt<AlbumRepository>(album),
-        _song = getIt<SongRepository>(song),
-        _settings = getIt<SettingsRepository>(settings),
+  })  : _album = album ?? getIt.get<AlbumRepository>(),
+        _song = song ?? getIt.get<SongRepository>(),
+        _settings = settings ?? getIt.get<SettingsRepository>(),
         super(StarredInitial()) {
     _init();
   }

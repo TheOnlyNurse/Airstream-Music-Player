@@ -13,12 +13,12 @@ export 'artist_state.dart';
 
 class ArtistCubit extends Cubit<ArtistState> {
   ArtistCubit({
-    AlbumRepository albumRepository,
-    ArtistRepository artistRepository,
-    SongRepository songRepository,
-  })  : _albumRepo = getIt<AlbumRepository>(albumRepository),
-        _artistRepo = getIt<ArtistRepository>(artistRepository),
-        _songRepo = getIt<SongRepository>(songRepository),
+    AlbumRepository mockAlbumRepo,
+    ArtistRepository mockArtistRepo,
+    SongRepository mockSongRepo,
+  })  : _albumRepo = mockAlbumRepo ?? getIt.get<AlbumRepository>(),
+        _artistRepo = mockArtistRepo ?? getIt.get<ArtistRepository>(),
+        _songRepo = mockSongRepo ?? getIt.get<SongRepository>(),
         super(SingleArtistInitial());
 
   final AlbumRepository _albumRepo;
