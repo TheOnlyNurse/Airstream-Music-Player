@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
@@ -17,9 +16,9 @@ class AlbumRepository {
     AlbumsDao albumsDao,
     ServerRepository server,
     Scheduler scheduler,
-  })  : _database = albumsDao ?? AlbumsDao(GetIt.I.get<MoorDatabase>()),
-        _server = getIt<ServerRepository>(server),
-        _scheduler = getIt<Scheduler>(scheduler);
+  })  : _database = albumsDao ?? AlbumsDao(getIt.get<MoorDatabase>()),
+        _server = server ?? getIt.get<ServerRepository>(),
+        _scheduler = scheduler ?? getIt.get<Scheduler>();
 
   final AlbumsDao _database;
   final ServerRepository _server;

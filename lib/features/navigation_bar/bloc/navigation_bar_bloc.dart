@@ -15,9 +15,9 @@ export 'navigation_bar_state.dart';
 class NavigationBarBloc extends Bloc<NavigationBarEvent, NavigationBarState> {
   NavigationBarBloc({
     @required MiniPlayerBloc playerBloc,
-    SettingsRepository settings,
+    SettingsRepository mockSettingsRepo,
   })  : assert(playerBloc != null),
-        _settings = getIt<SettingsRepository>(settings),
+        _settings = mockSettingsRepo ?? getIt.get<SettingsRepository>(),
         super(const NavigationBarState()) {
     _buttonState = playerBloc.stream.listen((state) {
       if (state is MiniPlayerHidden) {
